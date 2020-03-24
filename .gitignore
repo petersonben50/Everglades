@@ -1,0 +1,22 @@
+# Folders
+dataEdited
+dataRaw
+metadata
+notes
+
+protocols/*
+!protocols/*.md
+!protocols/*/*.md
+context
+code/*/sandbox/
+results
+
+# Types of files
+*.html
+
+# Any folder or file labeled old
+*old_*/
+*_old*/
+
+*old_*
+*_old*
