@@ -4,9 +4,8 @@ dataRaw
 metadata
 notes
 
-protocols/*
-!protocols/*.md
-!protocols/*/*.md
+protocols
+
 context
 code/*/sandbox/
 results
