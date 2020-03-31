@@ -215,6 +215,7 @@ do
                                                   $read_storage \
                                                   $output/$assembly
     # To continue a paused run:
+    # cd $output
     # metaspades.py --continue -o $assembly
 
   else
