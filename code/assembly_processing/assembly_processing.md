@@ -63,9 +63,16 @@ I didn't do the surface water samples from 2018 for now, since in our initial an
 
 Also, before starting assemblies, I needed to upload the two `assembly_by_group` python scripts for MegaHit and metaSPADes, to `code/assembly_processing`.
 
-*Assemble the metagenome*
+*Assemblies by metaSPades*
 
-Once the metagenomes were trimmed and ready to go, I assembled them using metaSPADes (v3.13.2).
-For now, I focused on getting individual assemblies.
+Once the metagenomes were trimmed and ready to go, I assembled them individually using metaSPADes (v3.13.2).
+For now, I focused on getting individual assemblies with metaSPADes, since the coassembly was running out of memory.
 I included the paired reads, the merged reads, and the single reads.
 For kmers, I included 21, 33, 55, 77, 99, and 127.
+
+*Assemblies by MegaHit*
+
+I also assembled the metagenomes using MegaHit.
+For this, I used MegaHit version 1.2.9.
+I assembled each of the 2018 porewater samples individually and together as a coassembly.
+I used kmers from 21 to 121 with a step of 10.

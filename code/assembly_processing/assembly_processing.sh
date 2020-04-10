@@ -226,3 +226,57 @@ done
 
 
 #exit
+
+
+
+
+
+
+
+
+
+######################
+# Assemblies by MegaHit
+######################
+
+screen -S Everglades_metagenome_coassembly
+
+cd ~/Everglades/dataEdited/assemblies
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=""
+
+code=~/Everglades/code/assembly_processing/
+assembly_grouping=~/Everglades/metadata/lists/assembly_groups_megahit.csv
+read_storage=~/Everglades/dataEdited/metagenomes/
+output=~/Everglades/dataEdited/assemblies/assembly_files/
+
+
+# Make sure the list of wanted assemblies by MegaHit is up to date
+# in ~/HellsCanyon/dataEdited/assemblies/assembly_group_megahit.csv
+
+# Get a list of group names
+cd ~/Everglades/metadata/lists
+tail -n +2 assembly_groups_megahit.csv | \
+    awk -F ',' '{ print $1 }' | \
+    uniq \
+    > assembly_list_megahit.txt
+
+# Start assembly
+cd $output
+cat ~/Everglades/metadata/lists/assembly_list_megahit.txt | while read assembly
+do
+
+  if [ ! -e $output/$assembly/final.contigs.fa ]; then
+    echo "Assembling" $assembly
+    python $code/assembly_by_group_megahit.py $assembly \
+                                              $assembly_grouping \
+                                              $read_storage \
+                                              $output/$assembly
+
+  else
+    echo $assembly "already assembled"
+  fi
+done
