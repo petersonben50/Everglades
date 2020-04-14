@@ -280,3 +280,51 @@ do
     echo $assembly "already assembled"
   fi
 done
+
+
+
+
+
+
+
+############################################
+############################################
+# Clean up metagenome assemblies
+############################################
+############################################
+
+screen -S EG_clean_metagenome_assembly
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=/home/GLBRCORG/bpeterson26/miniconda3/envs/anvio6.2/lib/python3.6/site-packages/
+
+cd ~/Everglades/dataEdited/assemblies
+mkdir scaffolds
+mkdir scaffolds/renaming_reports
+
+
+######################
+# Clean Megahit asssemblies
+######################
+
+cat ~/Everglades/metadata/lists/assembly_list_megahit.txt | while read assembly
+do
+  if [ ! -e $output/$assembly/final.contigs.fa ]; then
+    echo "Gotta run assembly" $assembly "first, dummy"
+  else
+    echo "Cleaning up assembly" $assembly
+
+    if [ -e scaffolds/$assembly\_assembly.fna ]; then
+      echo "Fuck dude, you already cleaned the assembly for" $assembly". Relax."
+    else
+
+      anvi-script-reformat-fasta assembly_files/$assembly/scaffolds.fasta \
+                                  -o scaffolds/$assembly\_assembly.fna \
+                                  -l 1000 \
+                                  --simplify-names \
+                                  --prefix $assembly \
+                                  --report-file scaffolds/renaming_reports/$assembly\_report_file.txt
+    fi
+  fi
+done
