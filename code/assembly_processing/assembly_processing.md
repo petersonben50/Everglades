@@ -76,3 +76,9 @@ I also assembled the metagenomes using MegaHit.
 For this, I used MegaHit version 1.2.9.
 I assembled each of the 2018 porewater samples individually and together as a coassembly.
 I used kmers from 21 to 121 with a step of 10.
+
+
+**Clean up metagenome assemblies**
+
+For each of my assemblies, I used anvio to keep only scaffolds that were longer than 1000bp and renamed the scaffolds to include the assembly ID in the scaffold name.
+This was done in separate for loops for MegaHit and metaSPADes.
