@@ -354,3 +354,111 @@ do
     fi
   fi
 done
+
+
+
+
+
+######################
+# Combine lists of assemblies
+######################
+cd ~/Everglades/metadata/lists
+cat assembly_list_megahit.txt \
+    assembly_list_metaspades.txt \
+    > assembly_list_all.txt
+
+
+
+
+
+############################################
+############################################
+# Get assembly stats
+############################################
+############################################
+
+
+screen -S EG_assembly_stats
+
+cd ~/Everglades/dataEdited/assemblies
+mkdir reports
+scripts=~/Everglades/code/assembly_processing
+
+# Get stats on all assemblies
+cat ~/Everglades/metadata/lists/assembly_list_all.txt | while read assembly
+do
+  if [ -e scaffolds/$assembly\_assembly.fna ]; then
+    if [ ! -e reports/$assembly\_report.txt ]; then
+      echo $assembly "has been cleaned. Let's get some stats on it."
+      perl $scripts/abyss-fac.pl scaffolds/$assembly\_assembly.fna \
+          > reports/$assembly\_report.txt
+    else
+      echo "Already checked" $assembly
+    fi
+  else
+    echo $assembly "has not been cleaned. Do that first."
+  fi
+done
+
+# Aggregate stats
+cd ~/Everglades/dataEdited/assemblies/reports
+echo -e "n\tn:200\tL50\tmin\tN80\tN50\tN20\tmax\tsum\tassemblyID" > all_assemblies_stats.txt
+for file in *report.txt
+do
+  tail -n +2 $file >> all_assemblies_stats.txt
+done
+
+# Clean up the report file
+cat ~/Everglades/metadata/lists/assembly_list_all.txt | while read assembly
+do
+  sed "s/scaffolds\/$assembly\_assembly.fna/$assembly/" all_assemblies_stats.txt \
+    > all_assemblies_stats.txt_edited
+  mv -f all_assemblies_stats.txt_edited all_assemblies_stats.txt
+done
+
+# exit
+
+
+
+
+
+
+
+############################################
+############################################
+# Predict ORFs
+############################################
+############################################
+
+screen -S EG_predict_ORFs
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+
+cd ~/Everglades/dataEdited/assemblies
+mkdir ORFs
+
+cat ~/Everglades/metadata/lists/assembly_list_all.txt | while read assembly
+do
+  if [ -e scaffolds/$assembly\_assembly.fna ]; then
+    echo $assembly "has been cleaned. Let's predict ORFs."
+    if [ -e ORFs/$assembly.faa ]; then
+      echo "You already predicted ORFs for" $assembly". Relax."
+    else
+      echo "Time to predict some proteins for" $assembly
+      prodigal -i scaffolds/$assembly\_assembly.fna \
+                -o ORFs/$assembly.gff \
+                -f gff \
+                -a ORFs/$assembly.faa \
+                -d ORFs/$assembly.fna \
+                -p meta
+
+      python ~/Everglades/code/generalUse/cleanFASTA.py ORFs/$assembly.fna
+      mv -f ORFs/$assembly.fna_temp.fasta ORFs/$assembly.fna
+      python ~/HellsCanyon/code/generalUse/cleanFASTA.py ORFs/$assembly.faa
+      mv -f ORFs/$assembly.faa_temp.fasta ORFs/$assembly.faa
+    fi
+  else
+    echo "You gotta clean this shit:" $assembly
+  fi
+done
