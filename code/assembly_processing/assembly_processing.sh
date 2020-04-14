@@ -299,6 +299,8 @@ source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate anvio6.2
 PYTHONPATH=/home/GLBRCORG/bpeterson26/miniconda3/envs/anvio6.2/lib/python3.6/site-packages/
 
+output=~/HellsCanyon/dataEdited/assemblies/assembly_files/
+
 cd ~/Everglades/dataEdited/assemblies
 mkdir scaffolds
 mkdir scaffolds/renaming_reports
@@ -310,16 +312,15 @@ mkdir scaffolds/renaming_reports
 
 cat ~/Everglades/metadata/lists/assembly_list_megahit.txt | while read assembly
 do
-  if [ ! -e $output/$assembly/final.contigs.fa ]; then
+
+  if [ ! -e assembly_files/$assembly/final.contigs.fa ]; then
     echo "Gotta run assembly" $assembly "first, dummy"
   else
-    echo "Cleaning up assembly" $assembly
-
     if [ -e scaffolds/$assembly\_assembly.fna ]; then
       echo "Fuck dude, you already cleaned the assembly for" $assembly". Relax."
     else
-
-      anvi-script-reformat-fasta assembly_files/$assembly/scaffolds.fasta \
+      echo "Cleaning up assembly" $assembly
+      anvi-script-reformat-fasta assembly_files/$assembly/final.contigs.fa \
                                   -o scaffolds/$assembly\_assembly.fna \
                                   -l 1000 \
                                   --simplify-names \
