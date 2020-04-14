@@ -329,3 +329,28 @@ do
     fi
   fi
 done
+
+
+######################
+# Clean metaSPADes asssemblies
+######################
+
+cat ~/Everglades/metadata/lists/assembly_list_metaspades.txt | while read assembly
+do
+
+  if [ ! -e assembly_files/$assembly/scaffolds.fasta ]; then
+    echo "Gotta run assembly" $assembly "first, dummy"
+  else
+    if [ -e scaffolds/$assembly\_assembly.fna ]; then
+      echo "Fuck dude, you already cleaned the assembly for" $assembly". Relax."
+    else
+      echo "Cleaning up assembly" $assembly
+      anvi-script-reformat-fasta assembly_files/$assembly/scaffolds.fasta \
+                                  -o scaffolds/$assembly\_assembly.fna \
+                                  -l 1000 \
+                                  --simplify-names \
+                                  --prefix $assembly \
+                                  --report-file scaffolds/renaming_reports/$assembly\_report_file.txt
+    fi
+  fi
+done
