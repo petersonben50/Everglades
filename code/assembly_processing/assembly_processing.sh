@@ -509,7 +509,7 @@ done
 
 ############################################
 ############################################
-# Predict ORFs
+# Predict open reading frames
 ############################################
 ############################################
 
@@ -543,5 +543,25 @@ do
     fi
   else
     echo "You gotta clean this shit:" $assembly
+  fi
+done
+
+
+
+######################
+# Count ORFs
+######################
+
+screen -S EG_count_ORFs
+
+cd ~/Everglades/dataEdited/assemblies
+
+echo -e 'assemblyID\tORF_count' > reports/ORF_counts.tsv
+cat ~/Everglades/metadata/lists/assembly_list.txt | while read assembly
+do
+  if [ -e ORFs/$assembly.faa ]; then
+    echo "Count ORFs in" $assembly
+    ORF_count=$(grep '>' ORFs/$assembly.faa | wc -l)
+    echo -e "$assembly\t$ORF_count" >> reports/ORF_counts.tsv
   fi
 done

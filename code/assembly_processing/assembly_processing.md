@@ -133,3 +133,10 @@ However, the metaSPADes assemblies had a higher overall length.
 For some reason, despite using anvio to trim out any scaffold under 1000bp, there are a few scaffolds in the metaSPADes assemblies that are under 1000bp, down to about 950bp.
 I think I'm going to run my hgcA and other assembly-based analyses on all these assemblies and can then simply dereplicate across them.
 I'll also do this for the binning process.
+
+**Predict open reading frames**
+
+I used Prodigal on the `meta` setting to predict the open reading frames.
+I saved out the nucleic acid sequences, the amino acid sequences, and a GFF file, then cleaned up the fasta files using `cleanFASTA.py`.
+Finally, I counted the number of open reading frames in each assembly, and downloaded the counts here: `dataEdited/assemblies/reports/ORF_counts.tsv`.
+Generally, the metaSPADes assemblies have many more open reading frames than the MegaHit assemblies.
