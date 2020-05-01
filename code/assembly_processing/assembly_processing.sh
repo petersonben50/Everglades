@@ -557,7 +557,7 @@ screen -S EG_count_ORFs
 cd ~/Everglades/dataEdited/assemblies
 
 echo -e 'assemblyID\tORF_count' > reports/ORF_counts.tsv
-cat ~/Everglades/metadata/lists/assembly_list.txt | while read assembly
+cat ~/Everglades/metadata/lists/assembly_list_all.txt | while read assembly
 do
   if [ -e ORFs/$assembly.faa ]; then
     echo "Count ORFs in" $assembly
