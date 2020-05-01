@@ -50,7 +50,10 @@ For the pre-trimming reads, I counted the coverage in both the forward and rever
 For the post-trimming reads, I counted the number of nucleotides in the forward, reverse, single, and merged read files, all of which will be used for mapping.
 I downloaded all these files to my local computer (`/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/metagenomes/reports/metagenome_coverage.tsv`).
 
-In the R script `code/2019_analysis_assembly/mapping_normalization.R`, I generated an R object containing a vector that has normalization values for each metagenome.
+In the R script `code/assembly_processing/mapping_normalization.R`, I generated an R object containing a vector that has normalization values for each metagenome.
+I did this by normalizing by coverage: since I'm generating my abundance values by coverage rather than read mapping, I should be normalizing by the nucleotide residues rather than the number of reads.
+So, I normalized the coverage to a 2x150bp metagenome with one million reads, for a normalized metagenome coverage of 3e+10.
+I divided the total coverage of each of our metagenomes (from R1, R2, single, and merged) by this normalized coverage.
 
 **Notes on metagenome quality**
 
