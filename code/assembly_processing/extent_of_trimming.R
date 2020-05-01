@@ -23,7 +23,6 @@ coverage.data.pre.trim <- read.table("dataEdited/metagenomes/reports/metagenome_
                                      sep = '\t',
                                      header = TRUE,
                                      stringsAsFactors = FALSE) %>%
-  filter(!is.na(R1)) %>%
   mutate(total_coverage_pre = R1 + R2) %>%
   select(metagenomeID, total_coverage_pre)
 
@@ -37,7 +36,6 @@ coverage.data.post.trim <- read.table("dataEdited/metagenomes/reports/metagenome
                                       sep = '\t',
                                       header = TRUE,
                                       stringsAsFactors = FALSE) %>%
-  filter(!is.na(R1)) %>%
   mutate(total_coverage_post = R1 + R2 + single + merged) %>%
   select(metagenomeID, total_coverage_post)
 
@@ -58,9 +56,10 @@ rm(list = ls(pattern = "coverage"))
 
 #### Read in read counts, pre-trimming ####
 
-read.counts.pre <- read.csv("dataEdited/metagenomes/reports/metagenome_read_count_pre_trimming",
-                            stringsAsFactors = FALSE) 
-
+read.counts.pre <- read.table("dataEdited/metagenomes/reports/metagenome_read_count_pre_trimming.tsv",
+                              sep = '\t',
+                              header = TRUE,
+                              stringsAsFactors = FALSE)
 
 
 
@@ -70,5 +69,7 @@ read.counts.pre <- read.csv("dataEdited/metagenomes/reports/metagenome_read_coun
 
 #### Read in read counts, post-trimming ####
 
-read.counts.post <- read.csv("dataEdited/metagenomes/reports/metagenome_read_count_post_trimming",
-                             stringsAsFactors = FALSE) 
+read.counts <- read.table("dataEdited/metagenomes/reports/metagenome_read_count.tsv",
+                          sep = '\t',
+                          header = TRUE,
+                          stringsAsFactors = FALSE)

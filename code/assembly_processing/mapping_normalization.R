@@ -21,8 +21,7 @@ library(tidyverse)
 coverage.data <- read.table("dataEdited/metagenomes/reports/metagenome_coverage.tsv",
                             sep = '\t',
                             header = TRUE,
-                            stringsAsFactors = FALSE) %>%
-  filter(!is.na(R1))
+                            stringsAsFactors = FALSE)
 
 
 
