@@ -158,6 +158,51 @@ done
 
 
 
+
+
+
+
+############################################
+############################################
+# Calculate total coverage of each metagenome
+############################################
+############################################
+
+screen -S EG_MG_coverage_counting
+
+cd ~/Everglades/dataEdited/metagenomes/reports
+
+code=~/Everglades/code/generalUse/readfq-master
+read_storage=~/Everglades/dataEdited/metagenomes
+
+IFS=$'\n'
+
+echo -e "metagenomeID\tR1\tR2\tsingle\tmerged" > metagenome_coverage.tsv
+for metagenome in $(cat ~/Everglades/metadata/lists/metagenome_list.csv)
+do
+
+  echo "Counting coverage in" $metagenome
+
+  R1_count=$($code/kseq_fastq_base $read_storage/$metagenome\_R1.fastq.gz | \
+                awk -F " " '{ print $5 }')
+  R2_count=$($code/kseq_fastq_base $read_storage/$metagenome\_R2.fastq.gz | \
+                awk -F " " '{ print $5 }')
+  single_count=$($code/kseq_fastq_base $read_storage/$metagenome\_single.fastq.gz | \
+                awk -F " " '{ print $5 }')
+  merged_count=$($code/kseq_fastq_base $read_storage/$metagenome\_merged.fastq.gz | \
+                awk -F " " '{ print $5 }')
+
+  echo -e $metagenome"\t"$R1_count"\t"$R2_count"\t"$single_count"\t"$merged_count >> metagenome_coverage.tsv
+
+done
+
+
+
+
+
+
+
+
 ############################################
 ############################################
 # Metagenome assembly

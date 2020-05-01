@@ -41,6 +41,10 @@ Data is stored locally here: `/Users/benjaminpeterson/Documents/research/Evergla
 
 I also got a read count by counting headers in the trimmed fastq files, and saved it to `/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/metagenomes/reports/metagenome_read_count.tsv`.
 
+Finally, I wanted to calculate the total number of nucleotides from each metagenome, which I could use to normalize the coverage of all our sequences.
+For this, I used the [readfq program](https://github.com/billzt/readfq), counting the number of nucleotides in the forward, reverse, single, and merged read files, all of which will be used for mapping.
+I downloaded all these files to my local computer (`/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/metagenomes/reports/metagenome_coverage.tsv`).
+In the R script `code/2019_analysis_assembly/mapping_normalization.R`, I generated an R object containing a vector that has normalization values for each metagenome.
 
 Then I went about checking the status of each metagenome.
 For the 2018 samples, I only looked at the porewater samples, not the surface water samples, since I'm not planning to use those for anything.
