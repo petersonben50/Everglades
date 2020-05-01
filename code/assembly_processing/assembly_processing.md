@@ -86,13 +86,6 @@ Overall, things look pretty good!
 Happy to go ahead with the assemblies from here.
 
 
-
-
-
-
-
-
-
 **Metagenome assembly**
 
 I ran individual assemblies as well as a co-assembly for these metagenomes.
@@ -125,7 +118,18 @@ I assembled each of the 2018 porewater samples individually and together as a co
 I used kmers from 21 to 121 with a step of 10.
 
 
-**Clean up metagenome assemblies**
+**Clean up metagenome assemblies, get stats**
 
 For each of my assemblies, I used anvio to keep only scaffolds that were longer than 1000bp and renamed the scaffolds to include the assembly ID in the scaffold name.
 This was done in separate for loops for MegaHit and metaSPADes.
+
+I then got some stats on the size and quality of the assemblies.
+For this, I used the `abyss-fac.pl` script included with the Abyss assembler.
+I aggregated the numbers into `all_assemblies_stats.txt` and downloaded it to my local computer here: `dataEdited/assemblies/reports`.
+Let's take a look.
+
+Generally, the MegaHit assemblies had a higher N50 than the metaSPADes ones.
+However, the metaSPADes assemblies had a higher overall length.
+For some reason, despite using anvio to trim out any scaffold under 1000bp, there are a few scaffolds in the metaSPADes assemblies that are under 1000bp, down to about 950bp.
+I think I'm going to run my hgcA and other assembly-based analyses on all these assemblies and can then simply dereplicate across them.
+I'll also do this for the binning process.
