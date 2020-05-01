@@ -116,6 +116,39 @@ done
 
 
 
+############################################
+############################################
+# Check size of metagenomes
+############################################
+############################################
+
+######################
+# Count reads in metagenome pre-trimming
+######################
+
+screen -S Everglades_metagenome_read_counting
+
+cd ~/Everglades/dataRaw/metagenomes
+
+read_storage=~/Everglades/dataRaw/metagenomes
+ancillary_info=~/Everglades/dataEdited/metagenomes/reports
+
+echo -e "metagenomeID\tforwardReads\treverseReads" > $ancillary_info/metagenome_read_count.tsv
+
+cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
+do
+
+  echo "Working on" $metagenome
+
+  forwardCount=$(zgrep -c "^@" $read_storage/$metagenome*_R1*.fastq.gz)
+  reverseCount=$(zgrep -c "^@" $read_storage/$metagenome*_R2*.fastq.gz)
+
+  echo -e $metagenome"\t"$forwardCount"\t"$reverseCount >> $ancillary_info/metagenome_read_count.tsv
+
+done
+
+
+
 
 
 
@@ -125,7 +158,7 @@ done
 
 
 ######################
-# Count reads in metagenome
+# Count reads in metagenome post-trimming
 ######################
 
 screen -S Everglades_metagenome_read_counting
@@ -152,21 +185,43 @@ do
 done
 
 
+######################
+# Coverage pre-trimming
+######################
+
+screen -S EG_MG_coverage_counting
+
+cd ~/Everglades/dataEdited/metagenomes/reports
+
+code=~/Everglades/code/generalUse/readfq-master
+read_storage=~/Everglades/dataRaw/metagenomes
+
+IFS=$'\n'
+
+echo -e "metagenomeID\tR1\tR2\tsingle\tmerged" > metagenome_coverage_pre_trimming.tsv
+  for metagenome in $(cat ~/Everglades/metadata/lists/metagenome_list.csv)
+do
+
+  echo "Counting coverage in" $metagenome
+
+  R1_count=$($code/kseq_fastq_base $read_storage/$metagenome*_R1*.fastq.gz | \
+                awk -F " " '{ print $5 }')
+  R2_count=$($code/kseq_fastq_base $read_storage/$metagenome*_R2*.fastq.gz | \
+                awk -F " " '{ print $5 }')
+  single_count=$($code/kseq_fastq_base $read_storage/$metagenome*_single*.fastq.gz | \
+                awk -F " " '{ print $5 }')
+  merged_count=$($code/kseq_fastq_base $read_storage/$metagenome\_merged.fastq.gz | \
+                awk -F " " '{ print $5 }')
+
+  echo -e $metagenome"\t"$R1_count"\t"$R2_count"\t"$single_count"\t"$merged_count >> metagenome_coverage_pre_trimming.tsv
+
+done
 
 
 
-
-
-
-
-
-
-
-############################################
-############################################
-# Calculate total coverage of each metagenome
-############################################
-############################################
+######################
+# Coverage post-trimming
+######################
 
 screen -S EG_MG_coverage_counting
 
