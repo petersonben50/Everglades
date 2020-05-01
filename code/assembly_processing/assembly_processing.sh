@@ -133,7 +133,7 @@ cd ~/Everglades/dataRaw/metagenomes
 read_storage=~/Everglades/dataRaw/metagenomes
 ancillary_info=~/Everglades/dataEdited/metagenomes/reports
 
-echo -e "metagenomeID\tforwardReads\treverseReads" > $ancillary_info/metagenome_read_count.tsv
+echo -e "metagenomeID\tforwardReads\treverseReads" > $ancillary_info/metagenome_read_count_pre_trimming.tsv
 
 cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
 do
@@ -143,19 +143,9 @@ do
   forwardCount=$(zgrep -c "^@" $read_storage/$metagenome*_R1*.fastq.gz)
   reverseCount=$(zgrep -c "^@" $read_storage/$metagenome*_R2*.fastq.gz)
 
-  echo -e $metagenome"\t"$forwardCount"\t"$reverseCount >> $ancillary_info/metagenome_read_count.tsv
+  echo -e $metagenome"\t"$forwardCount"\t"$reverseCount >> $ancillary_info/metagenome_read_count_pre_trimming.tsv
 
 done
-
-
-
-
-
-
-
-
-
-
 
 ######################
 # Count reads in metagenome post-trimming
@@ -198,8 +188,8 @@ read_storage=~/Everglades/dataRaw/metagenomes
 
 IFS=$'\n'
 
-echo -e "metagenomeID\tR1\tR2\tsingle\tmerged" > metagenome_coverage_pre_trimming.tsv
-  for metagenome in $(cat ~/Everglades/metadata/lists/metagenome_list.csv)
+echo -e "metagenomeID\tR1\tR2" > metagenome_coverage_pre_trimming.tsv
+for metagenome in $(cat ~/Everglades/metadata/lists/metagenome_list.csv)
 do
 
   echo "Counting coverage in" $metagenome
@@ -208,12 +198,8 @@ do
                 awk -F " " '{ print $5 }')
   R2_count=$($code/kseq_fastq_base $read_storage/$metagenome*_R2*.fastq.gz | \
                 awk -F " " '{ print $5 }')
-  single_count=$($code/kseq_fastq_base $read_storage/$metagenome*_single*.fastq.gz | \
-                awk -F " " '{ print $5 }')
-  merged_count=$($code/kseq_fastq_base $read_storage/$metagenome\_merged.fastq.gz | \
-                awk -F " " '{ print $5 }')
 
-  echo -e $metagenome"\t"$R1_count"\t"$R2_count"\t"$single_count"\t"$merged_count >> metagenome_coverage_pre_trimming.tsv
+  echo -e $metagenome"\t"$R1_count"\t"$R2_count >> metagenome_coverage_pre_trimming.tsv
 
 done
 

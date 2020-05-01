@@ -57,12 +57,33 @@ I divided the total coverage of each of our metagenomes (from R1, R2, single, an
 
 **Notes on metagenome quality**
 
-Then I went about checking the status of each metagenome.
-For the 2018 samples, I only looked at the porewater samples, not the surface water samples, since I'm not planning to use those for anything.
+First, I wanted to get a general sense of how many reads and how much coverage was trimmed out by fastp.
+I checked that out in this R script: `code/assembly_processing/extent_of_trimming.R`.
+The trimming cut out between 3 and 6% of the total coverage of the difference metagenomes.
+None of them jump out as being anomalously high or low.
+
+
+Then I went about checking the status of each metagenome, mostly by looking at the .
+For the 2018 samples, I only looked at the porewater samples, not the surface water samples, since I'm not planning to use those for anything yet.
 I looked at the fastQC, the fastp, the read counts, and the coverage data for this.
 
-- ENP18_001_002_003:
+- ENP18_001_002_003: Looks pretty good. Single reads are of much lower quality than the forward and reverse ones. Probably to be expected. Fastp documents are much less intuitive than the fastQC ones.
 
+- ENP18_024_025: Pretty similar to ENP18_001_002_003.
+
+- ENP18_030_032: Nothing jumps out. Similar to previous ones.
+
+- ENP18_048_049_50: Nothing really jumps out.
+
+- ENP18_061: Seems to have slightly higher deviation from the expected GC distribution.
+
+General takeaways:
+The fastp output isn't super helpful, I like the fastQC data much more.
+Single reads are generally of much lower quality than R1 and R2.
+The GC distribution of the reads is not in line with the theoretical GC content.
+There's a small enrichment of reads 138/139bp long, but the majority of them are definitely 150bp.
+Overall, things look pretty good!
+Happy to go ahead with the assemblies from here.
 
 
 
