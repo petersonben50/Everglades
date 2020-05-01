@@ -39,17 +39,26 @@ I then went through and took a look at the output of fastp, the files of which a
 Unfortunately fastp doesn't read out how many single reads vs. paired end reads there are, so I also ran fastQC on the data as well just to get those counts and get some other information on the read quality.
 Data is stored locally here: `/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/metagenomes/reports/fastqc`.
 
+**Check size of metagenomes**
+
 I also got a read count by counting headers in the trimmed fastq files, and saved it to `/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/metagenomes/reports/metagenome_read_count.tsv`.
+I did this for the pre- and post-trimmed metagenomes.
 
 Finally, I wanted to calculate the total number of nucleotides from each metagenome, which I could use to normalize the coverage of all our sequences.
-For this, I used the [readfq program](https://github.com/billzt/readfq), counting the number of nucleotides in the forward, reverse, single, and merged read files, all of which will be used for mapping.
+For this, I used the [readfq program](https://github.com/billzt/readfq).
+For the pre-trimming reads, I counted the coverage in both the forward and reverse reads.
+For the post-trimming reads, I counted the number of nucleotides in the forward, reverse, single, and merged read files, all of which will be used for mapping.
 I downloaded all these files to my local computer (`/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/metagenomes/reports/metagenome_coverage.tsv`).
+
 In the R script `code/2019_analysis_assembly/mapping_normalization.R`, I generated an R object containing a vector that has normalization values for each metagenome.
+
+**Notes on metagenome quality**
 
 Then I went about checking the status of each metagenome.
 For the 2018 samples, I only looked at the porewater samples, not the surface water samples, since I'm not planning to use those for anything.
+I looked at the fastQC, the fastp, the read counts, and the coverage data for this.
 
--
+- ENP18_001_002_003:
 
 
 
