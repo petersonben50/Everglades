@@ -107,153 +107,6 @@ sed 's/-//g' hgcA_good.afa > hgcA_good.faa
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-############################################
-############################################
-# Pull out section of assembly graph for each sequence
-############################################
-############################################
-
-screen -S assembly_graph
-export PATH=/home/GLBRCORG/bpeterson26/miniconda3/bin:$PATH
-source activate bandage
-
-mkdir ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/assembly_graphs
-cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA
-
-IFS=$'\n'
-
-for geneID in $(cat identification/hgcA_raw.txt)
-do
-
-  echo "Working on" $geneID
-  assembly=$(echo $geneID | awk -F '_' '{ print $1 }')
-  scaffoldName=$(echo $geneID | \
-              awk -F '_' '{ print $1"_"$2 }')
-  scaffoldID=$(awk -F '\t' -v scaffoldName="$scaffoldName" '$1 == scaffoldName { print $2 }' ~/Everglades/dataEdited/assemblies/scaffolds/renaming_reports/$assembly\_report_file.txt)
-
-  assemblyGraphLocation=~/Everglades/dataEdited/assemblies/assembly_files/$assembly
-
-  grep $scaffoldID $assemblyGraphLocation/assembly_graph_with_scaffolds.gfa | \
-    awk '{ print $3 }' | \
-    sed 's/-//g' | \
-    sed 's/+//g' | \
-    sed 's/,/\
-/g' > assembly_graphs/nodes_of_interest.txt
-
-
-  command="Bandage reduce $assemblyGraphLocation/assembly_graph.fastg assembly_graphs/assembly_graph_$scaffoldName.fastg --scope aroundnodes --distance 4 --nodes "
-
-  IFS=$'\n'
-
-  for scaffold_ID in `cat assembly_graphs/nodes_of_interest.txt`
-  do
-    echo "Adding" $scaffold_ID
-    command=$(echo $command$scaffold_ID",")
-  done
-
-
-  command=$(echo $command | sed 's/,$//')
-  echo "Running command:"
-  echo $command
-
-  bash -c $command
-
-done
-
-
-
-######################
-# Check out node 1857184499
-######################
-
-cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
-
-mkdir reassembly
-
-grep '^P' ~/Everglades/dataEdited/assemblies/assembly_files/KMBP004F/assembly_graph_with_scaffolds.gfa | \
-  grep '1857184499' | \
-  awk -F '\t' '{ print $2 }'
-# scaffold is NODE_26726_length_13659_cov_9.070130
-grep 'NODE_26726_length_13659_cov_9.070130' ~/Everglades/dataEdited/assemblies/scaffolds/renaming_reports/KMBP004F_report_file.txt
-# Renamed to KMBP004F_000000026726
-
-scaffold=KMBP004F_000000026726
-grep -A 1 $scaffold\$ ~/Everglades/dataEdited/assemblies/scaffolds/KMBP004F_assembly.fna \
-    > reassembly/node_1857184499.fna
-awk -v scaffold="$scaffold" '{ if ($1 == scaffold) print }' ~/Everglades/dataEdited/assemblies/ORFs/KMBP004F.gff \
-    > reassembly/node_1857184499.gff
-
-
-
-######################
-# Pull out BAM files for each of these
-######################
-
-cd ~/Everglades/dataEdited/2018_analysis_assembly/
-
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
-PYTHONPATH=''
-PERL5LIB=''
-
-echo -e "KMBP004F_000000026726\nKMBP004F_000000437519\nKMBP004F_000000037185" > hgcA/reassembly/scaffolds_of_interest.txt
-
-IFS=$'\n'
-
-for scaffold in $(cat hgcA/reassembly/scaffolds_of_interest.txt)
-do
-
-  echo "Working on" $scaffold
-
-  assemblyName=$(echo $scaffold | awk -F '_' '{ print $1 }')
-
-  samtools view -F 4 \
-            mapping/KMBP004F_to_$assemblyName.bam \
-            $scaffold \
-            > hgcA/reassembly/$scaffold\_reads.sam
-  wc -l hgcA/reassembly/$scaffold\_reads.sam
-
-  samtools view -F 8 -f 4 \
-            mapping/KMBP004F_to_$assemblyName.bam \
-            $scaffold \
-            >> hgcA/reassembly/$scaffold\_reads.sam
-  wc -l hgcA/reassembly/$scaffold\_reads.sam
-
-done
-
-
-
 ############################################
 ############################################
 # Extract gene neighborhood data for hgcA+ scaffolds
@@ -275,7 +128,7 @@ cat identification/hgcA_raw.txt \
     | awk -F '_' '{ print $1"_"$2 }' \
     > scaffolds/hgcA_raw_scaffold_list.txt
 
-rm scaffolds/hgcA_scaffolds.fna
+rm -f scaffolds/hgcA_scaffolds.fna
 cat scaffolds/hgcA_raw_scaffold_list.txt | while read scaffold
 do
 
@@ -290,7 +143,7 @@ done
 
 # Pull out GFF entries
 
-rm scaffolds/hgcA_scaffolds.gff
+rm -f scaffolds/hgcA_scaffolds.gff
 cat scaffolds/hgcA_raw_scaffold_list.txt | while read scaffold
 do
 
@@ -320,6 +173,7 @@ PYTHONPATH=''
 IFS=$'\n'
 
 scripts=~/Everglades/code/generalUse
+
 for hgcA_id in $(cat identification/hgcA_raw.txt)
 do
 
@@ -327,10 +181,26 @@ do
   scaffold_id=$(echo $hgcA_id | cut -d '_' -f 1-2)
   awk -F '\t' -v scaffold_id="$scaffold_id" '$1 == scaffold_id { print $0 }' scaffolds/hgcA_scaffolds.gff > scaffolds/temp_scaffolds.gff
 
-  gene_id=$(echo $hgcA_id | \
-              cut -d '_' -f 2-3 | \
-              sed 's/^0*//g')
+  if [ $(echo $scaffold_id | cut -c5-8 ) == "Mega" ]; then
 
+    echo "MegaHit assembly for" $scaffold_id
+    scaffold_num=$(awk -F '\t' -v scaffold_id="$scaffold_id" '$1 == scaffold_id { print $0 }' scaffolds/temp_scaffolds.gff | \
+                      head -n 1 | \
+                      awk -F '\t' '{ print $9 }' | \
+                      cut -d"_" -f1 | \
+                      sed 's/ID=//' )
+    gene_num=$(echo $hgcA_id | cut -d"_" -f3)
+    gene_id=$(echo $scaffold_num"_"$gene_num)
+
+  elif [ $(echo $scaffold_id | cut -c5-8 ) == "Meta" ]; then
+    echo "metaSPADes assembly for" $scaffold_id
+    gene_id=$(echo $hgcA_id | \
+                cut -d '_' -f 2-3 | \
+                sed 's/^0*//g')
+
+  fi
+
+  echo "Searching for" $gene_id
   python $scripts/gene_neighborhood_extraction.py scaffolds/temp_scaffolds.gff \
                                                   scaffolds/hgcA_scaffolds.fna \
                                                   $gene_id \
@@ -343,10 +213,37 @@ done
 
 cd scaffolds
 rm -f hgcA_geneNeighborhood.gff hgcA_geneNeighborhood.fna
-cat temp_*.gff > hgcA_geneNeighborhood.gff
-cat temp_*.fna > hgcA_geneNeighborhood.fna
+cat temp_*.gff > hgcA_geneNeighborhood_raw.gff
+cat temp_*.fna > hgcA_geneNeighborhood_raw.fna
 rm -f *_neighborhood.*
 
+
+
+######################
+# Keep only samples that passed trimming
+######################
+
+IFS=$'\n'
+
+scripts=~/Everglades/code/generalUse
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
+
+rm -f scaffolds/hgcA_geneNeighborhood.fna
+rm -f scaffolds/hgcA_geneNeighborhood.gff
+
+for hgcA_id in $(cat identification/hgcA_good.txt)
+do
+
+  echo "Pulling out" $scaffold "fna seqs"
+  scaffold=$(echo $hgcA_id | cut -d"_" -f1,2)
+  grep -A 1 $scaffold\$ scaffolds/hgcA_geneNeighborhood_raw.fna \
+      >> scaffolds/hgcA_geneNeighborhood.fna
+
+  echo "Pulling out" $scaffold "GFF entries"
+  awk -v scaffold="$scaffold" '{ if ($1 == scaffold) print }' scaffolds/hgcA_geneNeighborhood_raw.gff \
+      >> scaffolds/hgcA_scaffolds.gff
+
+done
 
 
 
@@ -573,3 +470,142 @@ $raxml -f a \
         -T 20 \
         -s hgcA_masked.afa \
         -n hgcA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################################
+############################################
+# Pull out section of assembly graph for each sequence
+############################################
+############################################
+
+screen -S assembly_graph
+export PATH=/home/GLBRCORG/bpeterson26/miniconda3/bin:$PATH
+source activate bandage
+
+mkdir ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/assembly_graphs
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA
+
+IFS=$'\n'
+
+for geneID in $(cat identification/hgcA_raw.txt)
+do
+
+  echo "Working on" $geneID
+  assembly=$(echo $geneID | awk -F '_' '{ print $1 }')
+  scaffoldName=$(echo $geneID | \
+              awk -F '_' '{ print $1"_"$2 }')
+  scaffoldID=$(awk -F '\t' -v scaffoldName="$scaffoldName" '$1 == scaffoldName { print $2 }' ~/Everglades/dataEdited/assemblies/scaffolds/renaming_reports/$assembly\_report_file.txt)
+
+  assemblyGraphLocation=~/Everglades/dataEdited/assemblies/assembly_files/$assembly
+
+  grep $scaffoldID $assemblyGraphLocation/assembly_graph_with_scaffolds.gfa | \
+    awk '{ print $3 }' | \
+    sed 's/-//g' | \
+    sed 's/+//g' | \
+    sed 's/,/\
+/g' > assembly_graphs/nodes_of_interest.txt
+
+
+  command="Bandage reduce $assemblyGraphLocation/assembly_graph.fastg assembly_graphs/assembly_graph_$scaffoldName.fastg --scope aroundnodes --distance 4 --nodes "
+
+  IFS=$'\n'
+
+  for scaffold_ID in `cat assembly_graphs/nodes_of_interest.txt`
+  do
+    echo "Adding" $scaffold_ID
+    command=$(echo $command$scaffold_ID",")
+  done
+
+
+  command=$(echo $command | sed 's/,$//')
+  echo "Running command:"
+  echo $command
+
+  bash -c $command
+
+done
+
+
+
+######################
+# Check out node 1857184499
+######################
+
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
+
+mkdir reassembly
+
+grep '^P' ~/Everglades/dataEdited/assemblies/assembly_files/KMBP004F/assembly_graph_with_scaffolds.gfa | \
+  grep '1857184499' | \
+  awk -F '\t' '{ print $2 }'
+# scaffold is NODE_26726_length_13659_cov_9.070130
+grep 'NODE_26726_length_13659_cov_9.070130' ~/Everglades/dataEdited/assemblies/scaffolds/renaming_reports/KMBP004F_report_file.txt
+# Renamed to KMBP004F_000000026726
+
+scaffold=KMBP004F_000000026726
+grep -A 1 $scaffold\$ ~/Everglades/dataEdited/assemblies/scaffolds/KMBP004F_assembly.fna \
+    > reassembly/node_1857184499.fna
+awk -v scaffold="$scaffold" '{ if ($1 == scaffold) print }' ~/Everglades/dataEdited/assemblies/ORFs/KMBP004F.gff \
+    > reassembly/node_1857184499.gff
+
+
+
+######################
+# Pull out BAM files for each of these
+######################
+
+cd ~/Everglades/dataEdited/2018_analysis_assembly/
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+
+echo -e "KMBP004F_000000026726\nKMBP004F_000000437519\nKMBP004F_000000037185" > hgcA/reassembly/scaffolds_of_interest.txt
+
+IFS=$'\n'
+
+for scaffold in $(cat hgcA/reassembly/scaffolds_of_interest.txt)
+do
+
+  echo "Working on" $scaffold
+
+  assemblyName=$(echo $scaffold | awk -F '_' '{ print $1 }')
+
+  samtools view -F 4 \
+            mapping/KMBP004F_to_$assemblyName.bam \
+            $scaffold \
+            > hgcA/reassembly/$scaffold\_reads.sam
+  wc -l hgcA/reassembly/$scaffold\_reads.sam
+
+  samtools view -F 8 -f 4 \
+            mapping/KMBP004F_to_$assemblyName.bam \
+            $scaffold \
+            >> hgcA/reassembly/$scaffold\_reads.sam
+  wc -l hgcA/reassembly/$scaffold\_reads.sam
+
+done

@@ -23,6 +23,15 @@ I saved a file (`hgcA_good.afa`) with all the keeper sequences, and only kept th
 
 
 
+**Extract gene neighborhood data for hgcA+ scaffolds**
+
+I also wanted to inspect the position and gene neighborhood of the hgcA sequences on their scaffolds.
+To do this, I first pulled out the scaffolds and the corresponding GFF entries for each hgcA+ scaffold.
+I then isolated the gene neighborhoods using a python script I modified from Tyler Barnes.
+I pulled out sequences 5000bp from before and after the hgcA sequence, as well as the corresponding GFF entries.
+I did this for both the raw list of hgcA sequences as well as the trimmed list.
+
+
 
 
 
@@ -57,14 +66,6 @@ So, I pulled out the relevant sections of the mapping files and downloaded them 
 After looking at this, I think it's gonna be tricky to resolve any variations with only a single metagenome that has appreciable coverage of these organisms.
 Let's just move on from trying to do this.
 
-
-**Extract gene neighborhood data for hgcA+ scaffolds**
-
-I also wanted to inspect the position and gene neighborhood of the hgcA sequences on their scaffolds.
-To do this, I first pulled out the scaffolds and the corresponding GFF entries for each hgcA+ scaffold and downloaded them to my local computer.
-
-I then isolated the gene neighborhoods using a python script I modified from Tyler Barnes.
-I pulled out sequences 5000bp from before and after the hgcA sequence, as well as the corresponding GFF entries.
 
 
 **Extract depths of hgcA**
