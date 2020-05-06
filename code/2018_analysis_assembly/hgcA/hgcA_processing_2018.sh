@@ -241,9 +241,88 @@ do
 
   echo "Pulling out" $scaffold "GFF entries"
   awk -v scaffold="$scaffold" '{ if ($1 == scaffold) print }' scaffolds/hgcA_geneNeighborhood_raw.gff \
-      >> scaffolds/hgcA_scaffolds.gff
+      >> scaffolds/hgcA_geneNeighborhood.gff
 
 done
+
+
+
+############################################
+############################################
+# Search for downstream hgcB sequences
+############################################
+############################################
+
+#########################
+# Extract names of downstream seqs
+#########################
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate py_viz
+PYTHONPATH=''
+
+IFS=$'\n'
+
+scripts=~/Everglades/code/generalUse
+ORFs=~/Everglades/dataEdited/assemblies/ORFs
+
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
+mkdir hgcB
+
+rm -f hgcB/downstream_gene_list.txt
+python $scripts/retrieve_downstream_gene_name.py \
+          identification/hgcA_good.txt \
+          scaffolds/hgcA_scaffolds.gff \
+          hgcB/downstream_gene_list.txt
+
+
+
+#########################
+# Extract downstream amino acid sequences
+#########################
+
+rm -f hgcB/downstream_genes.faa
+cat hgcB/downstream_gene_list.txt | while read gene
+do
+  assemblyName=$(echo $gene | cut -d "_" -f1)
+  echo "Pulling out" $gene "faa entries"
+  grep -A 1 $gene$ $ORFs/$assemblyName.faa >> hgcB/downstream_genes.faa
+done
+
+
+
+#########################
+# Search adjacent genes with hgcB HMM
+#########################
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+
+scripts=~/Everglades/code/generalUse
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
+hmmsearch --tblout hgcB/hgcB.out \
+          --cpu 4 \
+          -T 30 \
+          ~/references/hgcA/hgcB_5M.HMM \
+          hgcB/downstream_genes.faa \
+          > hgcB/hgcB_report.txt
+
+rm -f hgcB/hgcB.faa
+grep -v "#" hgcB/hgcB.out | awk '{ print $1 }' | while read geneID
+do
+  grep -A 1 $geneID$ hgcB/downstream_genes.faa >> hgcB/hgcB.faa
+done
+
+# Align sequences to HMM
+hmmalign -o hgcB/hgcB.sto \
+            ~/references/hgcA/hgcB_5M.HMM \
+            hgcB/hgcB.faa
+
+# Convert alignment to fasta format
+$scripts/convert_stockhold_to_fasta.py hgcB/hgcB.sto
+
 
 
 
