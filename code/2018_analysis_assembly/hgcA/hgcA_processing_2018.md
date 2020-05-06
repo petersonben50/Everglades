@@ -39,7 +39,6 @@ First I pulled out the genes downstream from hgcA using a custom python script (
 I searched the corresponding downstream genes using a hgcB HMM I built for the 5M project using the hgcB recovered from my assemblies.
 After using a few different cutoffs and checking the results, I ended up using 30 as a cutoff score.
 I aligned the hits against the HMM, and they all had the CM/IECGAC region.
-I then
 
 
 
