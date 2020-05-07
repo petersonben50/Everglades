@@ -50,8 +50,7 @@ I then used the `calculate_depth_contigs.py` script to calculate the average cov
 I did this for each sequence initially identified as hgcA, so that I could see if any of the incomplete sequences are relatively abundant.
 
 I downloaded the depth files to my local computer, then combined them into a single file and normalized them with the R script `clean_hgcA_abundance.R`.
-
-
+This saves out a file with the aggregated and normalized depth information here: `dataEdited/2018_analysis_assembly/hgcA/depth/hgcA_coverage.csv`.
 
 
 **Clustering of sequences**
@@ -59,6 +58,15 @@ I downloaded the depth files to my local computer, then combined them into a sin
 Next we'll want to dereplicate the hgcA sequences across our assemblies.
 We'll use a cutoff of 97% identity for this process.
 In addition to getting the fna file, we'll generate the text file with the cluster information, then download that to my computer.
+
+
+
+**Dereplicate sequences**
+
+Next I wanted to pull all the data I had on hgcA sequences into R to get a good look at them.
+I used an Rmd file to keep track of my notes on this.
+
+
 
 
 
