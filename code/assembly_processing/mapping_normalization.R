@@ -44,8 +44,8 @@ read_length <- 150
 number_of_ends <- 2
 
 # Number of reads to use:
-# (We'll normalize to a million reads).
-read_count <- 1000000
+# (We'll normalize to 10 million reads).
+read_count <- 10000000
 
 # Final coverage for normalization
 normal_coverage <- read_length * number_of_ends * read_count
