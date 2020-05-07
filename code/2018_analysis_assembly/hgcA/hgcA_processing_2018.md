@@ -71,17 +71,6 @@ I used an Rmd file to keep track of my notes on this: `hgcA_dereplication.Rmd`.
 Bottom line: we'll go with the hgcA representatives that CD-HIT returned.
 
 
-
-
-
-
-
-
-
-
-
-
-
 **hgcA phylogeny**
 
 *Find additional reference sequences*
@@ -135,16 +124,7 @@ The tree was then downloaded and loaded into R. It was mid-point rooted using th
 
 
 
-**hgcA analysis**
+**hgcA scaffold analysis**
 
-I checked out the phylogeny and the overall depths of the HgcA sequences in `hgcA_phylogeny_abundance.R`.
-There were two HgcA sequences that cluster with Geobacterales sequences, one of which was the most abundant sequences we had.
-These are the two sequences that are essentially the same, and share a branch on the assembly graph.
-We have another sequence that clusters closely with the HgcA sequence from the SYN_0012 bin we recovered in Lake Mendota.
-Two more sequences cluster with a group of HgcA seqs from Spirochaetes.
-Another sequence is relatively close to the HgcA from *Paludibacter jiangxiensis*.
-Finally, we had one HgcA sequence cluster with the HgcA from DES_0019 in Mendota.
-
-In the Excel file `hgcA_groups.xlsx`, I assigned a group name to each of the hgcA sequences, based on the phylogeny of the HgcA sequences.
-I used this to generate a stacked bar plot of the *hgcA* coverage in `hgcA_abundance.R`.
-The Geobacterales sequences dominate the overall coverage.
+I set up an analysis script in `hgcA_scaffolds.Rmd` to look at the scaffold coverage and length.
+Check out my notes there.
