@@ -295,6 +295,8 @@ done
 # Search adjacent genes with hgcB HMM
 #########################
 
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
+
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate bioinformatics
 PYTHONPATH=''
@@ -323,7 +325,12 @@ hmmalign -o hgcB/hgcB.sto \
 # Convert alignment to fasta format
 $scripts/convert_stockhold_to_fasta.py hgcB/hgcB.sto
 
-
+# Check sequences in Geneious.
+# If they all check out, then just use the hgcB.faa
+# file as our final set of hgcB seqs.
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
+grep '>' hgcB/hgcB.faa | \
+  sed 's/>//' > hgcB/hgcB.txt
 
 
 ############################################
@@ -339,37 +346,30 @@ mkdir depth
 
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 
-cat ~/Everglades/metadata/lists/2019_analysis_metagenomes.txt | while read metagenome
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_metagenomes_list.txt | while read metagenome
 do
+
+  rm -f depth/$metagenome\_hgcA_depth_raw.tsv
 
   conda activate bioinformatics
   PERL5LIB=""
-
   cat identification/hgcA_raw.txt | while read gene
   do
-
     scaffold=$(echo $gene | awk -F '_' '{ print $1"_"$2 }')
     assembly=$(echo $gene | awk -F '_' '{ print $1 }')
-
     echo "Calculating coverage of" $metagenome "over" $scaffold
-
     samtools depth -a -r $scaffold ~/Everglades/dataEdited/2018_analysis_assembly/mapping/$metagenome\_to_$assembly.bam \
         >> depth/$metagenome\_hgcA_depth_raw.tsv
-
   done
-
   conda deactivate
 
   echo "Aggregating hgcA depth information for" $metagenome
-
   conda activate py_viz
   PYTHONPATH=""
-
   python ~/Everglades/code/generalUse/calculate_depth_contigs.py \
             depth/$metagenome\_hgcA_depth_raw.tsv \
             150 \
             depth/$metagenome\_hgcA_depth.tsv
-
   conda deactivate
 
   rm -f depth/$metagenome\_hgcA_depth_raw.tsv
@@ -383,7 +383,7 @@ done
 
 ##################################################
 ##################################################
-# Dereplication of sequences
+# Clustering of sequences
 ##################################################
 ##################################################
 
@@ -399,8 +399,18 @@ $cdhit/cd-hit -g 1 \
               -n 5 \
               -d 0
 $cdhit/clstr2txt.pl dereplication/hgcA_derep.faa.clstr > dereplication/hgcA_cluster_faa.tsv
-# All sequences fall into their own cluster
-# Just use hgcA_good.faa
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

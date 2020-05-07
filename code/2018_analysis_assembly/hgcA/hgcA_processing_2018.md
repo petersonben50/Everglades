@@ -39,6 +39,42 @@ First I pulled out the genes downstream from hgcA using a custom python script (
 I searched the corresponding downstream genes using a hgcB HMM I built for the 5M project using the hgcB recovered from my assemblies.
 After using a few different cutoffs and checking the results, I ended up using 30 as a cutoff score.
 I aligned the hits against the HMM, and they all had the CM/IECGAC region.
+I saved out a list of the hgcB names.
+
+
+**Extract depths of hgcA**
+
+Next I wanted to extract the coverage information for all these sequences.
+I used the depth function in samtools to calculate the coverage over each nucleotide residue of the hgcA+ scaffolds.
+I then used the `calculate_depth_contigs.py` script to calculate the average coverage of each nucleotide over the sequence, excluding 150 bp on both ends of the scaffold, to eliminate any bias against shorter contigs (in case reads aren't mapping to the ends of the scaffold as well).
+I did this for each sequence initially identified as hgcA, so that I could see if any of the incomplete sequences are relatively abundant.
+
+I downloaded the depth files to my local computer, then combined them into a single file and normalized them with the R script `clean_hgcA_abundance.R`.
+
+
+
+
+**Clustering of sequences**
+
+Next we'll want to dereplicate the hgcA sequences across our assemblies.
+We'll use a cutoff of 97% identity for this process.
+In addition to getting the fna file, we'll generate the text file with the cluster information, then download that to my computer.
+
+
+
+That file is read in to R (`code/metagenomeAssemblyAnalysis/hgcA/hgcA_percent_identity.R`).
+
+Finally, we'll manually curate the hgcA sequence list that we have.
+Most of them should be fine, but there are a few hgcA sequences that cluster with 97% identity, but have less than 95% coverage.
+Notes on this process here:
+`dataEdited/metagenomes/assemblyAnalysis/hgcA/identification/hgcA_cluster_inspection_notes.ods`.
+If a cluster doesn't have >95% cluster coverage, we'll manually look at it.
+For these, we'll look at correlation correspondence, the scaffold/gene neighborhood, and the actually sequence identity.
+After looking at ours, I think CD-HIT did a fine job of pulling out correct clusters, so we won't change anything.
+
+
+
+
 
 
 
@@ -73,46 +109,7 @@ Let's just move on from trying to do this.
 
 
 
-**Extract depths of hgcA**
 
-First things first, I wanted to record the depth of each of our metagenomes.
-I did this manually by looking through my FastQC files and loading them in `dataEdited/metagenomes/fastQC/metagenome_depth.csv`.
-
-Then I wanted to extract the coverage information for all these sequences.
-I used the depth function in samtools to calculate the coverage over each nucleotide residue of the hgcA+ scaffolds.
-I then used the `calculate_depth_contigs.py` script to calculate the average coverage of each nucleotide over the sequence, excluding 150 bp on both ends of the scaffold, to eliminate any differences we might see due to being near the end of the scaffold.
-I did this for each sequence initially identified as hgcA, so that I could see if any of the incomplete sequences are relatively abundant.
-
-Let's check out the raw coverage data for the incomplete sequences:
-
-- KMBP004E_000000161924_1
-    - Abundance of 5.9 in KMBP001E, and 0 in all other metagenomes. Not substantial.
-- KMBP004F_000000644814_3
-    - Coverage of 2.5 in KMBP004F, essentially 0 in all others.
-- KMBP004F_000000253505_6
-    - Coverage of 4.8 in KMBP004F, essentially 0 in all others. Also not really worth worrying about.
-
-KMBP004F_000000165420 is also cut a little short, and does count for 9.4X coverage.
-
-I downloaded the depth files to my local computer, then combined them into a single file and normalized them with the R script `clean_hgcA_abundance.R`.
-
-
-
-
-**hgcA dereplication**
-
-Next we'll want to dereplicate the hgcA sequences across our assemblies.
-We'll use a cutoff of 97% identity for this process.
-In addition to getting the fna file, we'll generate the text file with the cluster information, then download that to my computer.
-That file is read in to R (`code/metagenomeAssemblyAnalysis/hgcA/hgcA_percent_identity.R`).
-
-Finally, we'll manually curate the hgcA sequence list that we have.
-Most of them should be fine, but there are a few hgcA sequences that cluster with 97% identity, but have less than 95% coverage.
-Notes on this process here:
-`dataEdited/metagenomes/assemblyAnalysis/hgcA/identification/hgcA_cluster_inspection_notes.ods`.
-If a cluster doesn't have >95% cluster coverage, we'll manually look at it.
-For these, we'll look at correlation correspondence, the scaffold/gene neighborhood, and the actually sequence identity.
-After looking at ours, I think CD-HIT did a fine job of pulling out correct clusters, so we won't change anything.
 
 
 
