@@ -402,6 +402,15 @@ $cdhit/clstr2txt.pl dereplication/hgcA_derep.faa.clstr > dereplication/hgcA_clus
 
 
 
+cdhit=~/programs/cdhit-master
+$cdhit/cd-hit -g 1 \
+              -i identification/hgcA_good.faa \
+              -o dereplication/hgcA_derep_divergent.faa \
+              -c 0.80 \
+              -n 5 \
+              -d 0
+$cdhit/clstr2txt.pl dereplication/hgcA_derep_divergent.faa.clstr > dereplication/hgcA_divergent_cluster_faa.tsv
+
 
 
 

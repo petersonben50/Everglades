@@ -62,7 +62,7 @@ This saves out a file with the aggregated and normalized depth information here:
 Next we'll want to dereplicate the hgcA sequences across our assemblies.
 We'll use a cutoff of 97% identity for this process.
 In addition to getting the fna file, we'll generate the text file with the cluster information, then download that to my computer.
-
+I also did this using a cut-off of 80% identity to look at patterns of sequence similarity.
 
 **Dereplicate sequences**
 
