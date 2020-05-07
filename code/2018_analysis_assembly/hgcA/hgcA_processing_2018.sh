@@ -366,7 +366,7 @@ do
   echo "Aggregating hgcA depth information for" $metagenome
   conda activate py_viz
   PYTHONPATH=""
-  python ~/Everglades/code/generalUse/calculate_depth_contigs.py \
+  python ~/Everglades/code/generalUse/calculate_depth_length_contigs.py \
             depth/$metagenome\_hgcA_depth_raw.tsv \
             150 \
             depth/$metagenome\_hgcA_depth.tsv
