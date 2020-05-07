@@ -67,56 +67,13 @@ I also did this using a cut-off of 80% identity to look at patterns of sequence 
 **Dereplicate sequences**
 
 Next I wanted to pull all the data I had on hgcA sequences into R to get a good look at them.
-I used an Rmd file to keep track of my notes on this.
+I used an Rmd file to keep track of my notes on this: `hgcA_dereplication.Rmd`.
+Bottom line: we'll go with the hgcA representatives that CD-HIT returned.
 
 
 
 
 
-That file is read in to R (`code/metagenomeAssemblyAnalysis/hgcA/hgcA_percent_identity.R`).
-
-Finally, we'll manually curate the hgcA sequence list that we have.
-Most of them should be fine, but there are a few hgcA sequences that cluster with 97% identity, but have less than 95% coverage.
-Notes on this process here:
-`dataEdited/metagenomes/assemblyAnalysis/hgcA/identification/hgcA_cluster_inspection_notes.ods`.
-If a cluster doesn't have >95% cluster coverage, we'll manually look at it.
-For these, we'll look at correlation correspondence, the scaffold/gene neighborhood, and the actually sequence identity.
-After looking at ours, I think CD-HIT did a fine job of pulling out correct clusters, so we won't change anything.
-
-
-
-
-
-
-
-
-
-
-**Search for hgcA in assembly graphs**
-
-First off, I looked at the assembly graphs of the sequences that were cut off to see if I could lengthen them and get a full length sequence.
-There are three such sequences:
-- KMBP004E_000000161924_1
-    - The corresponding node for this was not attached to any others. Nothing we can do here. hgcA is at the end of the node.
-- KMBP004F_000000644814_3
-    - The corresponding node for this was not attached to any others. Nothing we can do here. hgcA is at the end of the node.
-- KMBP004F_000000253505_6
-    - The corresponding node for this was not attached to any others. Nothing we can do here. hgcA is at the end of the node. The hgcA+ node is also scaffolded to another one.
-
-KMBP004F_000000165420 is cut a little short, but it isn't at the end of the node. Might be a mistake in the protein prediction.
-
-All of the scaffolds are on individual nodes except for KMBP004F_000000437519 and KMBP004F_000000037185.
-These two are actually in the same portion of the assembly graph.
-They both connect to node 1857184499, which is where I'd expect the hgcB sequence to be, since hgcA is at the end.
-This is part of NODE_26726_length_13659_cov_9.070130, which appears to be scaffolded to two other contigs, but not connected on the graph.
-I pulled out the NA sequences and the GFF files for this scaffold.
-In Geneious, I assembled both hgcA+ scaffolds to the downstream one, and the overlap was perfect.
-The first gene on the downstream scaffold was hgcB.
-
-I wanted to individually assemble each of these scaffolds.
-So, I pulled out the relevant sections of the mapping files and downloaded them to my local computer.
-After looking at this, I think it's gonna be tricky to resolve any variations with only a single metagenome that has appreciable coverage of these organisms.
-Let's just move on from trying to do this.
 
 
 

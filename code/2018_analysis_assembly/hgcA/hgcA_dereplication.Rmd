@@ -1,0 +1,191 @@
+---
+title: 'Everglades: 2018 hgcA analysis'
+author: "Benjamin D. Peterson"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list =ls())
+
+library(knitr)
+library(tidyverse)
+library(vegan)
+
+hgcA.list.all <- readLines("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/identification/hgcA_raw.txt")
+hgcA.list.good <- readLines("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/identification/hgcA_good.txt")
+hgcA.list.good.scaffolds <- paste(strsplit(hgcA.list.good, "_") %>%
+                                    sapply("[", 1),
+                                  strsplit(hgcA.list.good, "_") %>%
+                                    sapply("[", 2),
+                                  sep = "_")
+
+scaffold.to.gene.vector <- hgcA.list.good
+names(scaffold.to.gene.vector) <- hgcA.list.good.scaffolds
+
+# Had one more hgcA sequence in the all list than in the depth list
+# Why?
+hgcA.scaffold.list <- paste(strsplit(hgcA.list.all, "_") %>%
+                              sapply("[", 1),
+                            strsplit(hgcA.list.all, "_") %>%
+                              sapply("[", 2),
+                            sep = "_")
+hgcA.scaffold.list[duplicated(hgcA.scaffold.list)]
+# Looks like we had a split hgcA sequence.
+# Not super abundant (data not shown), so we'll just leave it.
+```
+
+### Check clustering cutoff
+
+First, I wanted to make sure our 97% cutoff for clustering sequences was a good choice.
+I loaded in our clustering with the 80% cutoff, and plotte
+```{r check cluster cutoffs, echo = FALSE, message = FALSE, warning=FALSE }
+
+hgcA.clusters.divergent <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/dereplication/hgcA_divergent_cluster_faa.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE)
+
+plot(x = hgcA.clusters.divergent$clstr_cov %>%
+       gsub("%", "", .) %>%
+       as.numeric(),
+     y = hgcA.clusters.divergent$clstr_iden %>%
+       gsub("%", "", .) %>%
+       as.numeric(),
+     pch = 17,
+     xlab = "Cluster coverage (%)",
+     ylab = "Sequence Identity (%)")
+```
+
+Looks decent.
+There is one sequence at 96.85%, but it actually does cluster with that group when using the 97% cutoff.
+There are two pairs at 92-93%, but other than that, if it's not over 97% it's pretty much below 90.
+Safe to stick with 97% for now.
+
+
+
+### Ordinate sequences by depth of coverage
+
+Then, I wanted to compare the clustering information to an ordination by depth of the hgcA sequences.
+I used a Bray-Curtis dissimilarity metric and a NMDS-based ordination.
+The numbers refer to the cluster ID that CD-HIT assigned each sequence.
+
+```{r cluster_hgcA_coverage, echo = FALSE, results='hide',fig.keep='all' }
+
+# Make vector to tie hgcA name to cluster number
+hgcA.clusters <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/dereplication/hgcA_cluster_faa.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE)
+hgcA.cluster.vector <- hgcA.clusters$clstr
+names(hgcA.cluster.vector) <- hgcA.clusters$id
+
+
+# Read in coverage data
+hgcA.depth <- read.csv("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
+                       stringsAsFactors = FALSE) %>%
+  filter(seqID %in% hgcA.list.good.scaffolds)
+
+# Generate matrix for ordination
+hgcA.depth.matrix <- hgcA.depth %>%
+  select(-c(seqID, length))
+rownames(hgcA.depth.matrix) <- hgcA.depth$seqID
+
+# Bray-Curtis metaMDS
+BC.nmds = metaMDS(hgcA.depth.matrix, distance="bray", k=2, trymax=1000)
+data.scores = as.data.frame(scores(BC.nmds),stringsAsFactors = FALSE)
+data.scores$clusterID = as.character(hgcA.cluster.vector[scaffold.to.gene.vector[rownames(data.scores)]])
+
+
+# Generate plot
+ggplot(data.scores, aes(x = NMDS1, y = NMDS2, col = clusterID)) + 
+  geom_point(size = 0)+ 
+  theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
+        axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
+        axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2)) + 
+  labs(x = "NMDS1", y = "NMDS2") +
+  geom_text(aes(label = clusterID)) +
+  geom_line()
+
+
+```
+
+For the most part, the ordination matches fairly well with the clustering information.
+This is especially true for cluster 7, 9, 1, 0, and to a lesser extent, 10.
+Cluster 6 
+
+```{r divergent cluster coverage, echo = FALSE, message = FALSE, warning=FALSE }
+
+cluster.coverage.table <-function(cluster.of.interest) {
+  hgcA.clusters %>%
+    filter(clstr %in% cluster.of.interest) %>%
+    select(id, clstr) %>%
+    left_join(hgcA.depth %>%
+                mutate(id = scaffold.to.gene.vector[seqID])) %>%
+    select(-c(id)) %>%
+    kable(caption = paste("Coverage of seqs in or near cluster ",
+                          cluster.of.interest[1],
+                          sep = ""))
+}
+
+cluster.coverage.table(6)
+cluster.coverage.table(c(4, 8, 11))
+cluster.coverage.table(10)
+
+```
+
+The sequences in cluster 6 aren't that much different in actuality.
+However, there is a substantial divergence in the coverages of sequences in cluster 4.
+Pw03Meta18_000000038870_2 is more abundant at ENP_18_030_032 than PwCoMega18_000000986878.
+However, Pw03Meta18_000000038870_2 is on a much shorter contig.
+Additionally, there are two other sequences that are interspersed in there.
+I wanted to see if they were closely related (within 80%) and might be pulling reads over.
+So, I clustered the sequences with CD-HIT at 80% and downloaded that.
+
+```{r cluster 4 with low cut-off, echo = FALSE, message = FALSE, warning=FALSE }
+
+hgcA.clusters.divergent <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/dereplication/hgcA_divergent_cluster_faa.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE)
+cluster.of.interest <- hgcA.clusters.divergent[which(hgcA.clusters.divergent$id == "Pw03Meta18_000000038870_2"), "clstr"]
+
+hgcA.clusters.divergent.of.interest <- hgcA.clusters.divergent %>%
+  filter(clstr == cluster.of.interest)
+```
+
+Nope, no clustering here.
+To really get at it, I'd have to look at the reads mapping, but not worth that level of inspection.
+Just going to go with using the *hgcA* on PwCoMega18_000000986878, which I think has been defaulted to.
+
+
+### Check on length of hgcA+ scaffolds and hgcB presence
+
+Before I finalize the dereplication, I want ot make sure that we've got the best set of representatives.
+To check this, I'll look at the presence/absence of a downstream hgcB gene and the overall length of the hgcA scaffolds.
+I'll only do this comparison for clusters with more than one member.
+
+```{r representative selection, echo = FALSE, message = FALSE, warning=FALSE }
+
+hgcB.list <- readLines("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/hgcB/hgcB.txt")
+hgcA.seqs.with.hgcB <- scaffold.to.gene.vector[paste(strsplit(hgcB.list, "_") %>%
+                                                       sapply("[", 1),
+                                                     strsplit(hgcB.list, "_") %>%
+                                                       sapply("[", 2),
+                                                     sep = "_")]
+
+hgcA.clusters <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/dereplication/hgcA_cluster_faa.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE) %>%
+  filter(clstr_size > 1) %>%
+  select(id, clstr, clstr_rep) %>%
+  left_join(hgcA.depth %>%
+              mutate(id = scaffold.to.gene.vector[seqID]) %>%
+  select(id, length)) %>%
+  mutate(hgcB = id %in% hgcA.seqs.with.hgcB)
+
+kable(hgcA.clusters)
+```
+
+For all except clstr 0, CD-HIT ended up taking the hgcA sequence on the longest scaffold.
+For each of the clusters, if any hgcA in the cluster has hgcB after it, the representative also has it.
+So, based on these results, I'm going to go ahead with the list of hgcA sequences that CD-HIT spit out.
+
