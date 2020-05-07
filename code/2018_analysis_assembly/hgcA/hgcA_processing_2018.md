@@ -18,6 +18,10 @@ Wonder if it's due to the increased strain variation leading to fragmentation?
 The Pw04 MegaHit assembly returned 3 fragments, one from Pw03 MegaHit, and 1 each from Pw01 and Pw02 in the metaSPADes assemblies.
 There's one sequences (Pw04Meta18_000000032264_1) that only has one predicted TM domain, and doesn't align well with the others, but isn't cut off at the C-terminus.
 I decided to hang on to that one for now.
+There is a scaffold (Pw01Meta18_000000017085) with two hgcA hits against it, at the first and second open reading frame.
+It appears that the ORF was split, likely a Prodigal artifact.
+I'm just going to cut these two out rather than trying to combine them.
+During the depth analysis (below) it turned out that the scaffold wasn't at very high coverage anyways.
 
 I saved a file (`hgcA_good.afa`) with all the keeper sequences, and only kept those with a full cap helix domain and several transmembrane domains.
 
@@ -58,7 +62,6 @@ This saves out a file with the aggregated and normalized depth information here:
 Next we'll want to dereplicate the hgcA sequences across our assemblies.
 We'll use a cutoff of 97% identity for this process.
 In addition to getting the fna file, we'll generate the text file with the cluster information, then download that to my computer.
-
 
 
 **Dereplicate sequences**
