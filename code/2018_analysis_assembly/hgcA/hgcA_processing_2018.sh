@@ -579,12 +579,38 @@ epost -db protein -input hgcA_ref_nr_list.txt | \
     xtract -pattern DocumentSummary -element AccessionVersion,Organism > hgcA_ref_nr_taxonomy.tsv
 
 
+#########################
+# Generate final list of sequences
+#########################
 
+# First, removed unneeded sequences.
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/phylogeny
+scripts=~/Everglades/code/generalUse
 
+python $scripts/remove_fasta_seqs_using_list_of_headers.py \
+          hgcA_for_phylogeny_raw_2.faa \
+          seqs_to_remove_tree_2.txt \
+          hgcA_for_phylogeny_final.faa
+$scripts/cleanFASTA.py hgcA_for_phylogeny_final.faa
+mv hgcA_for_phylogeny_final.faa_temp.fasta hgcA_for_phylogeny_final.faa
 
+# Then add in hgcA sequences from 5M SYN bins
+grep -A 1 'SYN' ~/5M/dataEdited/binAnalysis/hgcA/identification/hgcA_bins.faa | \
+    grep -v '\-\-' \
+    > SYN_hgcA.faa
+cat hgcA_for_phylogeny_final.faa \
+    SYN_hgcA.faa \
+    > hgcA_for_phylogeny_final_SYN.faa
 
+# Generate alignment
+muscle -in hgcA_for_phylogeny_final_SYN.faa \
+        -out hgcA_for_phylogeny_final.afa
 
-
+# Generate rough tree
+FastTree hgcA_for_phylogeny_final.afa \
+    > rough_hgcA_final.tree
 
 
 
@@ -603,5 +629,5 @@ $raxml -f a \
         -N autoMRE \
         -x 2381 \
         -T 20 \
-        -s hgcA_masked.afa \
+        -s hgcA_for_phylogeny_final_trimmed_cut.afa \
         -n hgcA

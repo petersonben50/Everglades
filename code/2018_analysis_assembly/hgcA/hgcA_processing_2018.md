@@ -100,25 +100,43 @@ It was overpopulated at this point.
 I manually inspected the tree and identified the accession numbers of the files I wanted removed, which I saved here: `dataEdited/2018_analysis_assembly/hgcA/phylogeny/seqs_to_remove_tree_2.txt`.
 
 
+*Generate final tree*
 
+I then generated the final list of sequences to use in my tree file.
+I first removed all the sequences that I didn't want from the second iteration (saved in `seqs_to_remove_tree_2.txt`), using a python script I wrote: `code/generalUse/remove_fasta_seqs_using_list_of_headers.py`.
+I then also added in the hgcA sequences from the SYN bins that I found in my Mendota metagenomes, since the Syntrophobacterales branches seemed to be a little thin.
+Then I generated an alignment using MUSCLE and made a tree using FastTree, just to check it out.
+Checked it out in the `clean_hgcA_tree.R` file.
+This looks pretty damn good actually, now just need to clean up the alignment before feeding it to RAxML.
 
-*Curate alignment*
-
-Before generating a tree in RAxML, I curated the alignment by masking with BMGE1.1 on the [Galaxy portal](https://galaxy.pasteur.fr/?tool_id=toolshed.pasteur.fr%2Frepos%2Fdcorreia%2Fbmge%2Fbmge%2F1.12&version=1.12&__identifer=5anq311b6rv).
+To clean the alignment, I masked it with with BMGE1.1,
+I did this on the [Galaxy portal](https://galaxy.pasteur.fr/?tool_id=toolshed.pasteur.fr%2Frepos%2Fdcorreia%2Fbmge%2Fbmge%2F1.12&version=1.12&__identifer=5anq311b6rv).
 I used the BLOSUM30 substitution matrix, with everything else on default (sliding window of 3, a maximum entropy threshold and a gap rate cut-off of 0.5, and a minimum block size of 5).
-I downloaded this and saved it as `hgcA_masked.afa`.
-Then I checked the alignment in Geneious.
-One of the sequences from the assemblies is pretty truncated, as are two references, but I went ahead with the analysis anyways, and will check on those branches afterwards to see how it's affected.
-I did no additional trimming on this alignment.
+I then manually checked the alignment in Geneious.
+Several sequences were truncated on either end, so I cut 48 residues off the front end and 77 off the back of the alignment.
+The final exported sequence is `hgcA_for_phylogeny_final_trimmed_cut.afa`.
 
 
 *Generate tree in RAxML*
 
 I then generated an ML tree using RAxML.
 We used RAxML (v8.2.11) for this.
+The seed value was 283976
 Rapid bootstrapping was used (with the "-N autoMRE" flag, and a seed number of 2381).
-Automatic detection of convergence stopped bootstrapping after 650 replicates.
+Automatic detection of convergence stopped bootstrapping after xxx replicates.
 The phylogeny was generated under a gamma distribution and the best substitution matrix was automatically determined to be LG (-m PROTGAMMAAUTO).
+
+
+
+
+
+
+
+
+
+
+
+
 The tree was then downloaded and loaded into R. It was mid-point rooted using the phangorn package and visualized using ggtree.
 
 
