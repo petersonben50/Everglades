@@ -131,6 +131,17 @@ The phylogeny was generated under a gamma distribution and the best substitution
 The tree was then downloaded and loaded into R (`clean_hgcA_tree.R`).
 It was mid-point rooted using the phangorn package and visualized using ggtree.
 I replaced the accession numbers of the references with their names, and saved out a cleaned hgcA tree (`dataEdited/2018_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree.rds`).
+I'll also use this script to save out a color vector for the tree.
+I used these two RDS files, along with the depth information for the hgcA+ scaffolds, to generate an hgcA tree paired with the overall abundance information.
+
+
+**hgcA phylogenetic cluster assignment**
+
+I then assigned a taxonomic group to each of the hgcA sequences, based on the phylogenetic tree that I had built.
+That information was saved here: `hgcA_phylogenetic_clusters.xlsx`.
+I started out by classifying them simply as methanogen, syntroph, Geobacter, or Elusimicrobia.
+At some point I might want to split up the methanogens into smaller categories.
+
 
 
 
