@@ -412,19 +412,10 @@ $cdhit/cd-hit -g 1 \
 $cdhit/clstr2txt.pl dereplication/hgcA_derep_divergent.faa.clstr > dereplication/hgcA_divergent_cluster_faa.tsv
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Final set of hgcA sequences:
+cp dereplication/hgcA.faa ./
+grep '>' hgcA.faa | \
+  sed 's/>//' > hgcA.txt
 
 
 
@@ -433,17 +424,12 @@ $cdhit/clstr2txt.pl dereplication/hgcA_derep_divergent.faa.clstr > dereplication
 
 ############################################
 ############################################
-# Make phylogenetic tree of sequences
+# Make phylogenetic tree
 ############################################
 ############################################
-
-
-#########################
-# Find additional reference sequences
-#########################
 
 ####################
-# Retrieve additional reference sequences
+# Use McDaniel et al 2020 references
 ####################
 
 screen -S EG_hgcA_references
@@ -453,102 +439,153 @@ conda activate bioinformatics
 PYTHONPATH=""
 PERL5LIB=''
 
-mkdir ~/Everglades/references/hgcA
-mkdir ~/Everglades/references/hgcA/nr_2019_analysis
-cd ~/Everglades/references/hgcA/nr_2019_analysis
+mkdir ~/references/hgcA/McDaniel_2020
+cd ~/references/hgcA/McDaniel_2020
 
-blastp -query ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/identification/hgcA_good.faa \
-        -db /opt/bifxapps/ncbi-blastdb/nr \
+#makeblastdb -dbtype prot \
+#            -in McDaniel_2020_hgcA_ref.faa \
+#            -parse_seqids \
+#            -out McDaniel_2020_hgcA_ref.db
+
+blastp -query ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/hgcA.faa \
+        -db ~/references/hgcA/McDaniel_2020/McDaniel_2020_hgcA_ref.db \
         -evalue 0.005 \
         -outfmt '6 sseqid sseq' \
-        -max_target_seqs 3 \
+        -max_target_seqs 5 \
         -num_threads 3 \
-        -out hgcA_ref_blast.txt
+        -out ~/Everglades/references/hgcA/2018_assembly_analysis/hgcA_ref_McDaniel_2020.txt
 
 # Generate a fasta file of identified sequences
-awk -F '\t' '{ print ">"$1"\n"$2 }' hgcA_ref_blast.txt > hgcA_ref_blast.faa
-sed 's/gi|[0-9]*|[a-z]*|//' hgcA_ref_blast.faa | sed 's/|//' | sed 's/-//g' > hgcA_ref_blast_edited.faa
-mv -f hgcA_ref_blast_edited.faa hgcA_ref_blast.faa
-
+cd ~/Everglades/references/hgcA/2018_assembly_analysis
+awk -F '\t' '{ print ">"$1"\n"$2 }' hgcA_ref_McDaniel_2020.txt > hgcA_ref_McDaniel_2020.faa
 # List of all unique identified sequences
-grep '>' hgcA_ref_blast.faa | sed 's/>//' \
+grep '>' hgcA_ref_McDaniel_2020.faa | sed 's/>//' \
                     | sort | uniq \
-                    > hgcA_ref_list.txt
-
-# Keep only unique sequence
-
+                    > hgcA_ref_McDaniel_2020_list.txt
+# Keep only unique sequences
 IFS=$'\n'
-for hgcA in $(cat hgcA_ref_list.txt)
+for hgcA in $(cat hgcA_ref_McDaniel_2020_list.txt)
 do
-  grep -A 1 -m 1 $hgcA hgcA_ref_blast.faa >> hgcA_ref_blast_derep.faa
+  grep -A 1 -m 1 $hgcA hgcA_ref_McDaniel_2020.faa >> hgcA_ref_McDaniel_2020_derep.faa
 done
-mv -f hgcA_ref_blast_derep.faa hgcA_ref_blast.faa
+mv -f hgcA_ref_McDaniel_2020_derep.faa hgcA_ref_McDaniel_2020.faa
 
-# https://www.ncbi.nlm.nih.gov/books/NBK179288/
-# Download the list (hgcA_ref_list.txt) so we can
-# get the taxonomic information.
-mkdir /Users/benjaminpeterson/Documents/research/Everglades/references/hgcA/nr_2019_analysis
-cd /Users/benjaminpeterson/Documents/research/Everglades/references/hgcA/nr_2019_analysis
-
-epost -db protein -input hgcA_ref_list.txt \
-    | esummary \
-    | xtract -pattern DocumentSummary -element AccessionVersion,Organism > hgcA_ref_taxonomy.tsv
-
-
-
-#########################
-# Dereplicate reference sequence sets
-#########################
-
-cd ~/Everglades/references/hgcA/
+# Dereplicate sequences
 cdhit=~/programs/cdhit-master
-$cdhit/cd-hit-2d -i hgcA_references_confirmed_methylators.faa \
-                  -i2 nr_2019_analysis/hgcA_ref_blast.faa \
-                  -o nr_2019_analysis/hgcA_ref_blast_uniq.faa \
-                  -c 0.97 \
-                  -n 5
+$cdhit/cd-hit -g 1 \
+              -i hgcA_ref_McDaniel_2020.faa \
+              -o hgcA_ref_McDaniel_2020_derep.faa \
+              -c 0.97 \
+              -n 5 \
+              -d 0
 
-cat nr_2019_analysis/hgcA_ref_blast_uniq.faa \
-    hgcA_references_confirmed_methylators.faa \
-    > nr_2019_analysis/hgcA_ref_for_tree.faa
-
-
-
-
-#########################
 # Generate alignment
-#########################
-
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate bioinformatics
-
 cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA
 mkdir phylogeny
 
-# Combine all the sequences we need
-cat identification/hgcA_good.faa \
-    ~/Everglades/references/hgcA/nr_2019_analysis/hgcA_ref_for_tree.faa \
-    ~/5M/dataEdited/binAnalysis/hgcA/identification/hgcA_bins.faa \
+cat hgcA.faa \
+    ~/Everglades/references/hgcA/2018_assembly_analysis/hgcA_ref_McDaniel_2020_derep.faa \
     > phylogeny/hgcA_for_phylogeny_raw.faa
-
-# Align sequences using muscle
 cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/phylogeny
 muscle -in hgcA_for_phylogeny_raw.faa \
         -out hgcA_for_phylogeny_raw.afa
 
-
-
-
-#########################
 # Generate rough tree
-#########################
-
 FastTree hgcA_for_phylogeny_raw.afa \
     > rough_hgcA.tree
 
 # Download this to my computer:
 # dataEdited/metagenomes/2018_analysis_assembly/hgcA/phylogeny
-# and check it out in Geneious.
+# and check it out in R.
+
+
+####################
+# Use nr database to find references
+####################
+
+screen -S EG_hgcA_references
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+cd ~/Everglades/references/hgcA/2018_assembly_analysis
+
+blastp -query ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/hgcA.faa \
+        -db ~/references/ncbi_db/nr/nr \
+        -evalue 0.005 \
+        -outfmt '6 sseqid sseq' \
+        -max_target_seqs 5 \
+        -num_threads 3 \
+        -out hgcA_ref_nr.txt
+
+# Generate a fasta file of identified sequences
+awk -F '\t' '{ print ">"$1"\n"$2 }' hgcA_ref_nr.txt > hgcA_ref_nr.faa
+sed 's/gb|//' hgcA_ref_nr.faa | \
+  sed 's/|//g' | \
+  sed 's/-//g' | \
+  sed 's/ref//' | \
+  sed 's/tpg//' \
+  > hgcA_ref_nr_edited.faa
+mv -f hgcA_ref_nr_edited.faa hgcA_ref_nr.faa
+# List of all unique identified sequences
+grep '>' hgcA_ref_nr.faa | sed 's/>//' \
+                    | sort | uniq \
+                    > hgcA_ref_nr_list.txt
+# Keep only unique sequences
+IFS=$'\n'
+for hgcA in $(cat hgcA_ref_nr_list.txt)
+do
+  grep -A 1 -m 1 $hgcA hgcA_ref_nr.faa >> hgcA_ref_nr_derep.faa
+done
+mv -f hgcA_ref_nr_derep.faa hgcA_ref_nr.faa
+
+# Dereplicate seqs
+cd ~/Everglades/references/hgcA/2018_assembly_analysis
+cdhit=~/programs/cdhit-master
+$cdhit/cd-hit-2d -i hgcA_ref_McDaniel_2020_derep.faa \
+                  -i2 hgcA_ref_nr.faa \
+                  -o hgcA_ref_nr_uniq.faa \
+                  -c 0.97 \
+                  -n 5
+grep '>' hgcA_ref_nr_uniq.faa | sed 's/>//' \
+                    | sort | uniq \
+                    > hgcA_ref_nr_list.txt
+# Generate alignment
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA
+
+cat ~/Everglades/references/hgcA/2018_assembly_analysis/hgcA_ref_McDaniel_2020_derep.faa \
+    ~/Everglades/references/hgcA/2018_assembly_analysis/hgcA_ref_nr_uniq.faa \
+    ~/Everglades/references/hgcA/hgcA_references_confirmed_methylators.faa \
+    hgcA.faa \
+    > phylogeny/hgcA_for_phylogeny_raw_2.faa
+cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/phylogeny
+muscle -in hgcA_for_phylogeny_raw_2.faa \
+        -out hgcA_for_phylogeny_raw_2.afa
+
+# Generate rough tree
+FastTree hgcA_for_phylogeny_raw_2.afa \
+    > rough_hgcA_2.tree
+# Download this to my local computer.
+# Also download hgcA_ref_nr_list.txt
+mkdir /Users/benjaminpeterson/Documents/research/Everglades/references/hgcA
+cd /Users/benjaminpeterson/Documents/research/Everglades/references/hgcA
+
+epost -db protein -input hgcA_ref_nr_list.txt | \
+    esummary | \
+    xtract -pattern DocumentSummary -element AccessionVersion,Organism > hgcA_ref_nr_taxonomy.tsv
+
+
+
+
+
+
+
+
+
 
 
 #########################
@@ -568,142 +605,3 @@ $raxml -f a \
         -T 20 \
         -s hgcA_masked.afa \
         -n hgcA
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-############################################
-############################################
-# Pull out section of assembly graph for each sequence
-############################################
-############################################
-
-screen -S assembly_graph
-export PATH=/home/GLBRCORG/bpeterson26/miniconda3/bin:$PATH
-source activate bandage
-
-mkdir ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/assembly_graphs
-cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA
-
-IFS=$'\n'
-
-for geneID in $(cat identification/hgcA_raw.txt)
-do
-
-  echo "Working on" $geneID
-  assembly=$(echo $geneID | awk -F '_' '{ print $1 }')
-  scaffoldName=$(echo $geneID | \
-              awk -F '_' '{ print $1"_"$2 }')
-  scaffoldID=$(awk -F '\t' -v scaffoldName="$scaffoldName" '$1 == scaffoldName { print $2 }' ~/Everglades/dataEdited/assemblies/scaffolds/renaming_reports/$assembly\_report_file.txt)
-
-  assemblyGraphLocation=~/Everglades/dataEdited/assemblies/assembly_files/$assembly
-
-  grep $scaffoldID $assemblyGraphLocation/assembly_graph_with_scaffolds.gfa | \
-    awk '{ print $3 }' | \
-    sed 's/-//g' | \
-    sed 's/+//g' | \
-    sed 's/,/\
-/g' > assembly_graphs/nodes_of_interest.txt
-
-
-  command="Bandage reduce $assemblyGraphLocation/assembly_graph.fastg assembly_graphs/assembly_graph_$scaffoldName.fastg --scope aroundnodes --distance 4 --nodes "
-
-  IFS=$'\n'
-
-  for scaffold_ID in `cat assembly_graphs/nodes_of_interest.txt`
-  do
-    echo "Adding" $scaffold_ID
-    command=$(echo $command$scaffold_ID",")
-  done
-
-
-  command=$(echo $command | sed 's/,$//')
-  echo "Running command:"
-  echo $command
-
-  bash -c $command
-
-done
-
-
-
-######################
-# Check out node 1857184499
-######################
-
-cd ~/Everglades/dataEdited/2018_analysis_assembly/hgcA/
-
-mkdir reassembly
-
-grep '^P' ~/Everglades/dataEdited/assemblies/assembly_files/KMBP004F/assembly_graph_with_scaffolds.gfa | \
-  grep '1857184499' | \
-  awk -F '\t' '{ print $2 }'
-# scaffold is NODE_26726_length_13659_cov_9.070130
-grep 'NODE_26726_length_13659_cov_9.070130' ~/Everglades/dataEdited/assemblies/scaffolds/renaming_reports/KMBP004F_report_file.txt
-# Renamed to KMBP004F_000000026726
-
-scaffold=KMBP004F_000000026726
-grep -A 1 $scaffold\$ ~/Everglades/dataEdited/assemblies/scaffolds/KMBP004F_assembly.fna \
-    > reassembly/node_1857184499.fna
-awk -v scaffold="$scaffold" '{ if ($1 == scaffold) print }' ~/Everglades/dataEdited/assemblies/ORFs/KMBP004F.gff \
-    > reassembly/node_1857184499.gff
-
-
-
-######################
-# Pull out BAM files for each of these
-######################
-
-cd ~/Everglades/dataEdited/2018_analysis_assembly/
-
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
-PYTHONPATH=''
-PERL5LIB=''
-
-echo -e "KMBP004F_000000026726\nKMBP004F_000000437519\nKMBP004F_000000037185" > hgcA/reassembly/scaffolds_of_interest.txt
-
-IFS=$'\n'
-
-for scaffold in $(cat hgcA/reassembly/scaffolds_of_interest.txt)
-do
-
-  echo "Working on" $scaffold
-
-  assemblyName=$(echo $scaffold | awk -F '_' '{ print $1 }')
-
-  samtools view -F 4 \
-            mapping/KMBP004F_to_$assemblyName.bam \
-            $scaffold \
-            > hgcA/reassembly/$scaffold\_reads.sam
-  wc -l hgcA/reassembly/$scaffold\_reads.sam
-
-  samtools view -F 8 -f 4 \
-            mapping/KMBP004F_to_$assemblyName.bam \
-            $scaffold \
-            >> hgcA/reassembly/$scaffold\_reads.sam
-  wc -l hgcA/reassembly/$scaffold\_reads.sam
-
-done

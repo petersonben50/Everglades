@@ -71,36 +71,35 @@ I used an Rmd file to keep track of my notes on this: `hgcA_dereplication.Rmd`.
 Bottom line: we'll go with the hgcA representatives that CD-HIT returned.
 
 
-**hgcA phylogeny**
+**Make phylogenetic tree**
 
-*Find additional reference sequences*
+*Use McDaniel et al 2020 references*
 
-First we'll want to flesh out our hgcA tree using some reference sequences.
-We have our list of 30 hgcA sequences from confirmed methylators, but we'll want to add in a few more.
-Let's do that by blasting each of our hgcA sequences against the non-redundant database.
-We'll do this using command-line BLAST (v2.9.0), with the blastp function.
-The nr database is stored on the GLBRC servers, and was updated on April 7th, 2019.
-We'll take the top 6 hits against each sequence, then dereplicate that set of protein sequences against the 30 confirmed methylators.
-
-*Combine reference sequence sets*
-
-We'll then want to combine our reference sequence sets (the confirmed methylators and the blast-derived hgcA sequences), since it is likely that many of these are redundant.
-We'll use CD-HIT-2D for this, with a cut-off of 97% identity.
-We'll then combine the dereplicated sequences into a single reference file.
-
-
-*Generate alignment*
-
-First we'll concatenate our sequences with the references that we found.
-We'll also add in the hgcA sequences from the Mendota bins.
-Once we have our final set of sequences, we'll generate an alignment using MUSCLE (v3.8.31).
-
-
-*Generate rough tree*
-
-First, to check the dataset, we'll generate a rough tree using FastTree (v2.1.10) to check on the quality of the alignment.
+First I wanted to flesh out our hgcA tree using some reference sequences.
+I downloaded the hgcA.faa file from Elizabeth's Hg paper, and converted the file to a blast database.
+I then blasted our sequences against that database, keeping the top 5 hits.
+I concatenated our sequences with the references that we found.
+With this set, I generated an alignment using MUSCLE (v3.8.31).
+To check the dataset, I generated a rough tree using FastTree (v2.1.10) to check on the quality of the alignment.
 I downloaded this to Geneious and checked it out.
-None of the branches look particularly egregiously long, so I went ahead with this full set of sequences.
+Looking a little thin with just the references from Elizabeth's paper, so I decided to check it out in R to see what it needs.
+Code is here: `code/2018_analysis_assembly/hgcA/clean_hgcA_tree.R`.
+
+The branches were a little long for the sequences near Deltaproteobacteria, and the one clustering with Elusimicrobia.
+So, I decided to flesh it out with the nr database
+
+*Use nr database to find references and confirmed methylators*
+
+To flesh out the tree, I blasted my sequences against the non-redundant NCBI database (downloaded 2020-05-07), keeping the top 5 results.
+I dereplicated these sequences against the sequences from McDaniel et al 2020, pulled out the unique sequences.
+Finally, I concatenated the McDaniel 2020, the nr sequences, and the 30 confirmed methylators into a single file along with the assembly sequences.
+I aligned them using MUSCLE, then generated a tree using FastTree.
+I downloaded the tree file to my local computer, where I visualized it in the `clean_hgcA_tree.R` code file.
+
+It was overpopulated at this point.
+I manually inspected the tree and identified the accession numbers of the files I wanted removed, which I saved here: `dataEdited/2018_analysis_assembly/hgcA/phylogeny/seqs_to_remove_tree_2.txt`.
+
+
 
 
 *Curate alignment*
