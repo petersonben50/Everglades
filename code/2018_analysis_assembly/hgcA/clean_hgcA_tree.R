@@ -154,6 +154,58 @@ ggtree(hgcA.tree, aes(x = 0,
 dev.off()
 
 
+
+
+
+
+
+
+
+
+#### Check out FastTree of final alignment ####
+
+# Read in tree
+tree.name <- "dataEdited/2018_analysis_assembly/hgcA/phylogeny/rough_hgcA_final.tree"
+hgcA.tree.unrooted <- read.newick(tree.name)
+rm(tree.name)
+
+
+# Root tree
+hgcA.tree <- midpoint(hgcA.tree.unrooted,
+                      node.labels = "support")
+
+# Get indices
+reference.indices.McD <- which(hgcA.tree$tip.label %in% names(hgcA.references.McD.vector))
+reference.indices.nr <- which(hgcA.tree$tip.label %in% names(hgcA.references.nr.vector))
+reference.indices.confirmed <- which(hgcA.tree$tip.label %in% names(hgcA.references.confirmed.vector))
+this.study.indices <- which(hgcA.tree$tip.label %in% hgcA.list)
+
+# Change names:
+hgcA.tree$tip.label[reference.indices.McD] <- hgcA.references.McD.vector[hgcA.tree$tip.label[reference.indices.McD]]
+hgcA.tree$tip.label[reference.indices.nr] <- hgcA.references.nr.vector[hgcA.tree$tip.label[reference.indices.nr]]
+hgcA.tree$tip.label[reference.indices.confirmed] <- hgcA.references.confirmed.vector[hgcA.tree$tip.label[reference.indices.confirmed]]
+
+# Set color vector
+color.vector <- rep("grey", length(hgcA.tree$tip.label))
+color.vector[c(reference.indices.McD, reference.indices.nr)] <- colorblind.color.vector["black"]
+color.vector[reference.indices.confirmed] <- colorblind.color.vector[ref.confirmed.colors[hgcA.tree$tip.label[reference.indices.confirmed]]]
+color.vector[this.study.indices] <- "red"
+
+# Visualize tree
+ggtree(hgcA.tree, aes(x = 0,
+                      xend = 4)) + 
+  geom_tiplab(size=2.5, align = TRUE, col = color.vector) + 
+  geom_nodelab(aes(x = branch),
+               vjust = -.3,
+               size = 1)
+
+
+
+
+
+
+
+
 # 
 # 
 # #### Read in needed data ####
