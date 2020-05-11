@@ -126,18 +126,11 @@ Rapid bootstrapping was used (with the "-N autoMRE" flag, and a seed number of 2
 Automatic detection of convergence stopped bootstrapping after xxx replicates.
 The phylogeny was generated under a gamma distribution and the best substitution matrix was automatically determined to be LG (-m PROTGAMMAAUTO).
 
+*Clean tree*
 
-
-
-
-
-
-
-
-
-
-
-The tree was then downloaded and loaded into R. It was mid-point rooted using the phangorn package and visualized using ggtree.
+The tree was then downloaded and loaded into R (`clean_hgcA_tree.R`).
+It was mid-point rooted using the phangorn package and visualized using ggtree.
+I replaced the accession numbers of the references with their names, and saved out a cleaned hgcA tree (`dataEdited/2018_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree.rds`).
 
 
 
