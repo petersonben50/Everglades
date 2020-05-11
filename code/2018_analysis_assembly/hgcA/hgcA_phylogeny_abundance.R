@@ -26,7 +26,7 @@ hgcA.tree <- readRDS("dataEdited/2018_analysis_assembly/hgcA/phylogeny/hgcA_clea
 color.vector <- readRDS("dataEdited/2018_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree_color_vector.rds")
 
 # Read in depth data
-depth.data <- read.csv("dataEdited/2018_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
+depth.data <- read.csv("dataEdited/2018_analysis_assembly/hgcA/depth/hgcA_coverage_final.csv",
                        stringsAsFactors = FALSE) %>%
   select(-length)
 
@@ -39,20 +39,6 @@ hgcA.list <- readLines("dataEdited/2018_analysis_assembly/hgcA/hgcA.txt")
 
 
 #### Clean up depth data ####
-
-# Get a scaffold to ORF vector
-scaffold.to.ORF <- sapply(depth.data$seqID,
-                          function(x) {
-                            grep(x, hgcA.list, value = TRUE)
-                          }) %>%
-  unlist()
-
-# Keep only depth info for good seqs and sum abundance
-depth.data <- depth.data %>%
-  filter(seqID %in% names(scaffold.to.ORF)) %>%
-  mutate(seqID = scaffold.to.ORF[seqID]) %>%
-  mutate(total = ENP18_001_002_003 + ENP18_024_025 +
-           ENP18_030_032 + ENP18_048_049_50 + ENP18_061)
 
 # Make into dataframe for plotting
 depth.for.plotting <- data.frame(id = depth.data$seqID,
