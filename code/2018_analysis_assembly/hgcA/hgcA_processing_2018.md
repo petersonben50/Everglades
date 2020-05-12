@@ -143,6 +143,13 @@ I started out by classifying them simply as methanogen, syntroph, Geobacter, or 
 At some point I might want to split up the methanogens into smaller categories.
 
 
+**hgcA abundance analysis**
+
+I looked at the abundance of the hgcA sequences in different ways in the `abundance_hgcA.R` file.
+First I generated a table with the summary stats for the phylogenetic groups of hgcA.
+Then I generated a series of barplots of hgcA coverage (either by group or by individual sequence) across the sulfate gradient.
+
+
 
 
 **hgcA scaffold analysis**
