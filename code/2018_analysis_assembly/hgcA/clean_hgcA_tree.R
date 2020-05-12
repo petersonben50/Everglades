@@ -244,3 +244,8 @@ ggtree(hgcA.tree, aes(x = 0,
 #### Save out tree ####
 saveRDS(hgcA.tree,
         "dataEdited/2018_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree.rds")
+
+
+#### Save out color vector ####
+saveRDS(color.vector,
+        "dataEdited/2018_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree_color_vector.rds")
