@@ -262,6 +262,7 @@ source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 kaiju=~/references/kaiju_db
 cd ~/Everglades/dataEdited/2018_binning/binning_initial
 mkdir contigsTaxonomy/
+IFS=$'\n'
 
 for assembly in $(cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt)
 do
@@ -301,8 +302,6 @@ do
     echo "Populating genomes complete for" $assembly
   fi
 done
-source deactivate
-
 
 
 
