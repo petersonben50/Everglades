@@ -142,7 +142,7 @@ color.vector[reference.indices.confirmed] <- colorblind.color.vector[ref.confirm
 color.vector[this.study.indices] <- "red"
 
 # View tree
-pdf("results/2018_assembly_analysis/hgcA/phylogeny/rough_tree_2.pdf",
+pdf("results/2018_analysis_assembly/hgcA/phylogeny/rough_tree_2.pdf",
     width = 5,
     height = 15)
 ggtree(hgcA.tree, aes(x = 0,

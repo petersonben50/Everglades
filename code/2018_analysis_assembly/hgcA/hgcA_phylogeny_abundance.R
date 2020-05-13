@@ -66,7 +66,7 @@ treeAndDepth <- facet_plot(tree,
                                                   yend = y),
                            size = 1) + theme_tree2()
 
-png("results/2018_assembly_analysis/hgcA/phylogeny/hgcA_tree_abundance.png",
+png("results/2018_analysis_assembly/hgcA/phylogeny/hgcA_tree_abundance.png",
     units = "in",
     res = 240,
     height = 10,

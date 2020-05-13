@@ -81,7 +81,7 @@ summary.stats.hgcA <- depth.of.clusters %>%
   rename(`Number of\nSequences` = count)
 
 # Write out a nice table with that data
-png("results/2018_assembly_analysis/hgcA/depth/taxonomic_cluster_summary_stats.png",
+png("results/2018_analysis_assembly/hgcA/depth/taxonomic_cluster_summary_stats.png",
     width = 5,
     height = 2,
     unit = "in",
@@ -114,7 +114,7 @@ rel.coverage.per.site[, -1] <- apply(rel.coverage.per.site[, -1],
 
 # Plot overall and relative abundance together
 
-png("results/2018_assembly_analysis/hgcA/depth/depth_by_taxonomic_cluster_plot.png",
+png("results/2018_analysis_assembly/hgcA/depth/depth_by_taxonomic_cluster_plot.png",
     width = 8,
     height = 8,
     unit = "in",
@@ -209,7 +209,7 @@ plot.individual.seq.coverage <- function(sequence.of.interest) {
 
 
 
-png("results/2018_assembly_analysis/hgcA/depth/individual_seq_coverage.png",
+png("results/2018_analysis_assembly/hgcA/depth/individual_seq_coverage.png",
     width = 9,
     height = 9,
     unit = "in",

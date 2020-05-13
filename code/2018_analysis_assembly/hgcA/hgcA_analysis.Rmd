@@ -48,14 +48,14 @@ Alright, time to take a closer look at what these sequences look like.
 I built an hgcA phylogeny (below) and attached the abundance information.
 
 ```{r hgcA phylogeny and abundance, echo = FALSE}
-include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_assembly_analysis/hgcA/phylogeny/hgcA_tree_abundance.png")
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/hgcA/phylogeny/hgcA_tree_abundance.png")
 ```
 
 Based on this tree, I assigned a phylogenetic cluster to each sequence.
 I generated a summary table of these different groups below.
 
 ```{r hgcA taxonomy summary table, echo = FALSE}
-include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_assembly_analysis/hgcA/depth/taxonomic_cluster_summary_stats.png")
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/hgcA/depth/taxonomic_cluster_summary_stats.png")
 
 ```
 
@@ -68,7 +68,7 @@ Across our sulfate gradient, we see shifts in the guilds that the hgcA sequences
 Here, I looked at the cumulative abundance of four phylogenetic clusters of hgcA sequences I identified across the five metagenomes.
 
 ```{r cumulative hgcA abundance in guilds, echo = FALSE}
-include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_assembly_analysis/hgcA/depth/depth_by_taxonomic_cluster_plot.png")
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/hgcA/depth/depth_by_taxonomic_cluster_plot.png")
 ```
 
 As we saw in the overall abundances, the *hgcA* sequence coverage is dominated by methanogenic archaea.
@@ -82,7 +82,7 @@ I also wanted to look at the coverage of each individual sequence.
 Due to the number of plots, I removed the x-labels, but the sites are in the same order as above.
 
 ```{r coverage of individual hgcA sequences, echo = FALSE}
-include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_assembly_analysis/hgcA/depth/individual_seq_coverage.png")
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/hgcA/depth/individual_seq_coverage.png")
 ```
 
 Obviously the Elusimicrobia sequence is gonna be the same since we only had one sequence.
