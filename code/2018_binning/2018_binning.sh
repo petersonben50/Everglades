@@ -270,7 +270,7 @@ do
 
     echo "Finding scaffold taxonomies for" $assembly
 
-    conda activate anvio5
+    conda activate anvio6.2
     PYTHONPATH=""
     anvi-get-sequences-for-gene-calls -c anvioDBs/$assembly.db \
                                       -o contigsTaxonomy/$assembly\_geneCalls.fna
@@ -290,7 +290,7 @@ do
                         -r superkingdom,phylum,order,class,family,genus,species
     conda deactivate
 
-    conda activate anvio5
+    conda activate anvio6.2
     anvi-import-taxonomy-for-genes -i contigsTaxonomy/$assembly\_geneCalls_kaiju.names \
                                    -c anvioDBs/$assembly.db \
                                    -p kaiju \
@@ -322,7 +322,7 @@ source deactivate
 screen -S EG_anvioDBs
 cd ~/Everglades/dataEdited/2018_binning/binning_initial
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate anvio5
+conda activate anvio6.2
 PYTHONPATH=/home/GLBRCORG/bpeterson26/miniconda3/envs/anvio5/lib/python3.6/site-packages/
 
 cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
