@@ -23,7 +23,7 @@ To do this, I used the depth function on samtools (v1.10) to get the depth at ea
 I then used a custom python script to calculate the average coverage across each scaffold of interest within a metagenome.
 I didn't include the coverages of the residues within 150 residues of the end of the scaffold, just to reduce any noise that might come from being near the end of the scaffold.
 One thing that this doesn't account for is scaffolding gaps, where the coverage tends to drop dramatically... Might need to think about that in the future.
-Finally, I downloaded the depth files to my local computer and aggregated the depths across all metagenomes using R: `code/2019_analysis_assembly/metabolicProteins/metabolic_proteins_depth_aggregate.R`.
+Finally, I downloaded the depth files to my local computer and aggregated the depths across all metagenomes using R: `code/2018_analysis_assembly/metabolicProteins/metabolic_proteins_depth_aggregate.R`.
 
 
 **Dereplicate genes**
