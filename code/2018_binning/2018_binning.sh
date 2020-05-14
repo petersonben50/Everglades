@@ -322,19 +322,14 @@ screen -S EG_anvioDBs
 cd ~/Everglades/dataEdited/2018_binning/binning_initial
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate anvio6.2
-PYTHONPATH=/home/GLBRCORG/bpeterson26/miniconda3/envs/anvio5/lib/python3.6/site-packages/
+PYTHONPATH=""
 
 cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
 do
-
-
   if [ ! -d anvioDBs/$assembly.merged ]; then
-
-    cat ~/Everglades/metadata/lists/2019_analysis_metagenomes.txt | while read metagenome
+    cat ~/Everglades/metadata/lists/2018_analysis_assembly_metagenomes_list.txt | while read metagenome
     do
-
-      if [ ! -d anvioDBs/$metagenome.profile ]; then
-
+      if [ ! -d anvioDBs/$metagenome\_to_$assembly.profile ]; then
         echo "Profiling reads mapped from:" $metagenome "to" $assembly
         anvi-profile -c anvioDBs/$assembly.db \
                       -i mapping/$metagenome\_to_$assembly.bam \
@@ -342,7 +337,6 @@ do
                       --min-contig-length 2000 \
                       --num-threads 10 \
                       -o anvioDBs/$metagenome\_to_$assembly.profile
-
       else
         echo "STOP: Profiling reads mapped to:" $assembly "from" $metagenome "is already done"
       fi
@@ -351,8 +345,7 @@ do
                 -o anvioDBs/$assembly.merged \
                 -c anvioDBs/$assembly.db \
                 -S $assembly\_merged \
-                --skip-hierarchical-clustering \
-                --skip-concoct-binning
+                --skip-hierarchical-clustering
   else
     echo "Merging profiles complete for" $groupName
   fi
