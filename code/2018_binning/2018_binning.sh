@@ -210,7 +210,6 @@ mkdir anvioDBs
 
 for assembly in $(cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt)
 do
-
   if [ ! -f anvioDBs/$assembly.db ]; then
     anvi-gen-contigs-database -f scaffolds/$assembly\_filtered_assembly.fna \
                               -o anvioDBs/$assembly.db \
@@ -393,3 +392,45 @@ cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read ass
 do
   anvi-run-scg-taxonomy -c $assembly.db
 done
+
+
+
+
+
+
+################################################
+################################################
+# Run CONCOCT binning
+################################################
+################################################
+
+screen -S EG_anvioDBs_binning
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+bin_counts=~/Everglades/dataEdited/2018_binning/binning_initial/estimated_number_of_genomes.csv
+cd ~/Everglades/dataEdited/2018_binning/binning_initial/anvioDBs
+
+# Bin assemblies
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
+do
+  clusters=$(awk -F ',' -v assembly="$assembly" '$1 == assembly { print $3 }' $bin_counts)
+  echo "Binning" $assembly "into" $clusters "clusters"
+  anvi-cluster-contigs -p $assembly.merged/PROFILE.db \
+                        -c $assembly.db \
+                        -C CONCOCT \
+                        -T 16 \
+                        --driver concoct \
+                        --clusters $clusters \
+                        --length-threshold 2000 \
+                        --just-do-it
+done
+
+
+
+
+################################################
+################################################
+# Run CONCOCT binning
+################################################
+################################################
