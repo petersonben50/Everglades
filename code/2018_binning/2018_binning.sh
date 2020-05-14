@@ -373,3 +373,23 @@ PYTHONPATH=""
 assembly=Pw05Meta18
 anvi-display-contigs-stats $assembly.db
 # Go to this site: http://localhost:8080
+
+
+
+
+################################################
+################################################
+# Add taxonomic information
+################################################
+################################################
+
+screen -S EG_scg
+cd ~/Everglades/dataEdited/2018_binning/binning_initial/anvioDBs
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
+do
+  anvi-run-scg-taxonomy -c $assembly.db
+done

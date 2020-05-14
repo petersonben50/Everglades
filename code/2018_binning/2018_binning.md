@@ -51,5 +51,13 @@ I'll perform binning with a condensed number of clusters later on.
 **Estimate number of genomes**
 
 Before performing our clustering, I wanted to get an estimate of the number of genomes that we had in each assembly.
-I used the anvi-display-contigs-stats program to do this, then manually saved the estimated number of genomes to `estimated_number_of_genomes.csv` (in the second column).
+I used the [anvi-display-contigs-stats](http://merenlab.org/2016/06/22/anvio-tutorial-v2/#anvi-display-contigs-stats) program to do this, then manually saved the estimated number of genomes to `estimated_number_of_genomes.csv` (in the second column).
 In the third column, I added the number of clusters I'd like CONCOCT to generate for me.
+
+
+**Add taxonomic information**
+
+I also wanted to add information from GTDB to gain real-time insight into the taxonomy of the bins I was generating.
+I did this in anvio, as outlined [here](http://merenlab.org/2019/10/08/anvio-scg-taxonomy/).
+Make sure the GTDB databases are installed already.
+Beyond that, just need to run `anvi-run-scg-taxonomy` on the database.
