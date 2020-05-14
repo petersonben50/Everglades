@@ -47,3 +47,8 @@ I then added this information back into anvio.
 Then, I profiled the reads mapping to each assembly and added that to the anvio database.
 When merging the reads, I skipped the hierarchical clustering and the CONCOCT binning.
 I'll perform binning with a condensed number of clusters later on.
+
+**Estimate number of genomes**
+
+Before performing our clustering, I wanted to get an estimate of the number of genomes that we had in each assembly.
+I used the anvi-display-contigs-stats program to do this, then manually saved the estimated number of genomes to `estimated_number_of_genomes.csv`.
