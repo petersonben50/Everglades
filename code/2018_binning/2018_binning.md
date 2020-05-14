@@ -42,11 +42,13 @@ Briefly, I used anvio to retrieve nucleic acid sequences for gene calls.
 I then classified each scaffold with kaiju using the NCBI nr database downloaded on March 31st, 2020.
 I then added this information back into anvio.
 
+
 **Generate read profiles**
 
 Then, I profiled the reads mapping to each assembly and added that to the anvio database.
 When merging the reads, I skipped the hierarchical clustering and the CONCOCT binning.
 I'll perform binning with a condensed number of clusters later on.
+
 
 **Estimate number of genomes**
 
