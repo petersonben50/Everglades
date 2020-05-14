@@ -51,4 +51,5 @@ I'll perform binning with a condensed number of clusters later on.
 **Estimate number of genomes**
 
 Before performing our clustering, I wanted to get an estimate of the number of genomes that we had in each assembly.
-I used the anvi-display-contigs-stats program to do this, then manually saved the estimated number of genomes to `estimated_number_of_genomes.csv`.
+I used the anvi-display-contigs-stats program to do this, then manually saved the estimated number of genomes to `estimated_number_of_genomes.csv` (in the second column).
+In the third column, I added the number of clusters I'd like CONCOCT to generate for me.
