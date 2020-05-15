@@ -75,3 +75,30 @@ I'll use the Excel sheet I put together in the genome count estimation section t
 
 *Side note*: Never use excel to make a csv that you're later going to use in linux.
 Download Libre Office for this.
+
+
+**Add MetaBat2 info**
+
+Add the Metabat2 information as a collection.
+
+**Search for hgcA+ bins**
+
+Now, for the moment of truth: did any hgcA sequences make their way into any bins?
+Let's find out.
+First I summarized the bins and extracted a list of the original bin names.
+I then searched for bins that had a list of hgcA in them, and saved the assembly ID and the bin name to a file (`original_hgcA_bin_list.txt`).
+I downloaded this list to my local computer, and copied it into a new spreadsheet to use for my notes on the binning process: `dataEdited/2018_binning/binning_initial/anvioDB_processing/hgcA_binning_notes.xlsx`
+
+
+**Manually bin hgcA+ bins**
+
+Then I manually binned these!
+Before I did, though, I copied the anvio database folder to a new folder (anvioDBs_modified) and modified the new one.
+Then I went ahead and manually binned the hgcA+ bins.
+
+Tried to manually bin them.
+Overall, I'd say this process SUCKED.
+There really aren't any definitive hgcA+ bins in here.
+Nothing over 40% complete, and even to get there it was a little sketchy.
+Might want to give up on the genome-resolved metagenomes dream for these metagenomes.
+Maybe with the expanded number of metagenomes from our 2019 sampling, we'll be able to retrieve some, but I think we're stuck with assembly-based analyses for the 2018 work.

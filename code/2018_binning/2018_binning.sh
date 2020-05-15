@@ -431,6 +431,111 @@ done
 
 ################################################
 ################################################
-# Run CONCOCT binning
+# Add MetaBat2 info
 ################################################
 ################################################
+
+screen -S EG_anvioDBs_binning
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+cd ~/Everglades/dataEdited/2018_binning/binning_initial/anvioDBs
+PYTHONPATH=""
+metabat2=~/Everglades/dataEdited/2018_binning/binning_initial/autoBinning/metabat2
+
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
+do
+  anvi-import-collection $metabat2/$assembly\_metabat_S2B.tsv \
+                           -c $assembly.db \
+                           -p $assembly.merged/PROFILE.db \
+                           -C metabat2 \
+                           --contigs-mode
+   anvi-script-merge-collections -c $assembly.db \
+                                   -i $metabat2/$assembly\_metabat_S2B.tsv \
+                                   -o $assembly\_collections.tsv
+done
+
+
+
+################################################
+################################################
+# Search for hgcA+ bins
+################################################
+################################################
+
+# First summarize the bins
+screen -S EG_anvioDBs_binning
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+cd ~/Everglades/dataEdited/2018_binning/binning_initial
+mkdir anvioDB_processing
+
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
+do
+  if [ ! -e anvioDB_processing/summaries/$assembly.summary ]; then
+    echo "Summarizing binning from" $assembly
+    anvi-summarize -c anvioDBs/$assembly.db \
+                    -p anvioDBs/$assembly.merged/PROFILE.db \
+                    -C CONCOCT \
+                    -o anvioDB_processing/$assembly.summary
+  else
+    echo $assembly "already summarized"
+  fi
+done
+
+# Get list of original bin names
+cd ~/Everglades/dataEdited/2018_binning/binning_initial/anvioDB_processing
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
+do
+  ls $assembly.summary/bin_by_bin | sed 's/\///' \
+      > $assembly\_original_bin_list.txt
+done
+
+# Search bins for hgcA
+# First we'll want to find the bins that have hgcA.
+# We'll have to go through the summaries for that.
+cd ~/Everglades/dataEdited/2018_binning/binning_initial/anvioDB_processing
+mkdir hgcA_search
+rm -f hgcA_search/hgcA_bin_list.txt
+
+cat ~/Everglades/metadata/lists/2018_analysis_assembly_list.txt | while read assembly
+do
+  echo "Looking for hgcA in" $assembly
+  cat $assembly\_original_bin_list.txt | while read bin
+  do
+    if [ -s $assembly.summary/bin_by_bin/$bin/$bin-hgcaAnvio-hmm-sequences.txt ]; then
+      echo $assembly$'\t'$bin >> hgcA_search/original_hgcA_bin_list.txt
+    fi
+  done
+done
+
+
+
+
+
+
+
+
+################################################
+################################################
+# Manually bin hgcA+ bins
+################################################
+################################################
+
+screen -S EG_anvioDBs_binning
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+metabat2=~/Everglades/dataEdited/2018_binning/binning_initial/autoBinning/metabat2
+cd ~/Everglades/dataEdited/2018_binning/binning_initial
+# Copy the
+#cp -avr anvioDBs anvioDBs_modified
+
+assembly=Pw03Meta18
+bin=Bin_1
+anvi-refine -p anvioDBs_modified/$assembly.merged/PROFILE.db \
+            -c anvioDBs_modified/$assembly.db \
+            -C CONCOCT \
+            -b $bin \
+            -A anvioDBs_modified/$assembly\_collections.tsv \
+            --taxonomic-level "t_phylum"
