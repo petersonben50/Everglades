@@ -17,18 +17,22 @@ I then generated a ML tree using RAxML (v8.2.11), with a gamma distribution and 
 I downloaded `RAxML_bipartitions.dsrA` to the local computer (`dataEdited/metagenomes/2019_analysis_assembly/metabolicProteins/sulfur/SRB/dsr`).
 
 I started looking at the tree here: `code/2019_analysis_assembly/sulfur/dsr_tree.R`.
-In this script, I read in the tree, and midpoint rooted it.
-I read out the tree to `dataEdited/metagenomes/2019_analysis_assembly/metabolicProteins/sulfur/SRB/dsr/original_dsr_tree.pdf` and manually inspected the tree.
-It looked like I could use the node points "Nitrospirae_bacterium_RBG_19FT_COMBO_42_15" and "rifcsplowo2_02_scaffold_46312" to encapsulate the reverse dsrA genes (these ones were from bins that were likely oxidizing sulfate).
-From these, I subset the tree and isolated the rdsr sequences.
-Looks like I only had 3 reductive dsrA genes.
-I read these out to this list: `dataEdited/metagenomes/2019_analysis_assembly/metabolicProteins/sulfur/SRB/dsr/dsrA_red_list.txt`.
+In this script, I wanted to root it to match Kartik's tree in his sulfur cycling paper.
+First, I read out a PDF of the unrooted tree with the internal nodes labeled (`dataEdited/metagenomes/2019_analysis_assembly/metabolicProteins/sulfur/SRB/dsr/original_dsr_tree.pdf`).
+In previous incarnations of looking at this, I've found that if I root by the monophyletic group containing Candidatus_Hydrothermarchaeota_archaeon_JdFR_18_JGI24020J35080_1000005, Aigarchaeota_candidate_division_pSL4_archaeon_ASPF01000004, and Caldivirga_sp.\_MU80 I'll get something that looks like Karthik's tree.
+This is node 577.
+I can't detect this automatically in R, since even though the tree is read in as unrooted, the MRCA function treats it as though it is rooted, which makes sense.
+After rooting the tree with the root function in ape, I read the tree into a PDF (`dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/original_dsr_tree_rooted.pdf`).
 
-I then read this list into `code/2019_analysis_assembly/sulfur/SRB_abundance.R` and found the corresponding depths for each of the scaffolds.
-I plotted out the depth of dsrA in each sample.
-While it's mostly present at RM300, one of the dsrA sequences (some Deltaproteobacteria) has some coverage at 305/310.
+I then compared my tree to Karthik's, looking for the rdsr branch.
+It looked like I could use the node points "Nitrospirae_bacterium_RBG_19FT_COMBO_42_15" and "RBG_16_scaffold_151951" to encapsulate the reverse dsrA genes (these ones were from bins that were likely oxidizing sulfate).
+It was node 712 that isolated this branch.
+From these, I subset the tree and isolated the rdsr sequences, then pulled out the 13 remaining dsrA sequences, which we assumed to be the reductive dsrA genes.
+I read these out to this list: `dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_red_list.txt`.
 
-
+I also wanted to built a tree of the reductive dsrA sequences, to get an idea for what taxonomic group these might be associated with and see if there were shifts over the sulfate gradient.
+I pulled some references out of NCBI for this, both out of the refseq database and the nr database.
+I just midpoint-rooted for this analysis using the phangorn package.
 
 *dsrD*
 
