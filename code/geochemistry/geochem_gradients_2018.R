@@ -46,7 +46,9 @@ PW_sulfide <- geochem.data %>%
 
 #### Plot PW sulfide and SW sulfate data ####
 
-pdf("results/geochemistry/S_gradients_2018.pdf",
+png("results/geochemistry/S_gradients_2018.png",
+    res = 150,
+    units = "in",
     height = 6,
     width = 8)
 par(mfrow = c(2, 1),
@@ -89,7 +91,9 @@ PW_thg <- geochem.data %>%
 
 #### Plot MeHg and Hg at both PW and SW ####
 
-pdf("results/geochemistry/Hg_gradients_2018.pdf",
+png("results/geochemistry/Hg_gradients_2018.png",
+    res = 150,
+    units = "in",
     width = 12,
     height = 9)
 par(mfrow = c(2,2),
@@ -101,11 +105,11 @@ barplot(PW_mehg$FMHg_ng_L,
         ylim = c(0, 2),
         ylab = "MeHg (ng/L)",
         main = "Porewater MeHg")
-barplot(rep(0, length(PW_thg$FTHg_ng_L)),
-        names.arg = PW_mehg$site,
+barplot(PW_thg$FTHg_ng_L,
+        names.arg = PW_thg$site,
         ylim = c(0, 3),
         ylab = "THg (ng/L)",
-        main = "No porewater THg data yet")
+        main = "Porewater THg")
 barplot(SW_mehg$FMHg_ng_L,
         names.arg = PW_mehg$site,
         ylim = c(0, 2),
