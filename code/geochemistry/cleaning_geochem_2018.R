@@ -15,7 +15,7 @@ library(tidyverse)
 
 #### Read in data ####
 
-raw.geochem.data <- read_xlsx("dataRaw/geochem/Data and figures for Ben Peterson_20120518_with sulfide.xlsx",
+raw.geochem.data.most <- read_xlsx("dataRaw/geochem/2018/Data and figures for Ben Peterson_20120518_with sulfide.xlsx",
                               skip = 1) %>%
   rename(site = Site,
          PW_DOC_mg_L = `DOC [mg/L C]...3`,
@@ -35,7 +35,7 @@ raw.geochem.data <- read_xlsx("dataRaw/geochem/Data and figures for Ben Peterson
          PW_SUVA_254,
          PW_sulfate_mg_L,
          PW_sulfide_ug_L,
-         PW_FTHg_ng_L,
+         # PW_FTHg_ng_L,
          PW_FMHg_ng_L,
          SW_DOC_mg_L,
          SW_SUVA_254,
@@ -48,7 +48,7 @@ raw.geochem.data <- read_xlsx("dataRaw/geochem/Data and figures for Ben Peterson
 
 #### Read in WW data ####
 
-raw.geochem.data.WW <- read_xlsx("dataRaw/geochem/Data and figures for Ben Peterson_20190415_with wagon wheel.xlsx",
+raw.geochem.data.WW <- read_xlsx("dataRaw/geochem/2018/Data and figures for Ben Peterson_20190415_with wagon wheel.xlsx",
                                  skip = 1) %>%
   rename(site = Site,
          PW_DOC_mg_L = `DOC [mg/L C]...3`,
@@ -68,7 +68,7 @@ raw.geochem.data.WW <- read_xlsx("dataRaw/geochem/Data and figures for Ben Peter
          PW_SUVA_254,
          PW_sulfate_mg_L,
          PW_sulfide_ug_L,
-         PW_FTHg_ng_L,
+         # PW_FTHg_ng_L,
          PW_FMHg_ng_L,
          SW_DOC_mg_L,
          SW_SUVA_254,
@@ -88,10 +88,37 @@ raw.geochem.data.WW$SW_sulfide_ug_L <- NA
 raw.geochem.data.WW$PW_sulfide_ug_L <- NA
 
 
+
+#### Read in PW THg data ####
+
+raw.geochem.data.PW.THg <- read_xlsx("dataRaw/geochem/2018/Everglades 2018 transects Hg data.xlsx")
+# The first set of data is the porewater, which is all we want.
+# In the Result ID column, there's a "surface waters" entry at the start
+# of the SW data
+start.of.SW.data <- which(raw.geochem.data.PW.THg[, "Result ID"] == "surface waters")
+raw.geochem.data.PW.THg <- raw.geochem.data.PW.THg[c(1:start.of.SW.data), ] %>%
+  rename(site = `Site Name`,
+         constituent = Constituent,
+         concentration = `Result Value`) %>%
+  select(site,
+         constituent,
+         concentration) %>%
+  filter(!is.na(site),
+         !(site %in% c("E0", "T0-1", "UC-1"))) %>%
+  spread(key = constituent,
+         value = concentration) %>%
+  select(-FMHG) %>%
+  rename(PW_FTHg_ng_L = FTHG) %>%
+  mutate(site = gsub(" WI TRANSECT 1", "", site),
+         site = gsub("WAGONWHEEL", "WW", site))
+
+
 #### Combine data ####
 
-raw.geochem.data <- rbind(raw.geochem.data,
-                          raw.geochem.data.WW)
+raw.geochem.data <- rbind(raw.geochem.data.most,
+                          raw.geochem.data.WW) %>%
+  filter(!(site %in% c("E01", "T01", "UC1"))) %>%
+  full_join(raw.geochem.data.PW.THg)
 
 
 #### Clean up metadata columns ####
@@ -104,8 +131,7 @@ geochem.data <- raw.geochem.data %>%
          constituent = sapply(strsplit(constituent, "_"),
                               function(x) {
                                 paste(x[-1], collapse = '_')
-                              })) %>%
-  filter(!(site %in% c("E01", "T01", "UC1")))
+                              })) 
 
 
 
