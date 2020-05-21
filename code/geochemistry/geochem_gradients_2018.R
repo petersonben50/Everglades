@@ -93,8 +93,8 @@ png("results/geochemistry/Hg_gradients_2018.png",
     res = 150,
     units = "in",
     width = 12,
-    height = 9)
-par(mfrow = c(2,2),
+    height = 6)
+par(mfrow = c(2, 3),
     mar = c(3, 3, 3, 1),
     mgp=c(1.5,0.4,0),
     tck=-0.008)
@@ -105,9 +105,14 @@ barplot(PW_mehg$FMHg_ng_L,
         main = "Porewater MeHg")
 barplot(PW_thg$FTHg_ng_L,
         names.arg = PW_thg$site,
-        ylim = c(0, 3),
+        ylim = c(0, 6.5),
         ylab = "THg (ng/L)",
         main = "Porewater THg")
+barplot(PW_mehg$FMHg_ng_L / PW_thg$FTHg_ng_L * 100,
+        names.arg = PW_thg$site,
+        ylim = c(0, 100),
+        ylab = "Fraction MeHg (%)",
+        main = "Percent MeHg in PW")
 barplot(SW_mehg$FMHg_ng_L,
         names.arg = PW_mehg$site,
         ylim = c(0, 2),
@@ -115,7 +120,12 @@ barplot(SW_mehg$FMHg_ng_L,
         main = "Surface water MeHg")
 barplot(SW_thg$FTHg_ng_L,
         names.arg = SW_thg$site,
-        ylim = c(0, 3.5),
+        ylim = c(0, 6.5),
         ylab = "THg (ng/L)",
         main = "Surface water THg")
+barplot(SW_mehg$FMHg_ng_L / SW_thg$FTHg_ng_L * 100,
+        names.arg = SW_mehg$site,
+        ylim = c(0, 100),
+        ylab = "Fraction MeHg (%)",
+        main = "Percent MeHg in SW")
 dev.off()
