@@ -131,7 +131,8 @@ geochem.data <- raw.geochem.data %>%
          constituent = sapply(strsplit(constituent, "_"),
                               function(x) {
                                 paste(x[-1], collapse = '_')
-                              })) 
+                              })) %>%
+  filter(site %in% c("2A-P", "2A-A", "3A-O", "3A-F", "WW"))
 
 
 

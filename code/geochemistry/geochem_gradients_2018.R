@@ -23,9 +23,7 @@ geochem.data <- read.csv("dataEdited/geochem/geochem_data_2018.csv",
 
 #### Make vector with correct order of samples ####
 
-order.of.samples <- c("2A-P", "2A-N", "2A-K", "2A-A",
-                      "3A-O", "3A-K", "3A-F", "3A-A",
-                      "WW")
+order.of.samples <- c("2A-P", "2A-A", "3A-O", "3A-F", "WW")
 order.of.samples.index <- sapply(order.of.samples,
                                  function(x) {
                                    grep(x, geochem.data$site)
