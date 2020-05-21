@@ -162,29 +162,33 @@ scripts=~/Everglades/code/generalUse
 tail -n +2 $metabolic_HMMs.csv | awk -F ',' '{ print $1 }' | while read gene
 do
 
-  if [ ! -e derep/$gene\_clean.faa ]; then
-    echo "Working on" $gene
-    # Dereplicate sequences
-    cdhit=~/programs/cdhit-master
-    $cdhit/cd-hit -g 1 \
-                  -i identification/$gene\_all.faa \
-                  -o derep/$gene.faa \
-                  -c 0.97 \
-                  -n 5 \
-                  -d 0
-    $cdhit/clstr2txt.pl derep/$gene.faa.clstr > derep/$gene\_cluster.tsv
+  if [ -e identification/$gene\_all.faa ]; then
+    if [ ! -e derep/$gene\_clean.faa ]; then
+      echo "Working on" $gene
+      # Dereplicate sequences
+      cdhit=~/programs/cdhit-master
+      $cdhit/cd-hit -g 1 \
+                    -i identification/$gene\_all.faa \
+                    -o derep/$gene.faa \
+                    -c 0.97 \
+                    -n 5 \
+                    -d 0
+      $cdhit/clstr2txt.pl derep/$gene.faa.clstr > derep/$gene\_cluster.tsv
 
-    # Generate list of dereplicated sequences
-    grep '>' derep/$gene.faa | sed 's/>//' > derep/$gene\_derep_list.txt
-    # Remove asterisk from sequences
-    sed 's/*//g' derep/$gene.faa > derep/$gene\_clean.faa
-    # Align dereplicated sequences to HMM
-    HMM=$(awk -F ',' -v gene="$gene" '$1 == gene { print $2 }' $metabolic_HMMs.csv)
-    hmmalign -o derep/$gene.sto \
-                $metabolic_HMMs/$HMM \
-                derep/$gene\_clean.faa
+      # Generate list of dereplicated sequences
+      grep '>' derep/$gene.faa | sed 's/>//' > derep/$gene\_derep_list.txt
+      # Remove asterisk from sequences
+      sed 's/*//g' derep/$gene.faa > derep/$gene\_clean.faa
+      # Align dereplicated sequences to HMM
+      HMM=$(awk -F ',' -v gene="$gene" '$1 == gene { print $2 }' $metabolic_HMMs.csv)
+      hmmalign -o derep/$gene.sto \
+                  $metabolic_HMMs/$HMM \
+                  derep/$gene\_clean.faa
+    else
+      echo "Already dereplicated" $gene
+    fi
   else
-    echo "Already dereplicated" $gene
+    echo "Nothing to dereplicate for" $gene
   fi
 done
 
