@@ -108,15 +108,24 @@ mcrA.tree <- midpoint(mcrA.tree.unrooted)
 mcrA.list <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA/mcrA_derep_list.txt")
 
 
+
+#### Read in mcrA list found with TIGRFAMs ####
+
+mcrA.TIGRFAM.list <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/MCR/met_CoM_red_alp_derep_list.txt")
+
+
+
 #### Make indices ####
 
 my.seq.index <- which(mcrA.tree$tip.label %in% mcrA.list)
+TIGRFAM.seq.index <- which(mcrA.tree$tip.label %in% mcrA.TIGRFAM.list)
 
 
 #### Make color vector ####
 
 color.vector <- rep("black", length(mcrA.tree$tip.label))
 color.vector[my.seq.index] <- "red"
+color.vector[TIGRFAM.seq.index] <- "darkred"
 
 #### Read in and filter coverage values ####
 
@@ -166,12 +175,14 @@ mcrA.tree <- drop.tip(mcrA.tree, outgroup.ID)
 #### Make indices ####
 
 my.seq.index <- which(mcrA.tree$tip.label %in% mcrA.list)
+TIGRFAM.seq.index <- which(mcrA.tree$tip.label %in% mcrA.TIGRFAM.list)
 
 
 #### Make color vector ####
 
 color.vector <- rep("black", length(mcrA.tree$tip.label))
 color.vector[my.seq.index] <- "red"
+# color.vector[TIGRFAM.seq.index] <- "darkred"
 
 
 

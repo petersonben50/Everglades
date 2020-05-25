@@ -31,7 +31,11 @@ Looked pretty good, but I had a lot of unneeded sequences.
 In R, I read out a list of labels for tips that I didn't need, then pulled those out of the concatenated faa file.
 
 In a new folder, I aligned this subsetted fasta file, then generated a tree using FastTree.
-It looked pretty good, so I decided to go ahead with a RAxML run to generate a nicer tree.
+Also in here, I checked to see how the TIGRFAM HMM matched up with my homemade HMM.
+Mine pulled out many more sequences, many of which seem to be partial mcrA sequences.
+Maybe the TIGRFAM isn't very good at handling that?
+Anyways, I'm going to stick with my own mcrA HMM for now.
+The tree overall looked pretty good, so I decided to go ahead with a RAxML run to generate a nicer tree.
 First, I masked any residues points with >50% gaps in Geneious, then exported this file.
 I uploaded that to GLBRC and generated a tree using RAxML.
 
