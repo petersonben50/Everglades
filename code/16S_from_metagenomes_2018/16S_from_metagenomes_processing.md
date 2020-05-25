@@ -23,9 +23,6 @@ The analysis was based on the SILVA database (SILVA_138_SSURef_NR99_tax_silva_tr
 The insert size and standard deviation was called from the tab-separated sheet that I had previously set up (see above).
 
 
-
-
-
 **Pull out all FASTA sequences**
 
 Once EMIRGE was done, I pulled out all the fasta sequences that it had assembled and renamed them using the `emirge_rename_fasta.py` python script in EMIRGE.
