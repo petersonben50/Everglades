@@ -104,7 +104,7 @@ png("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_mtrA_a
     units = 'in',
     res = 200,
     width = 7.5,
-    height = 3)
+    height = 7.5)
 mcrA.viz / mtrA.viz
 dev.off()
 
