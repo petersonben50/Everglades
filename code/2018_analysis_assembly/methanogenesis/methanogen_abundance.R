@@ -78,57 +78,33 @@ colnames(depth.data)[-1] <- renaming.vector[colnames(depth.data)[-1]]
 
 
 
-#### Read in mcr lists ####
+#### Read in lists ####
 
-mcrA.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/MCR/met_CoM_red_alp_derep_list.txt") %>%
+mcrA.scaffold.list <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA/mcrA_derep_list.txt") %>%
   strsplit("_[1-9]+") %>%
   sapply("[", 1)
-mcrA.homemade.scaffold.list <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA/mcrA_derep_list.txt") %>%
+mtrA.scaffold.list <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/mtrA/mtrA_derep_list.txt") %>%
   strsplit("_[1-9]+") %>%
   sapply("[", 1)
-
-mcrA.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/MCR/met_CoM_red_alp_derep_list.txt") %>%
-  strsplit("_[1-9]+") %>%
-  sapply("[", 1)
-mcrB.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/MCR/met_CoM_red_bet_derep_list.txt") %>%
-  strsplit("_[1-9]+") %>%
-  sapply("[", 1)
-mcrD.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/MCR/met_CoM_red_D_derep_list.txt") %>%
-  strsplit("_[1-9]+") %>%
-  sapply("[", 1)
-mcrG.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/MCR/met_CoM_red_gam_derep_list.txt") %>%
-  strsplit("_[1-9]+") %>%
-  sapply("[", 1)
-
-
 
 
 
 #### Generate coverage plots ####
 
-mcrA.tree.viz <- plot.scaffold.coverage(mcrA.scaffolds,
-                                        "mcrA")
-mcrA.HM.tree.viz <- plot.scaffold.coverage(mcrA.homemade.scaffold.list,
-                                        "mcrA_homemade")
+mcrA.viz <- plot.scaffold.coverage(mcrA.scaffold.list,
+                                   "mcrA")
+mtrA.viz <- plot.scaffold.coverage(mtrA.scaffold.list,
+                                   "mtrA")
 
-mcrB.tree.viz <- plot.scaffold.coverage(mcrB.scaffolds,
-                                        "mcrB")
-mcrD.tree.viz <- plot.scaffold.coverage(mcrD.scaffolds,
-                                        "mcrD")
-mcrG.tree.viz <- plot.scaffold.coverage(mcrG.scaffolds,
-                                        "mcrG")
+mcrA.viz / mtrA.viz
 
-#### Plot subunits of mcr together ####
+#### Plot mcrA and mtrA together ####
 
-pdf("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA.pdf",
+pdf("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_mtrA_abundance.pdf",
     width = 7.5,
     height = 3)
-mcrA.tree.viz
+mcrA.viz / mtrA.viz
 dev.off()
-
-mcrA.tree.viz / mcrA.HM.tree.viz
-
-mcrB.tree.viz / mcrD.tree.viz / mcrG.tree.viz
 
 
 
@@ -143,8 +119,6 @@ marker.list <- list()
 plot.list <- list()
 list.of.marker.lists <- list.files(path = "dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/markers/",
                                    pattern = "methan_mark")
-
-
 for (marker.of.interest in 1:length(list.of.marker.lists)) {
 
          scaffolds.of.interest = readLines(paste("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/markers/",
@@ -152,11 +126,6 @@ for (marker.of.interest in 1:length(list.of.marker.lists)) {
                                                  sep = "")) %>%
            strsplit("_[1-9]+") %>%
            sapply("[", 1)
-
-         # marker.name <- paste(marker.of.interest %>% strsplit("_") %>% sapply("[", 1),
-         #                      marker.of.interest %>% strsplit("_") %>% sapply("[", 2),
-         #                      marker.of.interest %>% strsplit("_") %>% sapply("[", 3),
-         #                      sep = "_")
 
          plot.list[[marker.of.interest]] <- plot.scaffold.coverage(scaffolds.of.interest,
                                                             marker.of.interest)
