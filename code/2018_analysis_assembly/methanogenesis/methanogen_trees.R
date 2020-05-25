@@ -166,6 +166,23 @@ mcrA.tree <- root(mcrA.tree.unrooted,
                   outgroup = outgroup.ID)
 
 
+#### Read in metadata ####
+
+mcrA.metadata <- read.table("dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA/phylogeny/ref_mcrA_metadata.tsv",
+                            sep = '\t',
+                            stringsAsFactors = FALSE)
+mcrA.metadata.vector <- mcrA.metadata$V2
+names(mcrA.metadata.vector) <- mcrA.metadata$V1
+
+
+#### Get indices for dsrA sequences for which we have reference labels ####
+
+mcr.ref.index.renaming <- which(mcrA.tree$tip.label %in% names(mcrA.metadata.vector))
+mcrA.tree$tip.label[mcr.ref.index.renaming] <- mcrA.metadata.vector[mcrA.tree$tip.label[mcr.ref.index.renaming]]
+
+
+
+
 #### Subset tree to remove root ####
 
 mcrA.tree <- drop.tip(mcrA.tree, outgroup.ID)
@@ -189,7 +206,8 @@ color.vector[my.seq.index] <- "red"
 #### Make final tree object ####
 mcrA.tree.object <- ggtree(mcrA.tree) +
   geom_tiplab(col = color.vector,
-              size = 2)
+              size = 2,
+              align = TRUE)
 
 png("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_tree_abund.png",
     res = 200,
@@ -201,3 +219,4 @@ gheatmap(mcrA.tree.object,
          colnames_angle=-45, hjust=0)  +
   scale_fill_viridis_c(option="D", name="continuous\nvalue")
 dev.off()
+
