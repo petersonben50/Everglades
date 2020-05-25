@@ -206,3 +206,20 @@ cd dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_reductive
 epost -db protein -input ref_dsrA_list.txt | \
     esummary | \
     xtract -pattern DocumentSummary -element AccessionVersion,Organism > ref_dsrA_metadata.tsv
+
+
+# Generate good tree
+screen -S EG_dsrA_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+cd ~/Everglades/dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_reductive_phylogeny
+raxmlHPC-PTHREADS -f a \
+                  -p 283976 \
+                  -m PROTGAMMAAUTO \
+                  -N autoMRE \
+                  -x 2381 \
+                  -T 20 \
+                  -s dsrA_for_taxonomy_raw.afa \
+                  -n dsrA
