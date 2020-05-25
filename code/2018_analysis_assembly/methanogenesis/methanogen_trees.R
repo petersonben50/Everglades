@@ -178,11 +178,10 @@ color.vector[my.seq.index] <- "red"
 #### Make final tree object ####
 mcrA.tree.object <- ggtree(mcrA.tree) +
   geom_tiplab(col = color.vector,
-              size = 2)  +
-  geom_nodelab()
+              size = 2)
 
 png("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_tree_abund.png",
-    res = 150,
+    res = 200,
     units = "in",
     height = 14,
     width = 8)
@@ -190,3 +189,4 @@ gheatmap(mcrA.tree.object,
          depth.data.mcrA, offset=1, width=0.5, font.size=3, 
          colnames_angle=-45, hjust=0)  +
   scale_fill_viridis_c(option="D", name="continuous\nvalue")
+dev.off()
