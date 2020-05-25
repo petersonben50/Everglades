@@ -204,7 +204,11 @@ colnames(depth.data.dsrA) <- renaming.vector[colnames(depth.data.dsrA)]
 
 dsrA.tree.object <- ggtree(dsrA.tree) +
   geom_tiplab(size = 2,
-              col = color.vector)
+              col = color.vector) +
+  geom_treescale(x = 0.2, y = 60) +
+  geom_nodelab(aes(x = branch),
+               vjust = -.3,
+               size = 2)
 png("results/2018_analysis_assembly/metabolicProteins/sulfur/dsrA_reductive_tree_abund.png",
     height = 10,
     width = 8,
