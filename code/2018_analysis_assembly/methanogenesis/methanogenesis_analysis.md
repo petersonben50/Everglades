@@ -34,3 +34,6 @@ In a new folder, I aligned this subsetted fasta file, then generated a tree usin
 It looked pretty good, so I decided to go ahead with a RAxML run to generate a nicer tree.
 First, I masked any residues points with >50% gaps in Geneious, then exported this file.
 I uploaded that to GLBRC and generated a tree using RAxML.
+
+I then downloaded this tree onto my local computer and generated a tree object from it.
+I added a heatmap to show the distribution of abundance over the phylogenetic groups.
