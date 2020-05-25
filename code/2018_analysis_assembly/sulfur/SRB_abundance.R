@@ -82,11 +82,11 @@ colnames(depth.data)[-1] <- renaming.vector[colnames(depth.data)[-1]]
 
 #### Read in dsr lists ####
 
-dsrA.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_red_list.txt") %>%
+dsrA.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_phylogeny_red_vs_reverse/dsrA_red_list.txt") %>%
   strsplit("_[1-9]+") %>%
   sapply("[", 1)
 
-dsrD.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrD_derep_list.txt") %>%
+dsrD.scaffolds <- readLines("dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_phylogeny_red_vs_reverse/dsrD_derep_list.txt") %>%
   strsplit("_[1-9]+") %>%
   sapply("[", 1)
 
@@ -104,10 +104,12 @@ dsrD.tree.viz <- plot.scaffold.coverage(dsrD.scaffolds,
 
 #### Plot dsrA and dsrD together ####
 
-pdf("results/2018_analysis_assembly/metabolicProteins/sulfur/dsr_reductive_abund.pdf",
+png("results/2018_analysis_assembly/metabolicProteins/sulfur/dsr_reductive_abund.png",
+    unit = "in",
+    res = 200,
     width = 7.5,
-    height = 3)
-dsrA.tree.viz + dsrD.tree.viz
+    height = 7.5)
+dsrA.tree.viz / dsrD.tree.viz
 dev.off()
 
 

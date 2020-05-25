@@ -182,9 +182,11 @@ color.vector[dsrA.EG.index] <- "red"
 dsrA.tree.object <- ggtree(dsrA.tree) +
   geom_tiplab(size = 2,
               col = color.vector)
-pdf("results/2018_analysis_assembly/metabolicProteins/sulfur/dsrA_reductive_tree_abund.pdf",
+png("results/2018_analysis_assembly/metabolicProteins/sulfur/dsrA_reductive_tree_abund.png",
     height = 14,
-    width = 8)
+    width = 8,
+    units = "in",
+    res = 200)
 gheatmap(dsrA.tree.object,
          depth.data.dsrA, offset=1, width=0.5, font.size=3, 
          colnames_angle=-45, hjust=0)  +
