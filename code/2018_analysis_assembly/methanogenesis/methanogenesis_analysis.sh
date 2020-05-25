@@ -68,6 +68,9 @@ $cdhit/cd-hit -g 1 \
               -c 0.97 \
               -n 5 \
               -d 0
+grep '>' refseq_protein_mcrA_derep.faa | sed 's/>//' \
+                    | sort | uniq \
+                    > refseq_protein_mcrA_list_derep.txt
 
 
 ###############################
@@ -88,6 +91,13 @@ muscle -in mcrA_for_phylogeny.faa \
 
 # Generate tree
 FastTree mcrA_for_phylogeny.afa > mcrA_for_phylogeny.tree
+
+# Get reference metadata
+Everglades
+cd dataEdited/2018_analysis_assembly/metabolicProteins/methanogenesis/
+epost -db protein -input refseq_protein_mcrA_list_derep.txt | \
+    esummary | \
+    xtract -pattern DocumentSummary -element AccessionVersion,Organism > ref_mcrA_metadata.tsv
 
 
 ###############################
