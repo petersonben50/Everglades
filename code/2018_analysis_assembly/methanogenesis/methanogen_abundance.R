@@ -100,7 +100,9 @@ mcrA.viz / mtrA.viz
 
 #### Plot mcrA and mtrA together ####
 
-pdf("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_mtrA_abundance.pdf",
+png("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_mtrA_abundance.png",
+    units = 'in',
+    res = 200,
     width = 7.5,
     height = 3)
 mcrA.viz / mtrA.viz
@@ -128,9 +130,16 @@ for (marker.of.interest in 1:length(list.of.marker.lists)) {
            sapply("[", 1)
 
          plot.list[[marker.of.interest]] <- plot.scaffold.coverage(scaffolds.of.interest,
-                                                            marker.of.interest)
-
+                                                                   paste("Methanogenic marker ",
+                                                                         marker.of.interest,
+                                                                         sep = ""))
        }
 
 
+png("results/2018_analysis_assembly/metabolicProteins/methanogenesis/meth_markers_abundance.png",
+    units = "in",
+    res = 200,
+    height = 15,
+    width = 12)
 (plot.list[[1]] + plot.list[[2]]) /  (plot.list[[3]] + plot.list[[4]]) /  (plot.list[[5]] + plot.list[[6]]) /  (plot.list[[7]] + plot.list[[8]])
+dev.off()

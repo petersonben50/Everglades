@@ -41,3 +41,9 @@ I uploaded that to GLBRC and generated a tree using RAxML.
 
 I then downloaded this tree onto my local computer and generated a tree object from it.
 I added a heatmap to show the distribution of abundance over the phylogenetic groups.
+
+
+**Other methanogenesis markers**
+
+In the `methanogen_abundance.R` file, I used the homemade mcrA HMM to look at the abundance of methanogens across our metagenomes.
+I also looked at this distribution using an mtrA HMM off TIGRFAM (TIGR01111), as well as a series of markers of methanogenesis that were identified using ProPhylo [@basu2011].
