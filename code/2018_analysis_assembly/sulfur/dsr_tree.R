@@ -177,13 +177,36 @@ color.vector <- rep("black", length(dsrA.tree$tip.label))
 color.vector[dsrA.EG.index] <- "red"
 
 
+
+
+
+
+
+##### Read in MG metadata ####
+
+MG.metadata <- read_xlsx("metadata/metagenomes/2018_MGs.xlsx")
+renaming.vector <- MG.metadata$siteID
+names(renaming.vector) <- MG.metadata$metagenomeID
+
+
+
+
+
+
+##### Rename MGs with sample info ####
+
+colnames(depth.data.dsrA) <- renaming.vector[colnames(depth.data.dsrA)]
+
+
+
+
 #### Generate tree ####
 
 dsrA.tree.object <- ggtree(dsrA.tree) +
   geom_tiplab(size = 2,
               col = color.vector)
 png("results/2018_analysis_assembly/metabolicProteins/sulfur/dsrA_reductive_tree_abund.png",
-    height = 14,
+    height = 10,
     width = 8,
     units = "in",
     res = 200)
