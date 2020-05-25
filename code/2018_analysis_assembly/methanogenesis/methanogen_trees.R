@@ -207,7 +207,10 @@ color.vector[my.seq.index] <- "red"
 mcrA.tree.object <- ggtree(mcrA.tree) +
   geom_tiplab(col = color.vector,
               size = 2,
-              align = TRUE)
+              align = TRUE)+
+  geom_nodelab(aes(x = branch),
+               vjust = -.3,
+               size = 2)
 
 png("results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_tree_abund.png",
     res = 200,
