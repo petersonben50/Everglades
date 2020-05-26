@@ -69,17 +69,18 @@ all.data <- full_join(abundance.data.rename,
 
 
 #### Function to plot by taxa group ####
-plot.taxonomic.levels <- function(taxonomic.level = "phylum",
+plot.taxonomic.levels <- function(import.data = all.data,
+                                  taxonomic.level = "phylum",
                                   abundance.cutoff = 0.05) {
-  taxa.data <- all.data
-  taxa.data[, "taxa"] <- all.data[, taxonomic.level]
+  taxa.data <- import.data
+  taxa.data[, "taxa"] <- import.data[, taxonomic.level]
   taxa.data.clean <- taxa.data %>%
     group_by(taxa, sampleID) %>%
     summarise(abundance = sum(abundance)) %>%
     filter(abundance > abundance.cutoff) %>%
     ungroup() %>%
     mutate(sampleID = fct_relevel(str_trim(sampleID), MG.order))
-
+  
   colorCount <- length(unique(taxa.data.clean$taxa))
   getPalette <- colorRampPalette(brewer.pal(9, "Set1"))
   set.seed(11)
@@ -114,3 +115,17 @@ plot.taxonomic.levels("phylum", 0.05) / plot.taxonomic.levels("class", 0.05)
 dev.off()
 
 
+
+#### Check out only Euryarchaeota ####
+
+all.data.euryarch <- all.data %>%
+  filter(phylum == "Euryarchaeota")
+png("results/16S_from_metagenomes_2018/euryarchaeota_abund.png",
+    width = 10,
+    height = 5,
+    unit = "in",
+    res = 200)
+plot.taxonomic.levels(import.data = all.data.euryarch,
+                      "order",
+                      0) 
+dev.off()
