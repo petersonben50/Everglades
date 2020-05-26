@@ -118,7 +118,7 @@ rm(list = ls())
 
 #### Read in tree ####
 
-dsrA.tree.unrooted <- read.newick(file = "dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_reductive_phylogeny/rough_dsrA.tree")
+dsrA.tree.unrooted <- read.newick(file = "dataEdited/2018_analysis_assembly/metabolicProteins/sulfur/dsr/dsrA_reductive_phylogeny/RAxML_bipartitions.dsrA")
 dsrA.tree <- midpoint(dsrA.tree.unrooted)
 
 
