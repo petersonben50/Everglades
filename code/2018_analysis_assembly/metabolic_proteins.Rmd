@@ -1,0 +1,134 @@
+---
+title: "Metabolic analysis of 2018 metagenomes"
+author: "Benjamin D. Peterson"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+In this document, I'm going to look at the distribution of metabolic genes over the nutrient gradient that we covered in our 2018 metagenomes.
+I'm particularly going to focus on markers of methanogenesis and sulfate-reduction.
+
+**Geochem analysis**
+
+First though, let's check out the geochemistry.
+The sampling was conducted based on sulfate gradient, due to high inputs of sulfate at the top of the Everglades.
+
+```{r sulfur plots, echo = FALSE}
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/geochemistry/S_gradients_2018.png")
+```
+
+This gradient is evident in both the surface water sulfate, where we have very high levels of sulfate in the 2A transect, but gradually decreasing southward (we only have two sites shown here, but data from the other sites backs this up).
+There is a large decrease in sulfate from 2A to 3A.
+By 3A-F, the sulfate is nearly gone.
+
+This trend is reflected in the porewater sulfide data, where there's a steep drop-off in PW sulfide from 2A-P to 2A-A, then getting down to nearly 0 over the 3A transect.
+We have no data for sulfide in the porewater at WW.
+
+The other major relevant parameter of interest is the Hg speciation and abundance.
+
+```{r Hg plots, echo = FALSE}
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/geochemistry/Hg_gradients_2018.png")
+```
+
+For porewater MeHg, there is a major spike at 3A-O.
+There's almost no MeHg in the porewaters of the 2A transects (<0.015ng/L).
+It falls off rapidly in the 3A transect as well, after the spike at 3A-O, and there's less than 0.1ng/L by Wagon Wheel.
+
+The porewater THg also shows a peak at 3A-O.
+While the other 4 sites are relatively consistent, between 1-2ng/L, the porewater at 3A-O is over 6ng/L.
+
+Despite the concurrent peak in THg, the fraction MeHg values make it clear that there is enhanced MeHg production at 3A-O, which decreases slightly as we move along the gradient at 3A-F and WW.
+There is no production at all in the 2A porewaters.
+
+The surface water exhibits a slightly different pattern.
+While we still see Hg peak at 3A-O, we do see some accumulation of MeHg in the surface waters in the 2A transect.
+This discrepancy between the porewater MeHg levels and the SW MeHg levels suggests that, at this site, the MeHg is produced in the water column, likely in the periphyton (since the water column is mostly oxic).
+Might be worth looking into collecting some periphyton samples.
+Alternatively, in soils within 2A, the MeHg could be mostly produced near the surface, above the sampling location, but I find this highly unlikely.
+As we move down the opposite of the gradient to 3A-F and WW, MeHg in the surface water again decreases.
+
+
+**Sulfate reduction vs. methanogenesis**
+
+Based on these sulfate gradients, I wanted to compare the reliance of the microbial community on different terminal electron acceptors for driving community metabolism.
+Under the low-redox conditions often found in wetland sediments, terminal respiration is usually drive by a mix of sulfate-reducing organisms and methanogens.
+The balance between these two is usually driven by the local sulfate levels.
+Thus, we'd expect to see a shift in the ratio of these two organisms across this gradient.
+
+*Sulfate-reduction*:
+First, I looked through our 5 metagenomes for genetic markers of sulfate reduction.
+For this, I used two key markers.
+First, I used dsrA, which is the most used marker for sulfate-reduction.
+Since it is also used by sulfate-oxidizing organisms, I generated a phylogenetic tree to isolate the sequences that clustered with reductive dsrA proteins rather than reverse dsrA proteins (rdsr).
+The following graphs only include the reductive dsrA sequences.
+I also used the dsrD proteins, which was described by Anantharanam et al, 2018 to be exclusively present in sulfate-reducers.
+
+```{r sulfate-reducers, echo = FALSE, out.width = "75%", out.height = "75%"}
+
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/metabolicProteins/sulfur/dsr_reductive_abund.png")
+
+```
+
+There sort of tends to be an overall downward trend in dsrA levels in the metagenomes as we move further down the redox gradient, but this isn't very clear.
+It's not nearly as prevalent as the decrease in sulfate across these depths.
+Additionally, the coverage is rather low, even lower than the hgcA coverage (which was ~10-12 in the 2A/3A transects).
+Would be nice to have a housekeeping gene to compare to.
+
+```{r dsrA tree, echo = FALSE, out.width = "75%", out.height = "75%"}
+
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/metabolicProteins/sulfur/dsrA_reductive_tree_abund.png")
+
+```
+
+The distribution of organisms with the dsrA genes are less consistent across sites.
+The bulk of the coverage at 2A-P is accounted for by two closely related sequences.
+In contrast, at 2A-A, there are a number of diverse sequences accounting for much of the coverage, spread across a wide variety of clades.
+Very little coverage at 3A-O, then again at 3A-F, we see a diversity of dsrA sequences.
+
+*Methanogenesis*: Next I looked for markers of methanogenesis.
+I first focused on *mtrA* and *mcrA*, two of the most common methanogenic markers.
+
+```{r methanogenic markers, echo = FALSE, out.width = "75%", out.height = "75%" }
+
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_mtrA_abundance.png")
+```
+
+Here there is no super clear trend in *mcrA* or *mtrA* genes.
+There is a minor increase in each of them moving down the sulfate gradient, but it isn't very stark.
+The only definitive trend is the fact that they are more abundance than the *dsrA* and *dsrD* genes, suggesting that methanogens outnumber sulfate-reducers in these sediments. 
+
+I also wanted to check out the phylogeny of the mcrA genes, both to make sure that they're definitely mcrA and to see if there were differences across the gradient.
+
+```{r mcrA tree, echo = FALSE, out.width = "75%", out.height = "75%" }
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_tree_abund.png")
+```
+
+Similar to with dsrA, there are certain clades of *mcrA* genes that seem to be more abundant at either ends of the sulfate-gradient.
+However, it's hard to say exactly where these sequences are coming from without digging a lot deeper into it.
+So, I can't say at this time whether or not this has a functional impact on methanogenesis.
+
+Just for completeness sake, I also checked on a bunch of methanogenic markers.
+These were identified by ProPhylo (in the paper introducing the software) as exclusive to methanogenic organisms.
+
+```{r meth markers, echo = FALSE, out.width = "75%", out.height = "75%" }
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/metabolicProteins/methanogenesis/meth_markers_abundance.png")
+```
+
+These show a similar trend as in 2A and 3A, with an overall slight increase in coverage moving down the sulfate gradient, but nothing definitive.
+The overall coverage is lower than what we saw for *mtrA* and *mcrA*.
+
+I also used EMIRGE to reconstruct the 16S genes.
+Here, I just looked at the distribution and identity of Euryarchaeota across our metagenomes.
+
+```{r 16S Euryarchaeota, echo = FALSE, out.width = "75%", out.height = "75%" }
+include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/16S_from_metagenomes_2018/euryarchaeota_abund.png")
+```
+
+Definitely most abundant at 3A-F.
+The pattern here doesn't really match our *mcrA* data.
+
+
