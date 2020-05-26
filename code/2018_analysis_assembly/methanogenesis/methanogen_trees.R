@@ -207,7 +207,7 @@ color.vector[my.seq.index] <- "red"
 mcrA.tree.object <- ggtree(mcrA.tree) +
   geom_tiplab(col = color.vector,
               size = 2,
-              align = TRUE)+
+              align = TRUE) +
   geom_nodelab(aes(x = branch),
                vjust = -.3,
                size = 2)
