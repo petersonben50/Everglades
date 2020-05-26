@@ -203,6 +203,26 @@ color.vector[my.seq.index] <- "red"
 
 
 
+##### Read in MG metadata ####
+
+MG.metadata <- read_xlsx("metadata/metagenomes/2018_MGs.xlsx")
+renaming.vector <- MG.metadata$siteID
+names(renaming.vector) <- MG.metadata$metagenomeID
+
+
+
+
+
+
+##### Rename MGs with sample info ####
+
+colnames(depth.data.mcrA) <- renaming.vector[colnames(depth.data.mcrA)]
+
+
+
+
+
+
 #### Make final tree object ####
 mcrA.tree.object <- ggtree(mcrA.tree) +
   geom_tiplab(col = color.vector,
