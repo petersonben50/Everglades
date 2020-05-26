@@ -63,8 +63,8 @@ Thus, we'd expect to see a shift in the ratio of these two organisms across this
 First, I looked through our 5 metagenomes for genetic markers of sulfate reduction.
 For this, I used two key markers.
 First, I used dsrA, which is the most used marker for sulfate-reduction.
-Since it is also used by sulfate-oxidizing organisms, I generated a phylogenetic tree to isolate the sequences that clustered with reductive dsrA proteins rather than reverse dsrA proteins (rdsr).
-The following graphs only include the reductive dsrA sequences.
+Since it is also used by sulfate-oxidizing organisms, I generated a phylogenetic tree to isolate the sequences that clustered with reductive DsrA proteins rather than reverse DsrA proteins (rdsr).
+The following graphs only include the reductive DsrA sequences.
 I also used the dsrD proteins, which was described by Anantharanam et al, 2018 to be exclusively present in sulfate-reducers.
 
 ```{r sulfate-reducers, echo = FALSE, out.width = "75%", out.height = "75%"}
@@ -73,7 +73,7 @@ include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/
 
 ```
 
-There sort of tends to be an overall downward trend in dsrA levels in the metagenomes as we move further down the redox gradient, but this isn't very clear.
+There sort of tends to be an overall downward trend in *dsrA* coverage in the metagenomes as we move further down the redox gradient, but this isn't very clear.
 It's not nearly as prevalent as the decrease in sulfate across these depths.
 Additionally, the coverage is rather low, even lower than the hgcA coverage (which was ~10-12 in the 2A/3A transects).
 Would be nice to have a housekeeping gene to compare to.
@@ -84,10 +84,10 @@ include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/
 
 ```
 
-The distribution of organisms with the dsrA genes are less consistent across sites.
+The distribution of organisms with the *dsrA* genes are less consistent across sites.
 The bulk of the coverage at 2A-P is accounted for by two closely related sequences.
 In contrast, at 2A-A, there are a number of diverse sequences accounting for much of the coverage, spread across a wide variety of clades.
-Very little coverage at 3A-O, then again at 3A-F, we see a diversity of dsrA sequences.
+Very little coverage at 3A-O, then again at 3A-F, we see a diversity of *dsrA*.
 
 *Methanogenesis*: Next I looked for markers of methanogenesis.
 I first focused on *mtrA* and *mcrA*, two of the most common methanogenic markers.
@@ -101,7 +101,7 @@ Here there is no super clear trend in *mcrA* or *mtrA* genes.
 There is a minor increase in each of them moving down the sulfate gradient, but it isn't very stark.
 The only definitive trend is the fact that they are more abundance than the *dsrA* and *dsrD* genes, suggesting that methanogens outnumber sulfate-reducers in these sediments. 
 
-I also wanted to check out the phylogeny of the mcrA genes, both to make sure that they're definitely mcrA and to see if there were differences across the gradient.
+I also wanted to check out the phylogeny of the *mcrA* genes, both to make sure that they're definitely *mcrA* and to see if there were differences across the gradient.
 
 ```{r mcrA tree, echo = FALSE, out.width = "75%", out.height = "75%" }
 include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/2018_analysis_assembly/metabolicProteins/methanogenesis/mcrA_tree_abund.png")
@@ -129,6 +129,8 @@ include_graphics("/Users/benjaminpeterson/Documents/research/Everglades/results/
 ```
 
 Definitely most abundant at 3A-F.
-The pattern here doesn't really match our *mcrA* data.
+The pattern here doesn't really match our *mcrA* data, but suggests that Archaea, most of which are in groups associated with methanogenesis, account for a much higher percentage of the population at 3A-F.
+However, I'm not sure how much to trust this data, or how reliable the numbers are with the low number of sequences that were reconstructed.
+
 
 
