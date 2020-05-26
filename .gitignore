@@ -9,6 +9,7 @@ protocols
 
 context
 code/*/sandbox/
+code/16S/
 results
 
 # Types of files
