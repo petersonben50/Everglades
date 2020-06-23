@@ -82,12 +82,12 @@ names(hgcA.cluster.vector) <- hgcA.clusters$id
 # Read in coverage data
 hgcA.depth <- read.csv("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2018_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
                        stringsAsFactors = FALSE) %>%
-  filter(seqID %in% hgcA.list.good.scaffolds)
+  filter(scaffoldID %in% hgcA.list.good.scaffolds)
 
 # Generate matrix for ordination
 hgcA.depth.matrix <- hgcA.depth %>%
-  select(-c(seqID, length))
-rownames(hgcA.depth.matrix) <- hgcA.depth$seqID
+  select(-c(scaffoldID, length))
+rownames(hgcA.depth.matrix) <- hgcA.depth$scaffoldID
 
 # Bray-Curtis metaMDS
 BC.nmds = metaMDS(hgcA.depth.matrix, distance="bray", k=2, trymax=1000)
@@ -111,7 +111,7 @@ ggplot(data.scores, aes(x = NMDS1, y = NMDS2, col = clusterID)) +
 
 For the most part, the ordination matches fairly well with the clustering information.
 This is especially true for cluster 7, 9, 1, 0, and to a lesser extent, 10.
-Cluster 6 
+Cluster 6 and cluster 4 are a little more separated though.
 
 ```{r divergent cluster coverage, echo = FALSE, message = FALSE, warning=FALSE }
 
@@ -120,7 +120,7 @@ cluster.coverage.table <-function(cluster.of.interest) {
     filter(clstr %in% cluster.of.interest) %>%
     select(id, clstr) %>%
     left_join(hgcA.depth %>%
-                mutate(id = scaffold.to.gene.vector[seqID])) %>%
+                mutate(id = scaffold.to.gene.vector[scaffoldID])) %>%
     select(-c(id)) %>%
     kable(caption = paste("Coverage of seqs in or near cluster ",
                           cluster.of.interest[1],
@@ -178,7 +178,7 @@ hgcA.clusters <- read.table("/Users/benjaminpeterson/Documents/research/Everglad
   filter(clstr_size > 1) %>%
   select(id, clstr, clstr_rep) %>%
   left_join(hgcA.depth %>%
-              mutate(id = scaffold.to.gene.vector[seqID]) %>%
+              mutate(id = scaffold.to.gene.vector[scaffoldID]) %>%
   select(id, length)) %>%
   mutate(hgcB = id %in% hgcA.seqs.with.hgcB)
 
