@@ -36,9 +36,38 @@ mkdir ~/Everglades/dataRaw/metagenomes
 #exit
 
 
+######################
+# KMBP006: Next round of porewater metagenomes
+######################
+
 # Let's get a list of our metagenomes.
 # Save out a list of all the metagenome IDs here:
+#screen -S Everglades_MG_transfer
+#cd Everglades/dataRaw/metagenomes
+#source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+#conda activate lftp
+#lftp -c 'set ssl:verify-certificate no set ftp:ssl-protect-data true set ftp:ssl-force true; open -u n200712_Peterson,rohhei3bohZ2Oov -e "mirror -c; quit" ftp://gslanalyzer.qb3.berkeley.edu:990'
 
+#mv laneBarcode.html KMBP006_laneBarcode.html
+#mv md5sum.txt KMBP006_md5sum.txt
+
+######################
+# KMBP005: Sediment metagenomes
+######################
+
+# Get set up
+cd ~/Everglades/dataRaw/metagenomes
+
+# Now retrieve the metagenomes using lftp
+# (in the lftp virtual environment)
+screen -S EG_metagenome_retrieval
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate lftp
+
+# Download first attempt at sequencing for KMBP004.
+#lftp -c 'set ssl:verify-certificate no set ftp:ssl-protect-data true set ftp:ssl-force true; open -u n200805_150PE_NVS1A_S4_L23_Peterson,zoe3kah4Qua2aim -e "mirror -c; quit" ftp://gslanalyzer.qb3.berkeley.edu:990'
+#mv laneBarcode.html KMBP005_laneBarcode.html
+#mv md5sum.txt KMBP005_md5sum.txt
 
 
 ############################################

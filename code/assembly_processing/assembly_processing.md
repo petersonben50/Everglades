@@ -16,6 +16,11 @@ I next made a list with all the metagenomes of interest: `metadata/lists/metagen
 This list I made manually.
 This list will be used to check and trim the metagenomes.
 
+*2019 data*:
+This sequencing was all done at QB3.
+I retrieved it using lftp.
+I then added these metagenome IDs to `metadata/lists/metagenome_list.csv`.
+
 
 **Trimming metagenomes**
 
