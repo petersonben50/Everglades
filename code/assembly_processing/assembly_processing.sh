@@ -112,9 +112,7 @@ cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
 do
 
   if [ ! -e $read_storage/$metagenome\_R1.fastq.gz ]; then
-
     echo "Processing" $metagenome
-
     fastp --in1 $metagenome*R1*fastq.gz \
           --in2 $metagenome*R2*fastq.gz \
           --out1 $read_storage/$metagenome\_R1.fastq.gz \
@@ -130,8 +128,6 @@ do
           --cut_tail_window_size 10 \
           --cut_tail_mean_quality 20 \
           --length_required 100
-
-
     fastqc -o $ancillary_info \
             $read_storage/$metagenome\_R1.fastq.gz
     fastqc -o $ancillary_info \
@@ -140,15 +136,9 @@ do
             $read_storage/$metagenome\_single.fastq.gz
 
   else
-
     echo "Already processed" $metagenome
-
   fi
-
 done
-
-
-
 
 
 
