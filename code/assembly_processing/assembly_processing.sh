@@ -69,6 +69,18 @@ conda activate lftp
 #mv laneBarcode.html KMBP005_laneBarcode.html
 #mv md5sum.txt KMBP005_md5sum.txt
 
+cd ~/Everglades/dataRaw/metagenomes
+mkdir misnamed_files
+mv KMBP_005* misnamed_files
+
+cd misnamed_files
+ls KMBP_005* | while read misnamed_file
+do
+  file_name=$(echo $misnamed_file | sed 's/KMBP_00/KMBP00/g')
+  echo "Renaming" $misnamed_file "to" $file_name
+  cp $misnamed_file ../$file_name
+done
+
 
 ############################################
 ############################################

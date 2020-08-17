@@ -20,6 +20,8 @@ This list will be used to check and trim the metagenomes.
 This sequencing was all done at QB3.
 I retrieved it using lftp.
 I then added these metagenome IDs to `metadata/lists/metagenome_list.csv`.
+For the KMBP005 samples, they added an underscore for some reason.
+Let's remove that.
 
 
 **Trimming metagenomes**
