@@ -165,44 +165,33 @@ read_storage=~/Everglades/dataRaw/metagenomes
 ancillary_info=~/Everglades/dataEdited/metagenomes/reports
 
 echo -e "metagenomeID\tforwardReads\treverseReads" > $ancillary_info/metagenome_read_count_pre_trimming.tsv
-
 cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
 do
-
   echo "Working on" $metagenome
-
   forwardCount=$(zgrep -c "^@" $read_storage/$metagenome*_R1*.fastq.gz)
   reverseCount=$(zgrep -c "^@" $read_storage/$metagenome*_R2*.fastq.gz)
-
   echo -e $metagenome"\t"$forwardCount"\t"$reverseCount >> $ancillary_info/metagenome_read_count_pre_trimming.tsv
-
 done
+
 
 ######################
 # Count reads in metagenome post-trimming
 ######################
 
-screen -S Everglades_metagenome_read_counting
-
+screen -S Everglades_metagenome_read_counting_post
 cd ~/Everglades/dataRaw/metagenomes
-
 read_storage=~/Everglades/dataEdited/metagenomes
 ancillary_info=~/Everglades/dataEdited/metagenomes/reports
 
 echo -e "metagenomeID\tforwardReads\treverseReads\tsingleReads\tmergedReads" > $ancillary_info/metagenome_read_count.tsv
-
 cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
 do
-
   echo "Working on" $metagenome
-
   forwardCount=$(zgrep -c "^@" $read_storage/$metagenome\_R1.fastq.gz)
   reverseCount=$(zgrep -c "^@" $read_storage/$metagenome\_R2.fastq.gz)
   singleCount=$(zgrep -c "^@" $read_storage/$metagenome\_single.fastq.gz)
   mergeCount=$(zgrep -c "^@" $read_storage/$metagenome\_merged.fastq.gz)
-
   echo -e $metagenome"\t"$forwardCount"\t"$reverseCount"\t"$singleCount"\t"$mergeCount >> $ancillary_info/metagenome_read_count.tsv
-
 done
 
 
@@ -210,28 +199,21 @@ done
 # Coverage pre-trimming
 ######################
 
-screen -S EG_MG_coverage_counting
-
+screen -S EG_MG_coverage_counting_pre
 cd ~/Everglades/dataEdited/metagenomes/reports
-
 code=~/Everglades/code/generalUse/readfq-master
 read_storage=~/Everglades/dataRaw/metagenomes
-
 IFS=$'\n'
 
 echo -e "metagenomeID\tR1\tR2" > metagenome_coverage_pre_trimming.tsv
 for metagenome in $(cat ~/Everglades/metadata/lists/metagenome_list.csv)
 do
-
   echo "Counting coverage in" $metagenome
-
   R1_count=$($code/kseq_fastq_base $read_storage/$metagenome*_R1*.fastq.gz | \
                 awk -F " " '{ print $5 }')
   R2_count=$($code/kseq_fastq_base $read_storage/$metagenome*_R2*.fastq.gz | \
                 awk -F " " '{ print $5 }')
-
   echo -e $metagenome"\t"$R1_count"\t"$R2_count >> metagenome_coverage_pre_trimming.tsv
-
 done
 
 
@@ -240,21 +222,16 @@ done
 # Coverage post-trimming
 ######################
 
-screen -S EG_MG_coverage_counting
-
+screen -S EG_MG_coverage_counting_post
 cd ~/Everglades/dataEdited/metagenomes/reports
-
 code=~/Everglades/code/generalUse/readfq-master
 read_storage=~/Everglades/dataEdited/metagenomes
-
 IFS=$'\n'
 
 echo -e "metagenomeID\tR1\tR2\tsingle\tmerged" > metagenome_coverage.tsv
 for metagenome in $(cat ~/Everglades/metadata/lists/metagenome_list.csv)
 do
-
   echo "Counting coverage in" $metagenome
-
   R1_count=$($code/kseq_fastq_base $read_storage/$metagenome\_R1.fastq.gz | \
                 awk -F " " '{ print $5 }')
   R2_count=$($code/kseq_fastq_base $read_storage/$metagenome\_R2.fastq.gz | \
@@ -263,9 +240,7 @@ do
                 awk -F " " '{ print $5 }')
   merged_count=$($code/kseq_fastq_base $read_storage/$metagenome\_merged.fastq.gz | \
                 awk -F " " '{ print $5 }')
-
   echo -e $metagenome"\t"$R1_count"\t"$R2_count"\t"$single_count"\t"$merged_count >> metagenome_coverage.tsv
-
 done
 
 
@@ -318,13 +293,10 @@ cd ~/Everglades/dataEdited/assemblies
 
 cat ~/Everglades/metadata/lists/assembly_list_metaspades.txt | while read assembly
 do
-
   if [ ! -d $output/$assembly ]; then
     mkdir $output/$assembly
   fi
-
   # Run group assemblies with metaSPADes
-
   if [ ! -e $output/$assembly/scaffolds.fasta ]; then
     echo "Assembling" $assembly
     python $code/assembly_by_group_metaspades.py $assembly \
@@ -334,11 +306,9 @@ do
     # To continue a paused run:
     # cd $output
     # metaspades.py --continue -o $assembly
-
   else
     echo $assembly "already assembled"
   fi
-
 done
 
 
@@ -356,7 +326,7 @@ done
 # Assemblies by MegaHit
 ######################
 
-screen -S Everglades_metagenome_coassembly
+screen -S Everglades_metagenome_megahit
 
 cd ~/Everglades/dataEdited/assemblies
 
@@ -372,7 +342,7 @@ output=~/Everglades/dataEdited/assemblies/assembly_files/
 
 
 # Make sure the list of wanted assemblies by MegaHit is up to date
-# in ~/HellsCanyon/dataEdited/assemblies/assembly_group_megahit.csv
+# in ~/Everglades/metadata/lists/assembly_groups_megahit.csv
 
 # Get a list of group names
 cd ~/Everglades/metadata/lists

@@ -106,28 +106,41 @@ assemblyID,metagenomeID
 coassembly_2,ENP18_1
 coassembly_2,ENP18_2
 
-I didn't do the surface water samples from 2018 for now, since in our initial analysis they weren't of much interest.
-
 Also, before starting assemblies, I needed to upload the two `assembly_by_group` python scripts for MegaHit and metaSPADes, to `code/assembly_processing`.
+
+**2018**: I didn't do the surface water samples from 2018 for now, since in our initial analysis they weren't of much interest.
+
+**2019**: Just wanted to jot some notes down here on how I'm going to process the 2019 data.
+I'm thinking to just assemble the sediment samples first, since I think those will be of greater interest.
+We did do two metagenomes at each site, and will probably will be best to co-assemble those two metagenomes for each site.
+Won't do any co-assemblies with all the metagenomes at this point, since the samples are so separated.
+I'm also not planning to individually assembly each metagenome at this point.
+
 
 *Assemblies by metaSPades*
 
-Once the metagenomes were trimmed and ready to go, I assembled them individually using metaSPADes (v3.13.2).
+**2018**: Once the metagenomes were trimmed and ready to go, I assembled them individually using metaSPADes (v3.13.2).
 For now, I focused on getting individual assemblies with metaSPADes, since the coassembly was running out of memory.
 I included the paired reads, the merged reads, and the single reads.
 For kmers, I included 21, 33, 55, 77, 99, and 127.
 
+**2019**: Focused on coassembling the two metagenomes from the same core, which essentially are technical replicates.
+Same thing as 2018: paired, unpaired, and merged reads; 21, 33, 55, 77, 99, and 127 for kmers.
+
 *Assemblies by MegaHit*
 
-I also assembled the metagenomes using MegaHit.
+**2018**: I also assembled the metagenomes using MegaHit.
 For this, I used MegaHit version 1.2.9.
 I assembled each of the 2018 porewater samples individually and together as a coassembly.
 I used kmers from 21 to 121 with a step of 10.
 
+**2019**: Again, focused on assembling the two metagenomes from the same core.
+Used the same method as in 2018, kmers 21 to 121 by 10, with the paired ends and the single reads (no merged reads here).
+
 
 **Clean up metagenome assemblies, get stats**
 
-For each of my assemblies, I used anvio to keep only scaffolds that were longer than 1000bp and renamed the scaffolds to include the assembly ID in the scaffold name.
+For each of my assemblies, I used anvi'o to keep only scaffolds that were longer than 1000bp and renamed the scaffolds to include the assembly ID in the scaffold name.
 This was done in separate for loops for MegaHit and metaSPADes.
 
 I then got some stats on the size and quality of the assemblies.
@@ -135,9 +148,9 @@ For this, I used the `abyss-fac.pl` script included with the Abyss assembler.
 I aggregated the numbers into `all_assemblies_stats.txt` and downloaded it to my local computer here: `dataEdited/assemblies/reports`.
 Let's take a look.
 
-Generally, the MegaHit assemblies had a higher N50 than the metaSPADes ones.
+**2018**: Generally, the MegaHit assemblies had a higher N50 than the metaSPADes ones.
 However, the metaSPADes assemblies had a higher overall length.
-For some reason, despite using anvio to trim out any scaffold under 1000bp, there are a few scaffolds in the metaSPADes assemblies that are under 1000bp, down to about 950bp.
+For some reason, despite using anvi'o to trim out any scaffold under 1000bp, there are a few scaffolds in the metaSPADes assemblies that are under 1000bp, down to about 950bp.
 I think I'm going to run my hgcA and other assembly-based analyses on all these assemblies and can then simply dereplicate across them.
 I'll also do this for the binning process.
 
