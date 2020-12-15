@@ -1,0 +1,20 @@
+##################
+# binning_mapping.sub
+# Submission script for mapping metagenomic
+# reads to the scaffolds from the assemblies
+# that will be used for binning.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/Everglades/code/executables/binning_mapping.sh
+
+environment = "assembly=$(assembly) mapping=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/mapping"
+output = /home/GLBRCORG/bpeterson26/Everglades/reports/outs/$(assembly)_binningMapping.out
+error = /home/GLBRCORG/bpeterson26/Everglades/reports/errs/$(assembly)_binningMapping.err
+log = /home/GLBRCORG/bpeterson26/Everglades/reports/logs/$(assembly)_binningMapping.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_list.txt
