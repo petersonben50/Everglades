@@ -71,88 +71,6 @@ condor_submit submission/binning_mapping.sub
 
 
 
-
-####################################################
-####################################################
-# Run automatic binning algorithms
-####################################################
-####################################################
-
-screen -S EG_auto_binning
-mkdir ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning
-mkdir ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2
-cd ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2
-mapping=~/Everglades/dataEdited/2019_binning/binning_initial/mapping
-scripts=/home/GLBRCORG/bpeterson26/Everglades/code/generalUse
-scaffolds=~/Everglades/dataEdited/2019_binning/binning_initial/scaffolds
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate bioinformatics
-PERL5LIB=""
-
-cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt | while read assembly
-do
-
-  # First need to generate a depth file
-  if [ ! -e depth_to_$assembly.txt ]; then
-    echo "Summarizing depths for" $assembly
-    jgi_summarize_bam_contig_depths --outputDepth depth_to_$assembly.txt \
-        $mapping/ENP18_001_002_003_to_$assembly.bam \
-        $mapping/ENP18_024_025_to_$assembly.bam \
-        $mapping/ENP18_030_032_to_$assembly.bam \
-        $mapping/ENP18_048_049_50_to_$assembly.bam \
-        $mapping/ENP18_061_to_$assembly.bam
-  else
-    echo "Depth file generation done for" $assembly
-  fi
-
-
-  # Then run the binning
-  if [ ! -d $assembly ]; then
-
-    echo "Binning" $assembly
-    mkdir $assembly
-    metabat2 -i $scaffolds/$assembly\_filtered_assembly.fna \
-              -a depth_to_$assembly.txt \
-              -o $assembly/metabat_$assembly \
-              -m 2000
-
-  else
-    echo "Binning of" $assembly "already done"
-  fi
-done
-
-
-# Rename bins
-cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt | while read assembly
-do
-
-  cd ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2/$assembly
-
-  ls *fa | while read bin
-  do
-    newBinName=$(echo $bin | sed "s/$assembly./$assembly\_/")
-    echo "Renaming" $bin "to" $newBinName
-    mv $bin $newBinName
-  done
-
-  $scripts/Fasta_to_Scaffolds2Bin.sh -e fa > ../$assembly\_metabat_S2B.tsv
-
-done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ####################################################
 ####################################################
 # Generate anvio DBs
@@ -276,44 +194,77 @@ done
 
 ####################################################
 ####################################################
-# Generate read profiles
+# Run automatic binning algorithms
 ####################################################
 ####################################################
 
-screen -S EG_anvioDBs
-cd ~/Everglades/dataEdited/2019_binning/binning_initial
+screen -S EG_auto_binning
+mkdir ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning
+mkdir ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2
+mapping=~/Everglades/dataEdited/2019_binning/binning_initial/mapping
+scripts=/home/GLBRCORG/bpeterson26/Everglades/code/generalUse
+scaffolds=~/Everglades/dataEdited/2019_binning/binning_initial/scaffolds
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-conda activate anvio6.2
-PYTHONPATH=""
+conda activate bioinformatics
+PERL5LIB=""
+IFS=$'\n'
 
 cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt | while read assembly
 do
-  if [ ! -d anvioDBs/$assembly.merged ]; then
-    cat ~/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt | while read metagenome
+  # First need to generate a depth file
+  if [ ! -e depth_to_$assembly.txt ]; then
+    echo "Summarizing depths for" $assembly
+    summarize_command=$(echo -e "jgi_summarize_bam_contig_depths --outputDepth depth_to_$assembly.txt")
+    for mappingFile in $(ls $mapping/*_to_$assembly.bam)
     do
-      if [ ! -d anvioDBs/$metagenome\_to_$assembly.profile ]; then
-        echo "Profiling reads mapped from:" $metagenome "to" $assembly
-        anvi-profile -c anvioDBs/$assembly.db \
-                      -i mapping/$metagenome\_to_$assembly.bam \
-                      --write-buffer-size 1000 \
-                      --min-contig-length 2000 \
-                      --num-threads 10 \
-                      -o anvioDBs/$metagenome\_to_$assembly.profile
-      else
-        echo "STOP: Profiling reads mapped to:" $assembly "from" $metagenome "is already done"
-      fi
+      summarize_command=$(echo $summarize_command $mappingFile)
     done
-    anvi-merge anvioDBs/*to_$assembly.profile/PROFILE.db \
-                -o anvioDBs/$assembly.merged \
-                -c anvioDBs/$assembly.db \
-                -S $assembly\_merged \
-                --skip-hierarchical-clustering
+    echo $summarize_command
+    eval $summarize_command
   else
-    echo "Merging profiles complete for" $groupName
+    echo "Depth file generation done for" $assembly
+  fi
+  # Then run the binning
+  if [ ! -d $assembly ]; then
+    echo "Binning" $assembly
+    mkdir $assembly
+    metabat2 -i $scaffolds/$assembly\_filtered_assembly.fna \
+              -a depth_to_$assembly.txt \
+              -o $assembly/metabat_$assembly \
+              -m 2000
+  else
+    echo "Binning of" $assembly "already done"
   fi
 done
 
 
+# Rename bins
+cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt | while read assembly
+do
+  cd ~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2/$assembly
+  ls *fa | while read bin
+  do
+    newBinName=$(echo $bin | sed "s/$assembly./$assembly\_/")
+    echo "Renaming" $bin "to" $newBinName
+    mv $bin $newBinName
+  done
+  $scripts/Fasta_to_Scaffolds2Bin.sh -e fa > ../$assembly\_metabat_S2B.tsv
+done
+
+
+
+
+
+
+####################################################
+####################################################
+# Generate read profiles
+####################################################
+####################################################
+
+chmod +x /home/GLBRCORG/bpeterson26/Everglades/code/executables/anvio_read_profiling.sh
+condor_submit /home/GLBRCORG/bpeterson26/Everglades/code/submission/anvio_read_profiling_2019.sub
 
 
 

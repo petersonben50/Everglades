@@ -48,8 +48,8 @@ I then wanted to use an automatic binning method to generate bins, both for thei
 I started with Metabat2, and will only use this one for now.
 First, I used the JGI script to summarize the bam files for all metagenomic mapping to each assembly into a depth file.
 I then binned the scaffolds using default settings.
-Finally, I renamed the bins to include their assembly of origin and metabat.
-
+The bins are named to include their assembly of origin and metabat.
+Finally, I removed the periods from the names and replaced them with underscores.
 
 
 
@@ -57,8 +57,10 @@ Finally, I renamed the bins to include their assembly of origin and metabat.
 **Generate read profiles**
 
 Then, I profiled the reads mapping to each assembly and added that to the anvio database.
+This is done in a submission script, where the executable is generalized and the submission file can be customized to different years or projects.
 When merging the reads, I skipped the hierarchical clustering and the CONCOCT binning.
 I'll perform binning with a condensed number of clusters later on.
+
 
 
 **Estimate number of genomes**

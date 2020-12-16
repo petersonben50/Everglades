@@ -1,0 +1,21 @@
+##################
+# anvio_read_profiling_2019.sub
+# Submission script for profiling the
+# bam files against the anvio databases
+# from the Everglades initial binning
+# efforts.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 12
+request_memory = 120GB
+
+executable = /home/GLBRCORG/bpeterson26/Everglades/code/executables/anvio_read_profiling.sh
+
+environment = "assembly=$(assembly) metagenomeList=/home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt output=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs mapping=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/mapping/"
+output = /home/GLBRCORG/bpeterson26/Everglades/reports/outs/$(assembly)_anvioReadProfiling.out
+error = /home/GLBRCORG/bpeterson26/Everglades/reports/errs/$(assembly)_anvioReadProfiling.err
+log = /home/GLBRCORG/bpeterson26/Everglades/reports/logs/$(assembly)_anvioReadProfiling.log
+
+queue assembly from /home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_list.txt
