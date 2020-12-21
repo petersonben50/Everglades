@@ -1,0 +1,185 @@
+---
+title: 'Everglades: dereplication of hgcA from 2019'
+author: "Benjamin D. Peterson"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list =ls())
+
+library(knitr)
+library(tidyverse)
+library(vegan)
+
+hgcA.list.all <- readLines("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/identification/hgcA_raw.txt")
+hgcA.list.good <- readLines("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/identification/hgcA_good.txt")
+hgcA.list.good.scaffolds <- paste(strsplit(hgcA.list.good, "_") %>%
+                                    sapply("[", 1),
+                                  strsplit(hgcA.list.good, "_") %>%
+                                    sapply("[", 2),
+                                  sep = "_")
+
+scaffold.to.gene.vector <- hgcA.list.good
+names(scaffold.to.gene.vector) <- hgcA.list.good.scaffolds
+
+```
+
+### Check clustering cutoff
+
+First, I wanted to make sure our 97% cutoff for clustering sequences was a good choice.
+I loaded in our clustering with the 80% cutoff, and plotte
+```{r check cluster cutoffs, echo = FALSE, message = FALSE, warning=FALSE }
+
+hgcA.clusters.divergent <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_divergent_cluster_faa.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE) %>%
+  mutate(clstr_cov = clstr_cov %>%
+           gsub("%", "", .) %>%
+           as.numeric(),
+         clstr_iden = clstr_iden %>%
+           gsub("%", "", .) %>%
+           as.numeric(),
+         )
+
+plot(x = hgcA.clusters.divergent$clstr_cov,
+     y = hgcA.clusters.divergent$clstr_iden,
+     pch = 17,
+     xlab = "Cluster coverage (%)",
+     ylab = "Sequence Identity (%)")
+abline(h = 96)
+```
+
+Looks decent.
+There is one sequence pair at 96.12% (Sed993Meta19_000000013235_9 and Sed993Mega19_000000930945_9).
+These two are from the same metagenome (one from metaSPADes, one from Megahit), so seems likely that it's actually the same gene.
+Sed993Meta19_000000166988_2 and Sed993Mega19_000001657572_1 match at 93.6%, and Sed993Mega19_000000536873_3 and Sed993Meta19_000000007069_7 match at 94.15%.
+We then have two more above 90% that are clearly supposed to be in their own HMS (cluster 52).
+Let's try ordinating at 96% first, but then check to see how closely the two pairs at ~94% cluster on the ordination.
+
+
+
+### Ordinate sequences by depth of coverage
+
+Then, I wanted to compare the clustering information to an ordination by depth of the hgcA sequences.
+I used a Bray-Curtis dissimilarity metric and a NMDS-based ordination.
+The numbers refer to the cluster ID that CD-HIT assigned each sequence.
+
+```{r cluster_hgcA_coverage, echo = FALSE, results='hide',fig.keep='all' }
+
+# Make vector to tie hgcA name to cluster number
+hgcA.clusters <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_cluster_faa_96.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE)
+hgcA.cluster.vector <- hgcA.clusters$clstr
+names(hgcA.cluster.vector) <- hgcA.clusters$id
+
+
+# Read in coverage data
+hgcA.depth <- read.csv("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
+                       stringsAsFactors = FALSE) %>%
+  filter(scaffoldID %in% hgcA.list.good.scaffolds)
+
+# Generate matrix for ordination
+hgcA.depth.matrix <- hgcA.depth %>%
+  select(-c(seqID, scaffoldID, length, total))
+rownames(hgcA.depth.matrix) <- hgcA.depth$scaffoldID
+
+# Bray-Curtis metaMDS
+BC.nmds = metaMDS(hgcA.depth.matrix, distance="bray", k=2, trymax=1000)
+data.scores = as.data.frame(scores(BC.nmds),stringsAsFactors = FALSE)
+data.scores$clusterID = as.character(hgcA.cluster.vector[scaffold.to.gene.vector[rownames(data.scores)]])
+
+
+# Generate plot
+ggplot(data.scores, aes(x = NMDS1, y = NMDS2, col = clusterID)) + 
+  geom_point(size = 0)+ 
+  theme(axis.text.y = element_text(colour = "black", size = 12, face = "bold"), 
+        axis.text.x = element_text(colour = "black", face = "bold", size = 12), 
+        axis.title.x = element_text(face = "bold", size = 14, colour = "black"), 
+        panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1.2)) + 
+  labs(x = "NMDS1", y = "NMDS2") +
+  geom_text(aes(label = clusterID)) +
+  geom_line()
+
+
+```
+
+For the most part, the ordination matches fairly well with the clustering information.
+However, there are a few longer lines in here.
+10, 47, and 56 stick out a little bit.
+Clusters 47 and 56 have 97 and 98% identity respectively, between the two gene, so could be some variation leading to the differences in abundance.
+
+For our sequence pairs at ~94%:
+1. Sed993Meta19_000000166988_2 (cluster 0) and Sed993Mega19_000001657572_1 (cluster 40). These two are smack dab on top of each other.
+2. Sed993Mega19_000000536873_3 (cluster 71) and Sed993Meta19_000000007069_7 (cluster 74). Of course, these two aren't even close.
+
+Let's go with 94? See if we can split the two.
+
+```{r cluster_hgcA_coverage_94, echo = FALSE, results='hide',fig.keep='all' }
+
+# Make vector to tie hgcA name to cluster number
+hgcA.clusters.94 <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_cluster_faa_94.tsv",
+                            stringsAsFactors = FALSE,
+                            header = TRUE)
+
+```
+
+Well, Sed993Meta19_000000007069_7 and Sed993Mega19_000000536873_3 get clustered under this anyways.
+But, better to overcluster than end up counting duplicates, I think. These two are around 2-3X coverage anyways, so shoudn't make a big difference.
+We'll go with the clustering at 94%. 
+
+### Check on length of hgcA+ scaffolds and hgcB presence
+
+Before I finalize the dereplication, I want ot make sure that we've got the best set of representatives.
+To check this, I'll look at the presence/absence of a downstream hgcB gene and the overall length of the hgcA scaffolds.
+I'll only do this comparison for clusters with more than one member.
+
+```{r representative selection, echo = FALSE, message = FALSE, warning=FALSE }
+
+hgcB.list <- readLines("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/hgcB/hgcB_good.txt")
+hgcA.seqs.with.hgcB <- scaffold.to.gene.vector[paste(strsplit(hgcB.list, "_") %>%
+                                                       sapply("[", 1),
+                                                     strsplit(hgcB.list, "_") %>%
+                                                       sapply("[", 2),
+                                                     sep = "_")]
+
+hgcA.clusters <- hgcA.clusters.94 %>%
+  filter(clstr_size > 1) %>%
+  select(id, clstr, clstr_rep) %>%
+  left_join(hgcA.depth %>%
+              mutate(id = scaffold.to.gene.vector[scaffoldID]) %>%
+  select(id, length)) %>%
+  mutate(hgcB = id %in% hgcA.seqs.with.hgcB)
+
+hgcA.singles.list <- hgcA.clusters.94 %>%
+  filter(clstr_size == 1) %>%
+  select(id) %>%
+  unlist(use.names = FALSE)
+
+kable(hgcA.clusters)
+```
+
+Okay, CD-HIT isn't always picking the longest one, or one with an hgcB trailing.
+So let's do this, let's take the final list, sort by length, then by hgcB presence, then by cluster number.
+That will ensure that the first seq in the list of a specific cluster will be prioritized to have hgcB, and then to be the longest, which is what our priorities are for a representative.
+
+```{r hgcA_rep_selection}
+
+hgcA.pants.list <- hgcA.clusters %>%
+  arrange(clstr, desc(hgcB), desc(length)) %>%
+  group_by(clstr) %>%
+  slice(1) %>%
+  ungroup() %>%
+  select(id) %>%
+  unlist(use.names = FALSE)
+hgcA.derep.list <- c(hgcA.singles.list, hgcA.pants.list)
+
+```
+
+We'll save out this list for use in our further analyses.
+
+```{r save_out_hgcA_derep_list}
+writeLines(hgcA.derep.list,
+           "/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_derep_list.txt")
+```
