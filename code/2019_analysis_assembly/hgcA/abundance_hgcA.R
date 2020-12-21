@@ -24,7 +24,7 @@ hgcA.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA.txt")
 
 #### Read in abundance and phylogenetic info ####
 
-all.data <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
+all.data <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_scgNormalization.csv",
                                stringsAsFactors = FALSE) %>%
   full_join(read_xlsx("dataEdited/2019_analysis_assembly/hgcA/phylogeny/seq_classification.xlsx",
                       sheet = "seq_classification")) %>%
@@ -269,7 +269,7 @@ plotting.data %>%
                 colour = "black") +
   geom_point(size = 3) +
   theme_classic() +
-  labs(x = "Read coverage of hgcA sequences\n(per 10 million reads)",
+  labs(x = "Read coverage of hgcA sequences\n(per 100X coverage of SCG)",
        y = "Median relative methylation percent\n(normalized to highest methylation %)",
        title = "Median relative methylation percent vs.\nhgcA coverage in sediment")
 dev.off()
