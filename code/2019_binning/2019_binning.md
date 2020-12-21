@@ -68,7 +68,8 @@ I'll perform binning with a condensed number of clusters later on.
 Before performing our clustering, I wanted to get an estimate of the number of genomes that we had in each assembly.
 I used the [anvi-display-contigs-stats](http://merenlab.org/2016/06/22/anvio-tutorial-v2/#anvi-display-contigs-stats) program to do this, then manually saved the estimated number of genomes to `estimated_number_of_genomes.csv` (in the second column).
 In the third column, I added the number of clusters I'd like CONCOCT to generate for me.
-Generally, I set the number of clusters to somewhere between a half and a third of the predicted number of complete genomes.
+There's an Excel sheet too, with more details, like how many bacteria vs. archaea were predicted: `estimated_number_of_genomes.xlsx`.
+I divided the estimated number of clusters by 3 and used that as the maximum number of CONCOCT clusters requested.
 
 
 **Add taxonomic information**
@@ -83,11 +84,7 @@ Beyond that, just need to run `anvi-run-scg-taxonomy` on the database.
 
 We're going to focus in on using CONCOCT clustering to start the manual binning of the hgcA+ bins.
 I'll use the Excel sheet I put together in the genome count estimation section to limit the number of clusters that we get.
-
-*Troubleshooting*: I'm getting an error from anvio. I had not install concoct through conda, but just was using the default one from GLBRC.
-
-*Side note*: Never use excel to make a csv that you're later going to use in linux.
-Download Libre Office for this.
+This is run as a for loop.
 
 
 **Add MetaBat2 info**
@@ -96,7 +93,7 @@ Add the Metabat2 information as a collection.
 
 **Search for hgcA+ bins**
 
-Now, for the moment of truth: did any hgcA sequences make their way into any bins?
+Now, for the (first) moment of truth: did any hgcA sequences make their way into any bins?
 Let's find out.
 First I summarized the bins and extracted a list of the original bin names.
 I then searched for bins that had a list of hgcA in them, and saved the assembly ID and the bin name to a file (`original_hgcA_bin_list.txt`).
@@ -106,12 +103,6 @@ I downloaded this list to my local computer, and copied it into a new spreadshee
 **Manually bin hgcA+ bins**
 
 Then I manually binned these!
+(Second moment of truth).
 Before I did, though, I copied the anvio database folder to a new folder (anvioDBs_modified) and modified the new one.
 Then I went ahead and manually binned the hgcA+ bins.
-
-Tried to manually bin them.
-Overall, I'd say this process SUCKED.
-There really aren't any definitive hgcA+ bins in here.
-Nothing over 40% complete, and even to get there it was a little sketchy.
-Might want to give up on the genome-resolved metagenomes dream for these metagenomes.
-Maybe with the expanded number of metagenomes from our 2019 sampling, we'll be able to retrieve some, but I think we're stuck with assembly-based analyses for the 2019 work.

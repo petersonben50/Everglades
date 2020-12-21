@@ -283,7 +283,7 @@ conda activate anvio6.2
 PYTHONPATH=""
 
 
-assembly=Pw05Meta18
+assembly=Sed991Mega19
 anvi-display-contigs-stats $assembly.db
 # Go to this site: http://localhost:8080
 
@@ -324,12 +324,13 @@ conda activate anvio6.2
 PYTHONPATH=""
 bin_counts=~/Everglades/dataEdited/2019_binning/binning_initial/estimated_number_of_genomes.csv
 cd ~/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs
+IFS=$'\n'
 
 # Bin assemblies
-cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt | while read assembly
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
 do
-  clusters=$(awk -F ',' -v assembly="$assembly" '$1 == assembly { print $3 }' $bin_counts)
-  echo "Binning" $assembly "into" $clusters "clusters"
+  clusterNumber=`awk -F ',' -v assembly="$assembly" '$1 == assembly { print $3 }' $bin_counts`
+  echo -e "Binning "$assembly": "$clusterNumber
   anvi-cluster-contigs -p $assembly.merged/PROFILE.db \
                         -c $assembly.db \
                         -C CONCOCT \
@@ -339,8 +340,6 @@ do
                         --length-threshold 2000 \
                         --just-do-it
 done
-
-
 
 
 ################################################
