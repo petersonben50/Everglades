@@ -67,9 +67,9 @@ depth.data <- do.call(rbind,
 
 #### Write out file with depths for all sequences ####
 
-write.csv(depth.data,
-          "dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_all.csv",
-          row.names = FALSE)
+# write.csv(depth.data,
+#           "dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_all.csv",
+#           row.names = FALSE)
 
 
 
@@ -104,9 +104,9 @@ depth.data.final <- depth.data %>%
 
 
 #### Read out depth file for final hgcA seqs ####
-write.csv(depth.data.final,
-          "dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
-          row.names = FALSE)
+# write.csv(depth.data.final,
+#           "dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
+#           row.names = FALSE)
 
 
 
@@ -190,7 +190,7 @@ depth.data <- do.call(rbind,
 #### Write out file with depths for all sequences ####
 
 write.csv(depth.data,
-          "dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_all_scgNormalization.csv",
+          "dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_raw_scgNormalization.csv",
           row.names = FALSE)
 
 
