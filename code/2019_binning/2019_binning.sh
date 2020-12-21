@@ -336,7 +336,7 @@ do
                         -C CONCOCT \
                         -T 16 \
                         --driver concoct \
-                        --clusters $clusters \
+                        --clusters $clusterNumber \
                         --length-threshold 2000 \
                         --just-do-it
 done
