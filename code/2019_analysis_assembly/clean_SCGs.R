@@ -16,6 +16,9 @@ scg.abundance <- read.table("dataEdited/2019_analysis_assembly/SCGs/scg_coverage
 
 
 #### Plot out raw data ####
+pdf("results/2019_analysis_assembly/scg_abundance.pdf",
+    height = 4,
+    width = 6)
 scg.abundance %>%
   ggplot(aes(x = metagenomeID,
              y = coverage)) +
@@ -25,6 +28,30 @@ scg.abundance %>%
   stat_summary(geom = "point", fun = "mean",
                col = "black", fill = "red",
                size = 3, shape = 24)
+dev.off()
+
+
+
+#### Plot out normalized data ####
+normalized.coverage.vector <- readRDS("dataEdited/metagenomes/reports/metagenome_normalization_vector.rds")
+pdf("results/2019_analysis_assembly/scg_abundance_normalized.pdf",
+    height = 4,
+    width = 6)
+scg.abundance %>%
+  mutate(coverage = coverage * normalized.coverage.vector[metagenomeID]) %>%
+  ggplot(aes(x = metagenomeID,
+             y = coverage)) +
+  geom_line(mapping = aes(group = geneID)) +
+  geom_point() +
+  theme_classic() +
+  stat_summary(geom = "point", fun = "mean",
+               col = "black", fill = "red",
+               size = 3, shape = 24)
+dev.off()
+
+
+
+
 
 
 #### Generate normalization factor for each metagenomes ####
@@ -32,9 +59,9 @@ scg.abundance %>%
 mean.scg.abundance <- scg.abundance %>%
   group_by(metagenomeID) %>%
   summarize(coverage = mean(coverage))
-# Normalize to a coverage of 1000
+# Normalize to a coverage of 100
 normalized.mean.scg.abundance <- mean.scg.abundance %>%
-  mutate(NF = 1000 / coverage)
+  mutate(NF = 100 / coverage)
 
 
 #### Generate normalization vector for each metagenomes ####
