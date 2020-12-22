@@ -105,7 +105,7 @@ done
 
 
 ######################
-# Calculate overall fraction of reads in a metagenome to any assembly
+# Calculate overall fraction of reads in a metagenome mapping to any assembly
 ######################
 
 screen -S EG_assembly_mapping
@@ -152,6 +152,7 @@ do
   done
 done
 
+# Concatenate unique reads
 cd ~/Everglades/dataEdited/2019_analysis_assembly/mapping/mapped_reads
 cat ~/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt | while read metagenome
 do
@@ -167,4 +168,15 @@ do
   cat $metagenome\_*singleReads.txt | \
     sort | uniq \
     > $metagenome\_singleReads.txt
+done
+
+# Count the number of lines in each type of file
+cd ~/Everglades/dataEdited/2019_analysis_assembly/mapping/mapped_reads
+rm -rf ../uniq_mapped_reads_MG.tsv
+cat ~/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt | while read metagenome
+do
+  forwardReadCounts=`cat $metagenome\_forwardReads.txt | wc -l`
+  reverseReadCounts=`cat $metagenome\_reverseReads.txt| wc -l`
+  singleReadCounts=`cat $metagenome\_singleReads.txt | wc -l`
+  echo -e $metagenome"\t"$forwardReadCounts"\t"$reverseReadCounts"\t"$singleReadCounts >> ../reports/uniq_mapped_reads_MG.tsv
 done
