@@ -180,3 +180,9 @@ do
   singleReadCounts=`cat $metagenome\_singleReads.txt | wc -l`
   echo -e $metagenome"\t"$forwardReadCounts"\t"$reverseReadCounts"\t"$singleReadCounts >> ../reports/uniq_mapped_reads_MG.tsv
 done
+
+
+
+# Clean up
+cd ~/Everglades/dataEdited/2019_analysis_assembly/mapping
+rm -rf mapped_reads
