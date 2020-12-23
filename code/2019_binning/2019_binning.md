@@ -122,4 +122,16 @@ I then summarized the bins to get the output we needed.
 *Pull out DNA files from hgcA+ bins*
 
 I only pulled out the hgcA+ bins from our binning.
-There are a lot of junky ones in here too, but just going to pull everything out for now. 
+There are a lot of junky ones in here too, but just going to pull everything out for now.
+
+
+
+**Check quality of bins**
+
+I checked the quality of these bins using two metrics, the completeness/redundancy metrics from anvi'o as well as those from CheckM.
+
+*Completeness/redundancy estimates from anvio*
+
+I concatenated the summaries into a single folder, and then into a single file.
+I then made a folder with the stats for just the hgcA+ bins.
+Finally, I made a separate summary file and a list for just the hgcA+ bins with completion scores > 50 and redundancy < 10.

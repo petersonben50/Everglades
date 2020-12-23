@@ -537,3 +537,59 @@ do
     echo "Summarize anvioDB for" $assembly", dummy."
   fi
 done
+
+# Generate list of hgcA+ bins
+cd $binsRaw/DNA
+ls *.fna | \
+  sed 's/.fna//' \
+  > binsRaw_hgcA_list.txt
+
+
+
+####################################################
+####################################################
+# Check quality of bins
+####################################################
+####################################################
+
+##########################
+# Completeness/redundancy estimates from anvio
+##########################
+binsRaw=~/Everglades/dataEdited/2019_binning/binning_initial/binsRaw
+mkdir $binsRaw/anvio_data
+mkdir $binsRaw/anvio_data/completeness_redundancy
+
+# Copy summary files into a single folder.
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
+do
+  summary=~/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs_modified/$assembly.curated.summary
+  if [ -e $summary/bins_summary.txt ]; then
+    cp $summary/bins_summary.txt $binsRaw/anvio_data/completeness_redundancy/$assembly\_bins_summary.txt
+  else
+    echo $assembly "has not been summarized."
+  fi
+done
+
+# Concatenate summaries into a single file.
+cd $binsRaw/anvio_data/completeness_redundancy
+head -n 1 Sed994Meta19_bins_summary.txt > hgcA_bins_summary_all.txt
+for file in $(ls *_bins_summary.txt)
+do
+  tail -n +2 $file >> bins_summary_all.txt
+done
+
+# Only keep the summaries for the hgcA+ bins.
+head -n 1 bins_summary_all.txt > bins_summary_hgcA.txt
+for hgcA_bin in $(cat $binsRaw/DNA/binsRaw_hgcA_list.txt)
+do
+  grep $hgcA_bin bins_summary_all.txt >> bins_summary_hgcA.txt
+done
+
+head -n 1 hgcA_bins_summary.txt > bins_summary_hgcA_good.txt
+awk '{ if (($7 > 50) && ($8 < 10)) print $0 }' bins_summary_hgcA.txt >> bins_summary_hgcA_good.txt
+tail -n +2 bins_summary_hgcA_good.txt | \
+  awk '{ print $1 }' \
+  > bins_list_hgcA_good.txt
+
+# Download bins_summary_hgcA.txt to local computer
+# dataEdited/2019_binning/binning_initial/binsRaw
