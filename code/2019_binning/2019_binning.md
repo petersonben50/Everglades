@@ -97,6 +97,7 @@ Now, for the (first) moment of truth: did any hgcA sequences make their way into
 Let's find out.
 First I summarized the bins and extracted a list of the original bin names.
 I then searched for bins that had a list of hgcA in them, and saved the assembly ID and the bin name to a file (`original_hgcA_bin_list.txt`).
+Wow. We have a ton here!
 I downloaded this list to my local computer, and copied it into a new spreadsheet to use for my notes on the binning process: `dataEdited/2019_binning/binning_initial/anvioDB_processing/hgcA_binning_notes.xlsx`
 
 
@@ -106,3 +107,19 @@ Then I manually binned these!
 (Second moment of truth).
 Before I did, though, I copied the anvio database folder to a new folder (anvioDBs_modified) and modified the new one.
 Then I went ahead and manually binned the hgcA+ bins.
+Notes can be found here:
+`/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_binning/binning_initial/anvioDB_processing/hgcA_binning_notes.xlsx`.
+
+
+**Summarize/export curated bins**
+
+*Rename and summarize bins*
+
+Fist, I renamed the bins to include the assembly ID.
+These new bins were saved to the refined_and_renamed collection.
+I then summarized the bins to get the output we needed.
+
+*Pull out DNA files from hgcA+ bins*
+
+I only pulled out the hgcA+ bins from our binning.
+There are a lot of junky ones in here too, but just going to pull everything out for now. 

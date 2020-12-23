@@ -441,14 +441,99 @@ conda activate anvio6.2
 PYTHONPATH=""
 metabat2=~/Everglades/dataEdited/2019_binning/binning_initial/autoBinning/metabat2
 cd ~/Everglades/dataEdited/2019_binning/binning_initial
-# Copy the
+# Copy the database folder
 #cp -avr anvioDBs anvioDBs_modified
 
-assembly=Pw03Meta18
-bin=Bin_1
+assembly=Sed996Meta19
+bin=Bin_9
 anvi-refine -p anvioDBs_modified/$assembly.merged/PROFILE.db \
             -c anvioDBs_modified/$assembly.db \
             -C CONCOCT \
             -b $bin \
             -A anvioDBs_modified/$assembly\_collections.tsv \
             --taxonomic-level "t_phylum"
+
+
+
+################################################
+################################################
+# Summarize/export curated bins
+################################################
+################################################
+
+##########################
+# Rename and summarize bins
+##########################
+screen -S EG_2019_binsPostProcessing
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate anvio6.2
+PYTHONPATH=""
+PERL5LIB=""
+IFS=$'\n'
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs_modified
+
+# Rename them
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
+do
+  # If you need to delete the renamed collection to make a new one:
+  # anvi-delete-collection -p $assembly.db -C refined_and_renamed
+  # rm renamed_bins_key.txt
+  anvi-rename-bins -c $assembly.db \
+                    -p $assembly.merged/PROFILE.db \
+                    --collection-to-read CONCOCT \
+                    --collection-to-write refined_and_renamed \
+                    --prefix $assembly \
+                    --report-file renamed_bins_key.txt
+done
+
+# Summarize them
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
+do
+  # If old summary exists that we want to delete, uncomment
+  # the following:
+  # rm -r $assembly.summary.curated
+  if [ ! -d $assembly.curated.summary ]; then
+    echo "Summarizing bins for" $assembly
+    anvi-summarize -c $assembly.db \
+                    -p $assembly.merged/PROFILE.db \
+                    -C refined_and_renamed \
+                    -o $assembly.curated.summary
+  else
+    echo "We already summarized the curated bins for" $assembly
+  fi
+done
+conda deactivate
+
+
+##########################
+# Pull out DNA files from hgcA+ bins
+##########################
+# First need to set up new directory
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/
+mkdir binsRaw
+mkdir binsRaw/DNA
+binsRaw=~/Everglades/dataEdited/2019_binning/binning_initial/binsRaw
+
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
+do
+  if [ -e ~/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs_modified/$assembly.curated.summary ]; then
+    if [ ! -e $binsRaw/DNA/$assembly* ]; then
+      cd ~/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs_modified/$assembly.curated.summary/bin_by_bin
+      for bin in $(ls | sed 's/\///')
+      do
+        isThereHgcA=`cat $bin/$bin\-hgcaAnvio-hmm-sequences.txt | wc -l`
+        if [ ! $isThereHgcA -eq 0 ]; then
+          echo "Copying" $bin "to binsRaw folder"
+          cp $bin/$bin-contigs.fa $binsRaw/DNA/$bin.fna
+        else
+          echo "No hgcA in" $bin
+        fi
+      done
+    else
+      echo "Hey, there are some bins from" $assembly "already in here"
+      echo "You might wanna check that out before you start overwriting stuff"
+    fi
+  else
+    echo "Summarize anvioDB for" $assembly", dummy."
+  fi
+done
