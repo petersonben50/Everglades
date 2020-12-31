@@ -431,9 +431,14 @@ mv -f hgcA_clean.faa hgcA.faa
 cp -f dereplication/hgcA_derep_list.txt ./hgcA.txt
 
 
-
-
-
+cd ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/
+echo -e "hgcA\tclusterRep" > derep_key.tsv
+cat identification/hgcA_good.txt | while read hgcA
+do
+  clusterID=`awk -F '\t' -v hgcA="$hgcA" ' $1 == hgcA { print $2 }' dereplication/hgcA_cluster_faa_94.tsv`
+  clusterRep=`awk -F '\t' -v clusterID="$clusterID" ' ($2 == clusterID) && ($5 == 1) { print $1 }' dereplication/hgcA_cluster_faa_94.tsv`
+  echo -e $hgcA'\t'$clusterRep >> derep_key.tsv
+done
 
 ############################################
 ############################################

@@ -84,6 +84,7 @@ Realized that the 97% cutoff wasn't catching everything here, so dropped it down
 In the Rmd document, I found that I wasn't always picking the best representative, so I sorted the clusters by length and presence of hgcB and picked a representative that way.
 That list got saved out to here: `dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_derep_list.txt`.
 I uploaded this and used it to pull out the needed hgcA sequences.
+Later on, I came back and made a "cluster key" to link all the hgcA seqs in a cluster to the cluster representative.
 
 
 **Make phylogenetic tree**
