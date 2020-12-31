@@ -593,3 +593,194 @@ tail -n +2 bins_summary_hgcA_good.txt | \
 
 # Download bins_summary_hgcA.txt to local computer
 # dataEdited/2019_binning/binning_initial/binsRaw
+
+
+##########################
+# Completeness/redundancy estimates from CheckM
+##########################
+
+screen -S EG_checkM
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate bioinformatics
+
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsRaw
+if [ -d checkM ]; then
+  echo "Removing old checkM folder"
+  rm -rf checkM
+fi
+mkdir checkM
+checkm lineage_wf \
+        -x .fna \
+        -t 16 \
+        DNA \
+        checkM
+checkm qa checkM/lineage.ms \
+          checkM \
+          -o 2 \
+          -f checkM/checkm.out \
+          --tab_table
+awk -F '\t' \
+    -v OFS=',' \
+    '{ print $1,$6,$7,$8,$9,$11,$13,$15,$17,$19,$23 }' \
+    checkM/checkm.out \
+    > checkM/checkM_stats.csv
+
+# Download checkM/checkM_stats.csv to local computer:
+# dataEdited/2017_analysis_bins/binning/rawBins/bin_quality
+cd ~/Everglades/dataEdited/2019_binning/binning_initial
+mkdir binsGood
+mkdir binsGood/DNA
+mkdir binsGood/checkM
+awk -F ',' '{ if (($2 > 50) && ($3 < 10)) print $0 }' \
+    binsRaw/checkM/checkM_stats.csv \
+    > binsGood/checkM/good_bins_data.txt
+awk -F ',' '{ print $1 }' binsGood/checkM/good_bins_data.txt \
+  > binsGood/checkM/good_bins_list.txt
+cat binsGood/checkM/good_bins_list.txt | while read binsGood
+do
+  echo "Copying" $binsGood
+  cp binsRaw/DNA/$binsGood.fna binsGood/DNA
+done
+
+cd binsGood/DNA
+scripts=~/Everglades/code/generalUse
+ls *fna | while read fna
+do
+  echo "Cleaning" $fna
+  python $scripts/cleanFASTA.py $fna
+  mv -f $fna\_temp.fasta $fna
+done
+
+
+
+####################################################
+####################################################
+# Check out taxonomy of bins with GTDB
+####################################################
+####################################################
+
+screen -S EG_GTDB
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate gtdbtk
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsGood
+rm -rf taxonomy
+mkdir taxonomy
+
+gtdbtk classify_wf \
+        --cpus 16 \
+        --extension fna \
+        --genome_dir ./DNA \
+        --out_dir taxonomy
+# Summarize them
+cd taxonomy
+grep -h '_Bin_' gtdbtk.*.summary.tsv \
+        | awk -F '\t' '{ print $1"\t"$2 }' \
+        > taxonomy_summary.txt
+conda deactivate
+
+
+
+####################################################
+####################################################
+# Compare bins by differential coverage
+####################################################
+####################################################
+
+# Coverage data from anvio
+binsGood=~/Everglades/dataEdited/2019_binning/binning_initial/binsGood
+mkdir $binsGood/coverage
+IFS=$'\n'
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
+do
+  summary=~/Everglades/dataEdited/2019_binning/binning_initial/anvioDBs_modified/$assembly.curated.summary/bins_across_samples
+  if [ -e $summary/mean_coverage_Q2Q3.txt ]; then
+    cp $summary/mean_coverage_Q2Q3.txt $binsGood/coverage/$assembly\_coverage.txt
+  else
+    echo $assembly "has not been summarized."
+  fi
+done
+cd $binsGood/coverage/
+head -n 1 Sed991Mega19_coverage.txt > coverage.txt
+for assembly in $(cat ~/Everglades/metadata/lists/2019_analysis_assembly_list.txt)
+do
+  tail -n +2 $assembly\_coverage.txt >> coverage.txt
+done
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsGood
+head -n 1 coverage/coverage.txt > coverage/coverage_goodBins.txt
+grep -f checkM/good_bins_list.txt coverage/coverage.txt >> coverage/coverage_goodBins.txt
+# Download the "coverage_goodBins.txt" to my computer
+
+
+
+
+####################################################
+####################################################
+# Get ORFs for bins
+####################################################
+####################################################
+
+screen -S EG_binsORFS
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+scripts=/home/GLBRCORG/bpeterson26/Everglades/code/generalUse
+
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsGood
+mkdir ORFs
+cat good_bins_list.txt | while read bin
+do
+  if [ ! -e ORFs/$bin.gff ]; then
+    prodigal -i DNA/$bin.fna \
+              -o ORFs/$bin.gff \
+              -f gff \
+              -a ORFs/$bin.faa \
+              -d ORFs/$bin.fna \
+              -p single
+  else
+    echo $bin "already run."
+  fi
+done
+cd ORFs
+cat ../good_bins_list.txt | while read bin
+do
+  echo "Cleaning" $bin
+  python $scripts/cleanFASTA.py $bin.fna
+  mv -f $bin.fna_temp.fasta $bin.fna
+  python $scripts/cleanFASTA.py $bin.faa
+  mv -f $bin.faa_temp.fasta $bin.faa
+done
+
+
+
+####################################################
+####################################################
+# Run ANI comparisons on good bins
+####################################################
+####################################################
+# The following workflow is the code to run
+# Sarah Stevens's ANI calculator on a
+# folder full of bins.
+# Details: https://github.com/sstevens2/ani_compare_dag
+
+
+# Switch to CHTC
+mkdir ~/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison
+wget https://ani.jgi-psf.org/download_files/ANIcalculator_v1.tgz
+tar -xzvf ANIcalculator_v1.tgz
+git clone https://github.com/sstevens2/ani_compare_dag.git
+mv ani_compare_dag EG_bins_ANI
+cd EG_bins_ANI/
+mkdir goodBins
+cp ~/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ORFs/*fna goodBins/
+# from GLBRC to CHTC into ANI_comparison/ani_compare_dag/
+echo 'goodBins' > groupslist.txt
+# Change path of executable and
+# transfer_input_files lines
+#executable = /home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/EG_bins_ANI/group.sh
+#transfer_input_files = /home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/ANIcalculator_v1/ANIcalculator,/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_binning/binning_initial/binsGood/ANI_comparison/ANIcalculator_v1/nsimscan,$(spllist),$(totransfer)
+condor_submit_dag runAllANIcompare.dag
+# Download output file (goodBins.all.ani.out.cleaned)
+# to my computer:
+# dataEdited/2019_binning/binning_initial/binsGood/goodBins.all.ani.out.cleaned

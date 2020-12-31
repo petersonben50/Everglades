@@ -135,3 +135,33 @@ I checked the quality of these bins using two metrics, the completeness/redundan
 I concatenated the summaries into a single folder, and then into a single file.
 I then made a folder with the stats for just the hgcA+ bins.
 Finally, I made a separate summary file and a list for just the hgcA+ bins with completion scores > 50 and redundancy < 10.
+
+*Completeness/redundancy estimates from CheckM*
+
+I also ran checkM on the bins that I generated. Used the `lineage_wf` workflow.
+Then I went for the checkM qa script to save out the output file.
+
+
+**Check out taxonomy of bins with GTDB**
+
+I used the GTDBTK `classify_wf` program to classify the good bins, and summarized the output file.
+
+**Compare bins by differential coverage**
+
+To make sure that the high matching sets I generated down the line were appropriate, I extracted the coverage of all the bins from anvio for use in grouping bins by differential coverage.
+I saved out a depth file with only the coverage of the good hgcA+ bins I was including.
+
+**Get ORFs for bins**
+
+I used Prodigal to predict the open reading frames for each of the bins.
+I don't like extracting the ORFs from anvi'o, probably because those are run on the metagenomic mode, I think.
+I run Prodigal on the single genome mode for these purposes, and save out the faa, fna, and GFF outputs.
+
+**Run ANI comparisons on good bins**
+
+I ran Sarah Steven's ANI [DAGman calculator](https://github.com/sstevens2/ani_compare_dag) on the good hgcA+ bins to generate the high-matching sets.
+
+**Dereplicate bins**
+
+I then aggregated the bin information in R, here: `code/2019_binning/binning_stats.R`.
+I saved out a CSV file with all the bin information and manually dereplicated the hgcA+ bins.
