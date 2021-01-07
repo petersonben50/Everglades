@@ -1,0 +1,23 @@
+##################
+# code/submission/graftm_run_silva.sub
+# Submission script for sorting hgcA
+# reads from other metagenomic reads.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 8
+request_memory = 10GB
+
+executable = /home/GLBRCORG/bpeterson26/Everglades/code/executables/graftm_run.sh
+
+environment = "metagenome=$(metagenome) \
+              workingDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_readBasedAnalysis/16S_analysis \
+              metagenomeFolder=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/metagenomes \
+              gpkg=/home/GLBRCORG/bpeterson26/Everglades/references/gpkgs/7.71.silva_v132_alpha1.gpkg"
+
+output = /home/GLBRCORG/bpeterson26/Everglades/reports/outs/$(metagenome)_graftM_silva.out
+error = /home/GLBRCORG/bpeterson26/Everglades/reports/errs/$(metagenome)_graftM_silva.err
+log = /home/GLBRCORG/bpeterson26/Everglades/reports/logs/$(metagenome)_graftM_silva.log
+
+queue metagenome from /home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt
