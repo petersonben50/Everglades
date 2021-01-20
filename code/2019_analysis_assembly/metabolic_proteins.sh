@@ -206,8 +206,6 @@ do
 
     echo "Cleaning alignment for" $gene
 
-    HMM=$(awk -F ',' -v gene="$gene" '$1 == gene { print $2 }' $metabolic_HMMs.csv)
-
     $scripts/convert_stockhold_to_fasta.py $gene.sto
     python $scripts/cleanFASTA.py $gene.afa
     mv -f $gene.afa_temp.fasta $gene.afa
@@ -215,4 +213,145 @@ do
   else
     echo $gene "alignment already converted"
   fi
+done
+
+
+
+#########################
+# Identification of hydrogenases
+#########################
+
+screen -S hydrogenase_search
+
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+PYTHONPATH=""
+conda activate bioinformatics
+workingDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/hydrogenases
+orfLocations=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/assemblies/ORFs
+database=/home/GLBRCORG/bpeterson26/Everglades/references/hydrogenases/hyddb.dmnd
+assembly_list=~/Everglades/metadata/lists/2019_analysis_assembly_list.txt
+hydrogenases=~/Everglades/references/hydrogenases
+scripts=~/Everglades/code/generalUse
+mkdir $workingDirectory
+mkdir $workingDirectory/identification
+mkdir $workingDirectory/derep
+
+# Concatenate all ORFs into one big file
+cd ~/Everglades/dataEdited/2019_analysis_assembly/
+rm -rf ORFs.faa
+cat $assembly_list | while read assembly
+do
+  echo "Concatenating" $assembly
+  cat $orfLocations/$assembly.faa >> ORFs.faa
+done
+
+# Run HMMs on ORFs
+tail -n +2 $hydrogenases.csv | awk -F ',' '{ print $2 }' | while read HMM
+do
+  cd $workingDirectory/identification/
+  geneName=$(awk -F ',' -v HMM="$HMM" '$2 == HMM { print $1 }' $hydrogenases.csv)
+  cutoff=$(awk -F ',' -v HMM="$HMM" '$2 == HMM { print $3 }' $hydrogenases.csv)
+
+  if [ ! -e $geneName.afa ]; then
+    echo "Searching for" $geneName
+    mkdir $geneName
+    hmmsearch --tblout $geneName/$geneName.out \
+              --cpu 8 \
+              -T $cutoff \
+              $hydrogenases/$HMM \
+              ~/Everglades/dataEdited/2019_analysis_assembly/ORFs.faa \
+              > $geneName/$geneName.txt
+    lineCount=`wc -l < $geneName/$geneName.out`
+    if [ $lineCount -eq 13 ]; then
+      echo "No" $gene "hits in" $geneName
+    else
+      echo "Pulling" $geneName "sequences out"
+      python $scripts/extract_protein_hitting_HMM.py \
+              $geneName/$geneName.out \
+              ~/Everglades/dataEdited/2019_analysis_assembly/ORFs.faa \
+              $geneName.faa
+
+      # Align sequences
+      echo "Concatenating and aligning" $geneName
+      hmmalign -o $geneName.sto \
+                  $hydrogenases/$HMM \
+                  $geneName.faa
+      $scripts/convert_stockhold_to_fasta.py $geneName.sto
+      rm -f fefe_a13.sto
+
+      grep '>' $geneName.faa | \
+        sed 's/>//' \
+        > $geneName\_list.txt
+      # Dereplicate sequences
+      echo "Dereplicating" $geneName
+      cdhit=~/programs/cdhit-master
+      $cdhit/cd-hit -g 1 \
+                    -i $geneName.faa \
+                    -o $workingDirectory/derep/$geneName.faa \
+                    -c 0.97 \
+                    -n 5 \
+                    -d 0
+      cd $workingDirectory/derep
+      $cdhit/clstr2txt.pl $geneName.faa.clstr > $geneName\_cluster.tsv
+      rm -f fefe_a13.faa.clstr
+      grep '>' $geneName.faa | sed 's/>//' > $geneName\_derep_list.txt
+      # Remove asterisk from sequences
+      sed 's/*//g' $geneName.faa > $geneName\_clean.faa
+      rm -f $geneName.faa
+
+    fi
+  else
+    echo "Already pulled out" $geneName "sequences"
+  fi
+done
+
+
+cd $workingDirectory
+cat derep/*clean.faa > hydA.faa
+cat derep/*derep_list.txt > hydA_list.txt
+
+
+#########################
+# Extract depths of all scaffolds
+#########################
+
+screen -S EG_hydrogenases_depth
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+mappingFolder=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/mapping
+workingDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/hydrogenases
+hydA_list=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/hydrogenases/hydA_list.txt
+mkdir $workingDirectory/depth
+cd $workingDirectory
+
+# Pull out all depths
+cat ~/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt | while read metagenome
+do
+
+  rm -f depth/$metagenome\_depth_raw.tsv
+  conda activate bioinformatics
+  PERL5LIB=""
+
+  # Calculate depth over each residue in each scaffold
+  cat $hydA_list | \
+    cut -d "_" -f 1,2 | \
+    sort | uniq | \
+    while read scaffold
+  do
+    assembly=$(echo $scaffold | awk -F '_' '{ print $1 }')
+    echo "Calculating coverage of" $metagenome "over" $scaffold
+    samtools depth -a -r $scaffold $mappingFolder/$metagenome\_to_$assembly.bam \
+        >> $workingDirectory/depth/$metagenome\_depth_raw.tsv
+  done
+  conda deactivate
+
+  # Average the depth of each residue over the entire
+  echo "Aggregating" $scaffold "depth information for" $metagenome
+  conda activate py_viz
+  PYTHONPATH=""
+  python ~/Everglades/code/generalUse/calculate_depth_contigs.py \
+            $workingDirectory/depth/$metagenome\_depth_raw.tsv \
+            150 \
+            $workingDirectory/depth/$metagenome\_depth.tsv
+  conda deactivate
+  rm -f $workingDirectory/depth/$metagenome\_depth_raw.tsv
 done

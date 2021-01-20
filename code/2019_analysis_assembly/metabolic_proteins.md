@@ -31,3 +31,13 @@ Finally, I downloaded the depth files to my local computer and aggregated the de
 I then used CD-HIT (v4.6) to dereplicate the metabolic genes, leaving us with a final set of sequences to work with.
 These sequences will then also be aligned to their respective HMM.
 These will be the files I use for further analysis.
+
+
+**Identification of hydrogenases**
+
+I then wanted to identify the hydrogenases present in the assembly.
+For this, I decided to identify all the potential hydA subunits in the assembly using the hydA HMMs used in METABOLIC.
+I used a similar strategy to the one outlined above with a couple of differences.
+First, I concatenated all the ORFs from each assembly into one big file, then searched that using the HMMs.
+Second, rather than using a trusted cutoff, I added the cutoffs that METABOLIC uses to the HMM spreadsheet, then pulled them out of that in my bash script.
+Then I dereplicated the proteins and pulled out their depths.
