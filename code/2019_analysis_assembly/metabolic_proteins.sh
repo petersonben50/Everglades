@@ -18,7 +18,7 @@ mkdir metabolicProteins/identification
 
 scripts=~/Everglades/code/generalUse
 metabolic_HMMs=~/Everglades/references/metabolic_HMMs
-assembly_list=~/Everglades/metadata/lists/2019_analysis_assembly_list_megaOnly.txt
+assembly_list=~/Everglades/metadata/lists/2019_analysis_assembly_list.txt
 ORFs=~/Everglades/dataEdited/assemblies/ORFs/
 
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
