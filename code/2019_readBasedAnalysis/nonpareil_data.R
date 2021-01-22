@@ -80,19 +80,21 @@ dev.off()
 # Run a two-way ANOVA on diversity
 two.way.anova <- aov(diversity ~ siteID,
                      data = np.diversity.df)
+sink("results/2019_readBasedAnalysis/nonpareil_diversity_anova.txt")
 summary(two.way.anova)
-# Note significantly different.
+sink()
+# Not significantly different.
 
 
 
 #### Make chart of coverage ####
 MGcoverage.vector <- summary(nps)[,"C"]*100
-MGcoverage.df <- data.frame(siteID = names(diversity.vector) %>%
+MGcoverage.df <- data.frame(siteID = names(MGcoverage.vector) %>%
                               strsplit("\\(") %>% sapply("[", 2) %>%
                               strsplit("\\)") %>% sapply("[", 1),
-                            metagenomeID = names(diversity.vector) %>%
+                            metagenomeID = names(MGcoverage.vector) %>%
                               strsplit(" \\(") %>% sapply("[", 1),
-                            percent_coverage = diversity.vector) %>%
+                            percent_coverage = MGcoverage.vector) %>%
   mutate(siteID = fct_relevel(siteID, MG.order)) %>%
   arrange(siteID)
 pdf("results/2019_readBasedAnalysis/nonpareil_coverage.pdf",
