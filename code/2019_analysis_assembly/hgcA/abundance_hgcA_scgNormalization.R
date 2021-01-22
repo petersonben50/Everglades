@@ -147,8 +147,8 @@ hgcA.porewater <- plot.hgcA.overall.coverage(depth.data.of.interest = all.data,
 hgcA.sediment / hgcA.porewater
 pdf("results/2019_analysis_assembly/hgcA_abundance_overall.pdf",
       width = 5,
-      height = 2.5)
-hgcA.sediment
+      height = 5)
+hgcA.sediment / hgcA.porewater
 dev.off()
 
 
@@ -191,7 +191,7 @@ hgcA.porewater <- plot.scaffold.coverage(depth.data.of.interest = all.data,
 
 pdf("results/2019_analysis_assembly/hgcA_abundance.pdf",
     width = 7.5,
-    height = 4.5)
+    height = 5.5)
 hgcA.sediment / hgcA.porewater
 dev.off()
 
@@ -269,7 +269,7 @@ plotting.data %>%
                 colour = "black") +
   geom_point(size = 3) +
   theme_classic() +
-  labs(x = "Read coverage of hgcA sequences\n(per 10 million reads)",
+  labs(x = "Read coverage of hgcA sequences\n(normalized to 100X coverage of SCG)",
        y = "Median relative methylation percent\n(normalized to highest methylation %)",
        title = "Median relative methylation percent vs.\nhgcA coverage in sediment")
 dev.off()
