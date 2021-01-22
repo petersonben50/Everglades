@@ -49,7 +49,7 @@ mean.df <- do.call(rbind,
   spread(key = read.origin, value = depth, fill = NA)
 
 
-
+colSums(mean.df[, -1])
 
 #### Write out file
 

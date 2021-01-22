@@ -98,14 +98,8 @@ exit
 # Extract depths of all scaffolds
 #########################
 
-screen -S EG_metabolic_genes_depth
-
-source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
-
-cd ~/Everglades/dataEdited/2019_analysis_assembly
-mkdir metabolicProteins/depth
-
 # Generate list of all scaffolds that have potential metabolic genes on them
+mkdir ~/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/depth
 grep '>' -h metabolicProteins/identification/*.afa | \
   sed 's/>//' | \
   cut -d"_" -f1,2 | \
@@ -113,37 +107,10 @@ grep '>' -h metabolicProteins/identification/*.afa | \
   uniq \
   > metabolicProteins/depth/scaffold_all_list.txt
 
-
 # Pull out all depths
 
-cat ~/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt | while read metagenome
-do
-
-  rm -f metabolicProteins/depth/$metagenome\_depth_raw.tsv
-  conda activate bioinformatics
-  PERL5LIB=""
-
-  # Calculate depth over each residue in each scaffold
-  cat metabolicProteins/depth/scaffold_all_list.txt | while read scaffold
-  do
-    assembly=$(echo $scaffold | awk -F '_' '{ print $1 }')
-    echo "Calculating coverage of" $metagenome "over" $scaffold
-    samtools depth -a -r $scaffold mapping/$metagenome\_to_$assembly.bam \
-        >> metabolicProteins/depth/$metagenome\_depth_raw.tsv
-  done
-  conda deactivate
-
-  # Average the depth of each residue over the entire
-  echo "Aggregating" $scaffold "depth information for" $metagenome
-  conda activate py_viz
-  PYTHONPATH=""
-  python ~/Everglades/code/generalUse/calculate_depth_contigs.py \
-            metabolicProteins/depth/$metagenome\_depth_raw.tsv \
-            150 \
-            metabolicProteins/depth/$metagenome\_depth.tsv
-  conda deactivate
-  rm -f metabolicProteins/depth/$metagenome\_depth_raw.tsv
-done
+chmod +x /home/GLBRCORG/bpeterson26/Everglades/code/executables/aggregate_depth_proteins.sh
+condor_submit /home/GLBRCORG/bpeterson26/Everglades/code/submission/aggregate_depth_proteins_2019assemblyMetabolicProteins.sub
 
 
 

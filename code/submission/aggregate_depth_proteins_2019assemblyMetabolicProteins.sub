@@ -1,0 +1,24 @@
+##################
+# code/submission/aggregate_depth_proteins_2019assemblyMetabolicProteins.sub
+# Submission script for calculating the depth
+# of a given set of scaffolds in a given set
+# of metagenomes
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 6
+request_memory = 30GB
+
+executable = /home/GLBRCORG/bpeterson26/Everglades/code/executables/aggregate_depth_proteins.sh
+
+environment = "metagenome=$(metagenome) \
+              depthDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/depth \
+              mappingFolder=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/mapping \
+              scripts=/home/GLBRCORG/bpeterson26/Everglades/code/generalUse"
+
+output = /home/GLBRCORG/bpeterson26/Everglades/reports/outs/$(metagenome)_aggregate_depth_proteins_2019assemblyMetabolicProteins.out
+error = /home/GLBRCORG/bpeterson26/Everglades/reports/errs/$(metagenome)_aggregate_depth_proteins_2019assemblyMetabolicProteins.err
+log = /home/GLBRCORG/bpeterson26/Everglades/reports/logs/$(metagenome)_aggregate_depth_proteins_2019assemblyMetabolicProteins.log
+
+queue metagenome from /home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt
