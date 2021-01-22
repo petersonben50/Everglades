@@ -8,6 +8,7 @@ references
 protocols
 
 context
+code/sandbox
 code/*/sandbox/
 code/16S/
 results
