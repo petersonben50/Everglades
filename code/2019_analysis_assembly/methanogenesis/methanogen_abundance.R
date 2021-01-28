@@ -11,7 +11,7 @@ library(patchwork)
 library(readxl)
 library(tidyverse)
 cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
-
+source("code/2019_analysis_assembly/metabolic_protein_plots.R")
 
 
 #### Set site order for plotting ####
