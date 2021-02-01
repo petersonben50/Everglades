@@ -17,7 +17,7 @@ scg.abundance <- read.table("dataEdited/2019_analysis_assembly/SCGs/scg_coverage
 
 #### Plot out raw data ####
 pdf("results/2019_analysis_assembly/scg_abundance.pdf",
-    height = 4,
+    height = 4.5,
     width = 6)
 scg.abundance %>%
   ggplot(aes(x = metagenomeID,
@@ -27,7 +27,8 @@ scg.abundance %>%
   theme_classic() +
   stat_summary(geom = "point", fun = "mean",
                col = "black", fill = "red",
-               size = 3, shape = 24)
+               size = 3, shape = 24) +
+  theme(axis.text.x = element_text(angle = 90))
 dev.off()
 
 
@@ -35,7 +36,7 @@ dev.off()
 #### Plot out normalized data ####
 normalized.coverage.vector <- readRDS("dataEdited/metagenomes/reports/metagenome_normalization_vector.rds")
 pdf("results/2019_analysis_assembly/scg_abundance_normalized.pdf",
-    height = 4,
+    height = 4.5,
     width = 6)
 scg.abundance %>%
   mutate(coverage = coverage * normalized.coverage.vector[metagenomeID]) %>%
@@ -46,7 +47,8 @@ scg.abundance %>%
   theme_classic() +
   stat_summary(geom = "point", fun = "mean",
                col = "black", fill = "red",
-               size = 3, shape = 24)
+               size = 3, shape = 24) +
+  theme(axis.text.x = element_text(angle = 90))
 dev.off()
 
 
@@ -70,3 +72,6 @@ normalization.vector <- normalized.mean.scg.abundance$NF
 names(normalization.vector) <- normalized.mean.scg.abundance$metagenomeID
 saveRDS(normalization.vector,
         "dataEdited/2019_analysis_assembly/SCGs/scg_normalization_vector.rds")
+write.csv(normalized.mean.scg.abundance,
+          "results/2019_analysis_assembly/scg_abundance_normalized_table.csv",
+          row.names = FALSE)
