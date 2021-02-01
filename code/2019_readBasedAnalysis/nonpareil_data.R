@@ -104,3 +104,9 @@ grid.table(MGcoverage.df,
            rows = NULL,
            cols = colnames(MGcoverage.df))
 dev.off()
+
+
+#### Also save to csv ####
+write.csv(MGcoverage.df,
+          "results/2019_readBasedAnalysis/nonpareil_coverage.csv",
+          row.names = FALSE)
