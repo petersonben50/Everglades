@@ -322,3 +322,94 @@ do
   conda deactivate
   rm -f $workingDirectory/depth/$metagenome\_depth_raw.tsv
 done
+
+
+
+
+#########################
+# Identify multiheme cytochrome c proteins
+#########################
+screen -S EG_MHCs
+workingDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/MHC
+orfLocations=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/assemblies/ORFs
+assembly_list=~/Everglades/metadata/lists/2019_analysis_assembly_list.txt
+scripts=~/Everglades/code/generalUse/
+mkdir $workingDirectory
+
+
+# Let's look for proteins with at least 5 heme-binding sites
+cd $orfLocations
+cat $assembly_list | while read assembly
+do
+  echo "Working on" $assembly
+  $scripts/Find_multiheme_protein.py $assembly.faa 5
+  mv $assembly\_5_heme* $workingDirectory/
+done
+
+
+# Pull out MHC protein sequences
+cd $workingDirectory
+cat $assembly_list | while read assembly
+do
+  echo "Working on" $assembly
+  awk '{ print ">"$0 }' $assembly\_5_heme_list.txt > temp_folder.txt
+  grep -A 1 -x -f temp_folder.txt $orfLocations/$assembly.faa | \
+    grep -v "\-\-" \
+    > $assembly\_5_heme.faa
+done
+cat *_5_heme.faa > MHC_5_heme.faa
+
+# Cluster them by 97% ID
+cdhit=~/programs/cdhit-master
+$cdhit/cd-hit -g 1 \
+              -i MHC_5_heme.faa \
+              -o MHC_5_heme_derep.faa \
+              -c 0.97 \
+              -n 5 \
+              -d 0
+grep '>' MHC_5_heme_derep.faa | \
+  sed 's/>//' > MHC_5_heme_protein_list.txt
+cut -d"_" -f1,2 MHC_5_heme_protein_list.txt | \
+  sort | uniq > MHC_5_heme_scaffold_list.txt
+
+
+#########################
+# Extract depth of multiheme cytochrome c proteins
+#########################
+screen -S EG_hydrogenases_depth
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+mappingFolder=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/mapping
+workingDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/MHC
+hydA_list=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/metabolicProteins/hydrogenases/hydA_list.txt
+mkdir $workingDirectory/depth
+cd $workingDirectory
+
+# Pull out all depths
+cat ~/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt | while read metagenome
+do
+
+  rm -f depth/$metagenome\_depth_raw.tsv
+  conda activate bioinformatics
+  PERL5LIB=""
+
+  # Calculate depth over each residue in each scaffold
+  cat MHC_5_heme_scaffold_list.txt | while read scaffold
+  do
+    assembly=$(echo $scaffold | awk -F '_' '{ print $1 }')
+    echo "Calculating coverage of" $metagenome "over" $scaffold
+    samtools depth -a -r $scaffold $mappingFolder/$metagenome\_to_$assembly.bam \
+        >> $workingDirectory/depth/$metagenome\_depth_raw.tsv
+  done
+  conda deactivate
+
+  # Average the depth of each residue over the entire
+  echo "Aggregating" $scaffold "depth information for" $metagenome
+  conda activate py_viz
+  PYTHONPATH=""
+  python ~/Everglades/code/generalUse/calculate_depth_contigs.py \
+            $workingDirectory/depth/$metagenome\_depth_raw.tsv \
+            150 \
+            $workingDirectory/depth/$metagenome\_depth.tsv
+  conda deactivate
+  rm -f $workingDirectory/depth/$metagenome\_depth_raw.tsv
+done

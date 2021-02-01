@@ -41,3 +41,11 @@ I used a similar strategy to the one outlined above with a couple of differences
 First, I concatenated all the ORFs from each assembly into one big file, then searched that using the HMMs.
 Second, rather than using a trusted cutoff, I added the cutoffs that METABOLIC uses to the HMM spreadsheet, then pulled them out of that in my bash script.
 Then I dereplicated the proteins and pulled out their depths.
+
+
+**Identification of MHCs**
+
+I also wanted to just extract the depths of all the multiheme cytochrome c proteins I could find across the metagenomes, to see if we can see any trend in the overall use of MHCs across the gradient.
+I'm not 100% sure what this would indicate, but it is true that we don't really find MHCs in fermenters, so a higher depth would likely indicate a greater reliance on respiratory processes.
+I used Shaomei's script to pull out all sequences with a CH..H motif.
+I dereplicated them and extracted their depths just as I did for the other metabolic proteins.
