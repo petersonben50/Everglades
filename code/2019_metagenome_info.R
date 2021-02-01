@@ -39,6 +39,11 @@ coverage <- read.table("dataEdited/metagenomes/reports/metagenome_coverage.tsv",
 MG.metadata <- read_xlsx("metadata/metagenomes/metagenome_metadata.xlsx")
 
 
+NP.coverage <- read.csv("results/2019_readBasedAnalysis/nonpareil_coverage.csv",
+                        stringsAsFactors = FALSE) %>%
+  select(-siteID)
+
+
 
 #### Calculate fraction of reads mapped ####
 fraction.mapped.reads <- left_join(unique.mapped.reads,
@@ -56,6 +61,7 @@ metagenome.data <- MG.metadata %>%
   left_join(post.trim.reads) %>%
   left_join(fraction.mapped.reads) %>%
   left_join(coverage) %>%
+  left_join(NP.coverage) %>%
   filter(year(ymd(date)) == 2019) %>%
   as.data.frame()
 
