@@ -1,0 +1,19 @@
+##################
+# sortmerna_featureOfInterest_hgcA.sub
+# Submission script for sorting hgcA
+# reads from other metagenomic reads.
+
+# Benjamin D. Peterson
+##################
+
+request_cpus = 4
+request_memory = 20GB
+
+executable = /home/GLBRCORG/bpeterson26/Everglades/code/executables/sortmerna_featureOfInterest.sh
+
+environment = "MG_subset=$(MG_subset) reference=/home/GLBRCORG/bpeterson26/Everglades/references/hgcA/mcdaniel_2020/hgcA_coding_regions.fna featureName=hgcA workingDirectory=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_readBasedAnalysis/hgcA_analysis/workingDirectory"
+output = /home/GLBRCORG/bpeterson26/Everglades/reports/outs/$(MG_subset)_sortmerna_hgcA.out
+error = /home/GLBRCORG/bpeterson26/Everglades/reports/errs/$(MG_subset)_sortmerna_hgcA.err
+log = /home/GLBRCORG/bpeterson26/Everglades/reports/logs/$(MG_subset)_sortmerna_hgcA.log
+
+queue MG_subset from /home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_readBasedAnalysis/hgcA_analysis/workingDirectory/split_file_list.txt
