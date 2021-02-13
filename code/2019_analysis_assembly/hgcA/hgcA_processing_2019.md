@@ -86,36 +86,49 @@ That list got saved out to here: `dataEdited/2019_analysis_assembly/hgcA/derepli
 I uploaded this and used it to pull out the needed hgcA sequences.
 Later on, I came back and made a "cluster key" to link all the hgcA seqs in a cluster to the cluster representative.
 
+**hgcA abundance analysis**
+
+I looked at the abundance of the hgcA sequences in different ways in the `abundance_hgcA.R` file.
+
+
+**Classify hgcA seqs with pplacer workflow**
+
+I also classified the hgcA sequences using Caitlin's pplacer workflow.
+The full tutorial can be found here: https://caitlingio.com/tutorial-for-hgcab-amplicon-sequencing-data/
+In a nutshell, I align the HgcA sequences to the reference sequences in the refpackage, then use pplacer to place the sequences on the reference tree.
+Then we make a sqlite database of the references and use guppy to classify them.
+Finally, Caitlin wrote a script that extracts the taxonomic information.
+
 
 **Make phylogenetic tree**
 
-*Use McDaniel et al 2020 references*
-
-First I needed to get a good set of reference sequences.
-I downloaded the hgcA.faa file from Elizabeth's Hg paper, and converted the file to a blast database.
-I then blasted our sequences against that database, keeping the top 5 hits.
-I dereplicated these sequences against the *hgcA* sequences from confirmed methylators.
-
-*Use nr database to find references and confirmed methylators*
-
-To flesh out the tree even more, I blasted my sequences against the non-redundant NCBI database (downloaded 2020-05-07), keeping the top 5 results.
-I dereplicated these sequences against the sequences from McDaniel et al 2020 and the confirmed methylators sequences.
-
 *Make phylogenetic tree*
 
-Finally, I concatenated the McDaniel 2020, the nr sequences, and the 30 confirmed methylators into a single file along with the assembly sequences.
-I aligned them using MUSCLE, then generated a tree using FastTree.
+I generated a consensus alignment between the *hgcA* seqs I found in this study with the Hg-MATE reference database, using MUSCLE.
+I then generated a tree using FastTree.
 I downloaded the tree file to my local computer, where I visualized it in the `clean_hgcA_tree.R` code file.
-Looked pretty good, couldn't find anything too egregious that I wanted to remove.
+There were obviously a ton of unneeded branches.
+I manually identified the nodes that needed removal, then used the `tree_subset` function in the `treeio` package to pull out the sequence names for removal.
+After consideration, I decided to keep all the isolate sequences in the tree, just for a nice reference.
+Read out list here: `dataEdited/2019_analysis_assembly/hgcA/phylogeny/seqs_to_remove.txt`
+I used this list to remove the unneeded sequences from my alignment.
 To clean the alignment, I masked it in Geneious, trimming out any residue with more than 50% gaps.
-I also removed about 12 references sequences that had less than 200 residues in the alignment.
-The final exported sequence is `hgcA_for_phylogeny_masked_trimmed.afa`.
+The final exported sequence is `hgcA_for_phylogeny_masked.afa`.
 
 *Generate tree in RAxML*
 
 I then generated an ML tree using RAxML.
-We used RAxML (v8.2.11) for this.
-The seed value was 283976
+When doing this, several sequences were found to be identical:
+```
+IMPORTANT WARNING: Sequences Sed993Mega19_000001657572_1 and Sed993Meta19_000000166988_2 are exactly identical
+IMPORTANT WARNING: Sequences Sed993Mega19_000000592489_3 and Sed993Meta19_000000164802_1 are exactly identical
+```
+There were also many reference sequences that had this warning.
+So, I used the reduced file (`hgcA_for_phylogeny_masked.afa.reduced`) for my phylogeny.
+Just remember when classifying them to include the two study seqs that were removed.
+
+We used RAxML v8.2.11.
+The seed value was 283976.
 Rapid bootstrapping was used (with the "-N autoMRE" flag, and a seed number of 2381).
 Automatic detection of convergence stopped bootstrapping after 450 replicates.
 The phylogeny was generated under a gamma distribution and the best substitution matrix was automatically determined to be LG (-m PROTGAMMAAUTO).
@@ -133,8 +146,3 @@ I used these two RDS files, along with the depth information for the hgcA+ scaff
 
 I then assigned a taxonomic group to each of the hgcA sequences, based on the phylogenetic tree that I had built: `results/2019_analysis_assembly/hgcA_tree_RAxML_midpointRooting.pdf`.
 That information was saved here: `hgcA_phylogenetic_clusters.xlsx`.
-
-
-**hgcA abundance analysis**
-
-I looked at the abundance of the hgcA sequences in different ways in the `abundance_hgcA.R` file.
