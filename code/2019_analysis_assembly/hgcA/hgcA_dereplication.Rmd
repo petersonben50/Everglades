@@ -76,7 +76,7 @@ names(hgcA.cluster.vector) <- hgcA.clusters$id
 
 
 # Read in coverage data
-hgcA.depth <- read.csv("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage.csv",
+hgcA.depth <- read.csv("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_scgNormalization.csv",
                        stringsAsFactors = FALSE) %>%
   filter(scaffoldID %in% hgcA.list.good.scaffolds)
 
@@ -182,4 +182,19 @@ We'll save out this list for use in our further analyses.
 ```{r save_out_hgcA_derep_list}
 writeLines(hgcA.derep.list,
            "/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_derep_list.txt")
+```
+
+We also needed to save out a key that ties the hgcA representative to all the hgcA seqs in that group.
+
+```{r generate_hgcA_group_key}
+
+hgcA.key <- hgcA.clusters.94 %>%
+  filter(id %in% hgcA.derep.list) %>%
+  rename(hgcA_rep = id) %>%
+  select(hgcA_rep, clstr) %>%
+  right_join(hgcA.clusters.94 %>%
+               rename(hgcA = id)) %>%
+  select(hgcA, hgcA_rep)
+saveRDS(hgcA.key,
+        "/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_derep_key.rds")
 ```
