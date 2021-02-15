@@ -22,12 +22,15 @@ hgcA.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA_true.txt")
 
 
 #### Read in abundance and phylogenetic info ####
-all.data <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_scgNormalization.csv",
+all.data.fused <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_scgNormalization.csv",
                                stringsAsFactors = FALSE) %>%
   full_join(read_xlsx("dataEdited/2019_analysis_assembly/hgcA/phylogeny/seq_classification.xlsx",
                       sheet = "seq_class")) %>%
   arrange(classification) %>%
-  filter(seqID %in% hgcA.list)
+  filter(seqID %in% hgcA.list) 
+all.data <- all.data.fused %>%
+  filter(clusterName != "fused")
+
 
 
 
@@ -58,6 +61,26 @@ names(medium.metadata.vector) <- metadata$metagenomeID
 
 #### Generate vector of correct order of samples along sulfate gradient ####
 MG.order <- c("2A-N", "2A-A", "3A-O", "3A-N", "3A-F", "LOX8")
+
+
+
+
+#### Check on abundance fused hgcAB ####
+all.data.fused %>%
+  filter(clusterName == "fused") %>%
+  gather(key = MG,
+         value = coverage,
+         c(4:22)) %>%
+  group_by(MG) %>%
+  summarise(coverage = sum(coverage)) %>%
+  mutate(siteID = site.metadata.vector[MG],
+         medium = medium.metadata.vector[MG]) %>%
+  mutate(siteID = fct_relevel(siteID, MG.order)) %>%
+  filter(medium == "sediment") %>%
+  ggplot(aes(x = siteID,
+             y = coverage)) +
+  geom_point() +
+  theme_classic()
 
 
 
@@ -177,13 +200,59 @@ pdf("results/2019_analysis_assembly/hgcA_abundance_sediment.pdf",
     height = 3)
 hgcA.sediment
 dev.off()
+hgcA.sediment
 
 
 
+#### Generate dataframes of coverage and relative coverage of each group ####
+
+tax.group.coverage <- all.data %>%
+  mutate(clusterName = fct_relevel(clusterName,
+                                   names(color.code.vector)[length(names(color.code.vector)):1])) %>%
+  filter(medium == "sediment") %>%
+  group_by(MG, siteID, clusterName) %>%
+  summarize(coverage = sum(coverage)) %>%
+  group_by(siteID, clusterName) %>%
+  summarise(coverage = mean(coverage)) %>%
+  spread(key = siteID,
+         value = coverage) %>%
+  mutate(total = `2A-N` + `2A-A` + `3A-O` +
+           `3A-N` + `3A-F` + `LOX8`) %>%
+  arrange(desc(total))
+
+tax.group.coverage.relative <- tax.group.coverage
+tax.group.coverage.relative[, -1] <- sapply(names(tax.group.coverage.relative)[-1],
+                                            function(siteID) {
+                                              unlist(tax.group.coverage.relative[, siteID] / colSums(tax.group.coverage.relative[, -1])[siteID],
+                                                     use.names = FALSE)
+                                            })
 
 
 
-
+#### Plot relative abundance of each hgcA group over the gradient ####
+pdf("results/2019_analysis_assembly/hgcA_abundance_groups_relative.pdf",
+    width = 6,
+    height = 4)
+tax.group.coverage.relative %>%
+  gather(key = siteID,
+         value = rel.coverage,
+         -1) %>%
+  filter(siteID != "total") %>%
+  mutate(siteID = fct_relevel(siteID, MG.order)) %>%
+  ggplot(aes (x = siteID,
+              y = rel.coverage,
+              group = clusterName)) +
+  geom_point(aes(color = clusterName)) + 
+  geom_line(aes(color = clusterName)) +
+  scale_color_manual(name = "clusterName",
+                    values = color.code.vector) +
+  theme_classic() +
+  ylim(0, 0.6) +
+  labs(x = "",
+       y = "hgcA relative abundance") +
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
+dev.off()
 
 
 
@@ -201,7 +270,10 @@ plotting.data.hgcA <- all.data %>%
 plotting.data.inc <- inc.data %>%
   group_by(siteID) %>%
   summarise(rel_meth_spike_sd = sd(rel_meth_spike),
-            rel_meth_spike = median(rel_meth_spike))
+            rel_meth_spike = median(rel_meth_spike),
+            rel_meth_spike_count = n()) %>%
+  mutate(rel_meth_spike_se = rel_meth_spike_sd / sqrt(rel_meth_spike_count)) %>%
+  ungroup()
 
 plotting.data <- full_join(plotting.data.hgcA,
                            plotting.data.inc)
@@ -214,8 +286,8 @@ plotting.data %>%
   ggplot(aes(x = coverage,
              y = rel_meth_spike,
              colour = siteID)) +
-  geom_errorbar(aes(ymin = rel_meth_spike - rel_meth_spike_sd,
-                    ymax = rel_meth_spike + rel_meth_spike_sd),
+  geom_errorbar(aes(ymin = rel_meth_spike - rel_meth_spike_se,
+                    ymax = rel_meth_spike + rel_meth_spike_se),
                 colour = "black") +
   geom_errorbarh(aes(xmin = coverage - coverage_sd,
                      xmax = coverage + coverage_sd),
@@ -253,9 +325,8 @@ dev.off()
 
 
 
+
 #### Run a linear mixed model ####
-
-
 lmm.data <- all.data %>%
   filter(medium == "porewater") %>%
   group_by(MG, siteID) %>%
