@@ -329,6 +329,16 @@ sed 's/-//g' hgcB/hgcB_good.afa > hgcB/hgcB_good.faa
 grep '>' hgcB/hgcB_good.faa | \
   sed 's/>//' > hgcB/hgcB_good.txt
 
+# Pull out hgcB nucleic acid sequences
+cd ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/
+ORFs=~/Everglades/dataEdited/assemblies/ORFs
+rm -f hgcB/hgcB.fna
+cat hgcB/hgcB_good.txt | while read gene
+do
+  assemblyName=$(echo $gene | cut -d "_" -f1)
+  echo "Pulling out" $gene "fna entry"
+  grep -A 1 $gene$ $ORFs/$assemblyName.fna >> hgcB/hgcB.fna
+done
 
 ############################################
 ############################################

@@ -53,9 +53,11 @@ I aligned the hits against the HMM, and inspected them in Geneious.
 We had 98 total hits.
 Of these, 6 of them looked pretty truncated at the C-terminus end, but they did have the compete CM/IECGAC region, so we'll include those.
 Six more of them had a partial sequence of that region and four hits had nothing in that region due to being truncated.
-We'll exclude these, but will make a note that they're likely hgcB in the data files.
+Let's look at these in the gene neighborhoods, notes here:  `hgcB_notes.xlsx`.
+One of these was truncated at the N-terminus end, but the scaffold wasn't truncated (obviously, since this would mean hgcA is gone).
+Think this might be an error with Prodigal, so want to align the DNA segment against the other nucleic acid sequences to see if it does look like hgcB.
 I saved out a list of the hgcB names.
-
+For the hgcB.faa file, we'll only include the really good ones, in case someone wants to use these as a seed to search for hgcB.
 
 **Extract depths of hgcA**
 
