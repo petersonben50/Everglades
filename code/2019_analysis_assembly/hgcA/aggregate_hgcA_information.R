@@ -78,11 +78,12 @@ binning.data <- read.table("/Users/benjaminpeterson/Documents/research/Everglade
 
 
 #### Prep hgcB information ####
-hgcB.data <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcB/hgcB_good.txt")
-hgcB.df <- data.frame(hgcB_ID = hgcB.data,
-                      scaffoldID = paste(hgcB.data %>% strsplit("_") %>% sapply("[", 1),
-                                         hgcB.data %>% strsplit("_") %>% sapply("[", 2),
-                                         sep = "_")) %>%
+# hgcB.data <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcB/hgcB_good.txt")
+hgcB.data <- read_xlsx("dataEdited/2019_analysis_assembly/hgcA/hgcB/hgcB_notes.xlsx")
+hgcB.df <- hgcB.data %>%
+  mutate(scaffoldID = paste(hgcB_ID %>% strsplit("_") %>% sapply("[", 1),
+                            hgcB_ID %>% strsplit("_") %>% sapply("[", 2),
+                            sep = "_")) %>%
   inner_join(hgcA.df) %>%
   select(-scaffoldID)
 rm(hgcB.data)
