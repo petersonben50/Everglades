@@ -50,8 +50,9 @@ hgcA.tree$tip.label[binned.index] <- paste(hgcA.tree$tip.label[binned.index],
 
 
 #### Make tree ####
-hgcA.tree.plot <- ggtree(hgcA.tree, aes(x = 0,
-                                        xend = 5)) + 
+hgcA.tree.plot <- ggtree(hgcA.tree,
+                         aes(x = 0,
+                             xend = 5)) + 
   geom_tiplab(size=2.5, align = TRUE, col = color.vector) + 
   geom_nodelab(aes(x = branch),
                vjust = -.3,
