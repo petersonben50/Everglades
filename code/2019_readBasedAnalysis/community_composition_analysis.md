@@ -31,3 +31,16 @@ I copied out the `combined_count_table.txt` file.
 Download all these files to my local computer: `dataEdited/2019_readBasedAnalysis/16S/graftM`
 Clean them using R: `code/2019_readBasedAnalysis/cleaning_graftm_data.R`.
 Finally, I generated a plot of the phyla present here: `code/2019_readBasedAnalysis/graftm_phyla_plots.R`.
+
+
+**Mash analysis of beta diversity**
+
+I calculated the mash distances in the `assembly_processing` scripts.
+Then I ordinated these distances (using PCoA) in `mash_PCoA_seds.R`.
+Finally, I wanted to statistically test the distances between these communities, preferably using a PERMANOVA.
+They are statistically different, obviously, at the different sites.
+Could probably test this against the sulfide as well.
+I wonder though, because we didn't measure it in each of the cores and instead have a single sulfide variable for each site, is that really a valid computation, since we're artificially adding confidence to the link between the microbial community and the sulfide levels.
+Hmm, with this dataset, since the metagenomes are technical replicates, we'd probably need to average the data together, maybe?
+I don't know, need to ask this of a real ecologist.
+ 
