@@ -246,6 +246,55 @@ done
 
 
 
+######################
+# Generate mash sketches for metagenomes
+######################
+
+screen -S EG_mash
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+
+
+# Do this for each metagenome individually
+
+mkdir ~/Everglades/dataEdited/mash_data
+mkdir ~/Everglades/dataEdited/mash_data/temp_MG_files
+mkdir ~/Everglades/dataEdited/mash_data/sketch_files
+cd ~/Everglades/dataEdited/mash_data
+read_storage=~/Everglades/dataEdited/metagenomes
+
+
+cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
+do
+  if [ ! -e sketch_files/$metagenome.msh ]; then
+    cat $read_storage/$metagenome*.fastq.gz > temp_MG_files/$metagenome.fastq.gz
+    mash sketch -S 50 \
+                -r \
+                -m 2 \
+                -k 21 \
+                -s 100000 \
+                -o sketch_files/$metagenome \
+                temp_MG_files/$metagenome.fastq.gz
+    rm -f temp_MG_files/$metagenome.fastq.gz
+  else
+    echo "Already sketched" $metagenome
+  fi
+done
+
+
+# Combine sketches
+cd ~/Everglades/dataEdited/mash_data
+mash paste sketch_files/EG_MG_2019_seds sketch_files/KMBP005*.msh
+
+# Run distance calcuation
+#mash dist -S 50 \
+#          sketch_files/EG_MG_2019.msh \
+#          sketch_files/EG_MG_2019.msh \
+#          > EG_MG_2019.dist
+mash dist -S 50 \
+          sketch_files/EG_MG_2019_seds.msh \
+          sketch_files/EG_MG_2019_seds.msh \
+          > EG_MG_2019_seds.dist
 
 
 
@@ -385,8 +434,6 @@ screen -S EG_clean_metagenome_assembly
 source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
 conda activate anvio6.2
 PYTHONPATH=/home/GLBRCORG/bpeterson26/miniconda3/envs/anvio6.2/lib/python3.6/site-packages/
-
-output=~/HellsCanyon/dataEdited/assemblies/assembly_files/
 
 cd ~/Everglades/dataEdited/assemblies
 mkdir scaffolds
@@ -539,7 +586,7 @@ do
 
       python ~/Everglades/code/generalUse/cleanFASTA.py ORFs/$assembly.fna
       mv -f ORFs/$assembly.fna_temp.fasta ORFs/$assembly.fna
-      python ~/HellsCanyon/code/generalUse/cleanFASTA.py ORFs/$assembly.faa
+      python ~/Everglades/code/generalUse/cleanFASTA.py ORFs/$assembly.faa
       mv -f ORFs/$assembly.faa_temp.fasta ORFs/$assembly.faa
     fi
   else

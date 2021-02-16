@@ -93,6 +93,16 @@ Overall, things look pretty good!
 Happy to go ahead with the assemblies from here.
 
 
+**Generate mash sketches for metagenomes**
+
+In order to determine the distances between the sequenced metagenomes, I used [Mash](https://mash.readthedocs.io/en/latest/), which is based on MinHash.
+For each metagenome, I concatenated the forward and reverse reads into a single zipped fastq file.
+I then generated a mash sketch of each metagenome (based on reads, so used `-r` flag) using a kmer length of 21 and a sketch size of 100,000 reads.
+I also filtered out unique reads.
+I then pasted all the sketches into one sketch file then estimated the distances between them using `mash dist`.
+Provided a seed of 50 for each function, to remain consistent if I need to reanalyze.
+
+
 **Metagenome assembly**
 
 I ran individual assemblies as well as a co-assembly for these metagenomes.
