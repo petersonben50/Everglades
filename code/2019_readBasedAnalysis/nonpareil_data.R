@@ -62,7 +62,9 @@ np.diversity.df <- data.frame(locationID = names(np.diversity),
                               diversity = np.diversity) %>%
   mutate(siteID = locationID %>%
            strsplit("\\(") %>% sapply("[", 2) %>%
-           strsplit("\\)") %>% sapply("[", 1))
+           strsplit("\\)") %>% sapply("[", 1),
+         metagenomeID = locationID %>%
+           strsplit(" \\(") %>% sapply("[", 1))
 
 pdf("results/2019_readBasedAnalysis/nonpareil_diversity.pdf",
     width = 6,
@@ -77,11 +79,11 @@ np.diversity.df %>%
   ylab("Nonpareil diversity index")
 dev.off()
 
-# Run a two-way ANOVA on diversity
-two.way.anova <- aov(diversity ~ siteID,
+# Run a one-way ANOVA on diversity
+one.way.anova <- aov(diversity ~ siteID,
                      data = np.diversity.df)
 sink("results/2019_readBasedAnalysis/nonpareil_diversity_anova.txt")
-summary(two.way.anova)
+summary(one.way.anova)
 sink()
 # Not significantly different.
 
@@ -107,6 +109,8 @@ dev.off()
 
 
 #### Also save to csv ####
-write.csv(MGcoverage.df,
+write.csv(MGcoverage.df %>%
+            left_join(np.diversity.df %>% 
+                        select(metagenomeID, diversity)),
           "results/2019_readBasedAnalysis/nonpareil_coverage.csv",
           row.names = FALSE)
