@@ -32,8 +32,6 @@ all.data <- all.data.fused %>%
   filter(clusterName != "fused")
 
 
-
-
 #### Read in median methylation fractions from incubations ####
 inc.data <- readRDS("dataEdited/2019_incubations/rel_methylation_microbes.rds")
 
@@ -82,6 +80,23 @@ all.data.fused %>%
   geom_point() +
   theme_classic()
 
+
+
+#### Save out R object file for later use ####
+all.data %>%
+  gather(key = MG,
+         value = coverage,
+         c(4:22)) %>%
+  filter(MG != "total") %>%
+  mutate(siteID = site.metadata.vector[MG],
+         medium = medium.metadata.vector[MG]) %>%
+  mutate(siteID = fct_relevel(siteID, MG.order)) %>%
+  filter(medium == "sediment") %>%
+  group_by(MG, siteID) %>%
+  summarise(coverage = sum(coverage)) %>%
+  group_by(siteID) %>%
+  summarise(coverage = mean(coverage)) %>%
+  saveRDS("dataEdited/2019_analysis_assembly/hgcA/hgcA_abundance_site.rds")
 
 
 #### Prepare data for plotting ####
