@@ -94,8 +94,6 @@ all.data %>%
   filter(medium == "sediment") %>%
   group_by(MG, siteID) %>%
   summarise(coverage = sum(coverage)) %>%
-  group_by(siteID) %>%
-  summarise(coverage = mean(coverage)) %>%
   saveRDS("dataEdited/2019_analysis_assembly/hgcA/hgcA_abundance_site.rds")
 
 
