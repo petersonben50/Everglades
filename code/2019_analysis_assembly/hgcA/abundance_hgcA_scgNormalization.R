@@ -8,7 +8,6 @@
 rm(list = ls())
 setwd("/Users/benjaminpeterson/Documents/research/Everglades/")
 library(gridExtra)
-library(lme4)
 library(patchwork)
 library(RColorBrewer)
 library(readxl)
