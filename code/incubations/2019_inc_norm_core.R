@@ -78,11 +78,10 @@ dev.off()
 
 inc.Hg.data.sum <- inc.Hg.data %>%
   group_by(matrixID) %>%
-  summarise(max_meth = max(MeHg_fract_spike),
-            min_meth = min(MeHg_fract_spike))
+  summarise(max_meth = max(MeHg_fract_spike))
 all.data <- full_join(inc.Hg.data,
                       inc.Hg.data.sum) %>%
-  mutate(rel_meth_spike = (MeHg_fract_spike - min_meth) / (max_meth - min_meth))
+  mutate(rel_meth_spike = (MeHg_fract_spike) / (max_meth))
 
 
 pdf("results/2019_incubations/coreFaceted_MeHgProductionNormalized.pdf",

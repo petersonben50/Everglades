@@ -74,11 +74,10 @@ inc.Hg.data %>%
 
 inc.Hg.data.sum <- inc.Hg.data %>%
   group_by(coreID) %>%
-  summarise(max_meth = max(MeHg_fract_spike),
-            min_meth = min(MeHg_fract_spike))
+  summarise(max_meth = max(MeHg_fract_spike))
 all.data <- full_join(inc.Hg.data,
                       inc.Hg.data.sum) %>%
-  mutate(rel_meth_spike = (MeHg_fract_spike - min_meth) / (max_meth - min_meth)) %>%
+  mutate(rel_meth_spike = (MeHg_fract_spike) / (max_meth)) %>%
   mutate(matrixID = fct_relevel(matrixID, PW.order))
 
 
@@ -118,9 +117,9 @@ all.data %>%
 
 
 #### Plot RMP as points with lines connecting them ####
-pdf("results/2019_incubations/spikeNormalized_all.pdf",
-    width = 6,
-    height = 4)
+# pdf("results/2019_incubations/spikeNormalized_all.pdf",
+#     width = 6,
+#     height = 4)
 all.data %>%
   group_by(coreID, matrixID) %>%
   summarise(meth_spike_per_mean = mean(rel_meth_spike) * 100,
@@ -136,10 +135,10 @@ all.data %>%
   theme_classic() +
   labs(y = "RMP",
        x = "Sediment core site",
-       title = "Relative methylation potential (RMP)\nof sediment cores") +
+       title = "Relative methylation potential (RMP)\nof porewater solutions") +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"))
-dev.off()
+# dev.off()
 
 
 
