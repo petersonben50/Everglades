@@ -161,8 +161,8 @@ legend3d("topright",
 
 #### Plot 3D ordination using scatterplot3d ####
 pdf("results/metagenomes/mash/PCoA_plot_MGs_2019_seds_3D.pdf",
-    height = 5,
-    width = 5)
+    height = 6,
+    width = 6)
 par(mfrow = c(1, 1),
     mar = c(3, 3, 1, 1))
 scatterplot3d(-pcoa.analysis$vectors[, 1:3],
