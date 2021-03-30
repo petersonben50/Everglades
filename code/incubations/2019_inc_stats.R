@@ -22,18 +22,12 @@ names(point.vector) <- c("2A-N", "2A-A", "3A-O", "3A-N", "3A-F", "LOX8")
 
 
 #### Read in incubation data and order it ####
-# inc.Hg.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synthesis of core experiments_v2.xlsx",
-#                          sheet = "incubation_results_cleaned") %>%
-#   mutate(coreID = fct_relevel(coreID, MG.order)) %>%
-#   rename(siteID = coreID) %>%
-#   mutate(matrixID = fct_relevel(matrixID, PW.order))
 rel.methylation.data <- readRDS("dataEdited/2019_incubations/rel_methylation_microbes.rds") %>%
   select(coreID, matrixID, rel_meth_spike) %>%
   rename(siteID = coreID)
 
 
 #### Read in hgcA abundance data ####
-
 hgcA.depth <- readRDS("dataEdited/2019_analysis_assembly/hgcA/hgcA_abundance_site.rds") %>%
   group_by(siteID) %>%
   summarise(coverage = mean(coverage))
