@@ -45,7 +45,37 @@ amb.Hg.data %>%
                 width = 0.33) +
   scale_fill_manual(values = color.vector.core) +
   labs(title = "Ambient MeHg in cores",
-       y = "MeHg (ng/L)") +
+       y = "Percent MeHg") +
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
+dev.off()
+
+
+
+#### Generate plot of ambient MeHg ####
+pdf("results/2019_incubations/ambient_MeHg_fraction.pdf",
+    width = 6,
+    height = 3)
+amb.Hg.data %>%
+  mutate(MeHg_percent_amb = MeHg_fract_amb * 100) %>%
+  group_by(coreID) %>%
+  summarise(MeHg_percent_amb_mean = mean(MeHg_percent_amb),
+            MeHg_percent_amb_sd = sd(MeHg_percent_amb),
+            MeHg_percent_amb_count = n(),
+            MeHg_percent_amb_se = MeHg_percent_amb_sd / sqrt(MeHg_percent_amb_count)) %>%
+  ggplot(aes(x = coreID,
+             y = MeHg_percent_amb_mean,
+             width = 0.8,
+             fill = coreID)) + 
+  geom_bar(stat="identity") +
+  geom_errorbar(aes(ymin = MeHg_percent_amb_mean - MeHg_percent_amb_se,
+                    ymax = MeHg_percent_amb_mean + MeHg_percent_amb_se),
+                colour = "black",
+                width = 0.33) +
+  scale_fill_manual(values = color.vector.core) +
+  labs(title = "Ambient MeHg in cores",
+       y = "Percent MeHg") +
   theme_bw() +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"))
@@ -56,5 +86,3 @@ dev.off()
 #### Save out ambient MeHg data ####
 amb.Hg.data %>%
   saveRDS("dataEdited/2019_incubations/ambient_MeHg.rds")
-
-
