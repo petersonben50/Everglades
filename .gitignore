@@ -1,6 +1,7 @@
 # Folders
 dataEdited
 dataRaw
+manuscript
 metadata
 notes
 references
@@ -15,6 +16,7 @@ results
 
 # Types of files
 *.html
+*.docx
 
 # Any folder or file labeled old
 *old_*/
