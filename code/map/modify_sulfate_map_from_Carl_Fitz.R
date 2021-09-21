@@ -59,24 +59,25 @@ plot(sulfate.map.cropped.masked)
 # sulfate.map.cropped.masked@data@values <- log(sulfate.map.cropped.masked@data@values, 10)
 
 
-#### Identify maximum and minimum values of cropped area ####
+#### Set up the break points ####
 max.sulfate <- max(sulfate.map.cropped.masked@data@values,
                    na.rm = TRUE)
 min.sulfate <- min(sulfate.map.cropped.masked@data@values,
                    na.rm = TRUE)
-# Hmm, never gets below 1? Weird.
-
-
-#### Check it ####
+# Never gets below 1, must be the way the model is set up (that's
+# why I went back and converted the NAs to 1 instead of 0).
 cuts  <- seq(min.sulfate,
              max.sulfate,
              by = 1) #set breaks
+
+
+#### Check out the map ####
 plot(sulfate.map.cropped.masked,
      breaks = cuts,
      col = viridis(length(cuts))[length(cuts):1])
 
 
-#### Set colors ####
+#### Set colors for when it's brought into qGIS ####
 sulfate.map.cropped.masked@legend@values <- cuts
 sulfate.map.cropped.masked@legend@colortable <- viridis(length(cuts))[length(cuts):1]
 
