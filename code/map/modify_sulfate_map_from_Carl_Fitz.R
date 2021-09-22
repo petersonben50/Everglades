@@ -71,15 +71,19 @@ cuts  <- seq(min.sulfate,
              by = 1) #set breaks
 
 
+#### Set up color ramp ####
+green.gradient <- colorRampPalette(c("#E0ECDE", "#68B2A0", "#2C6075", "#122830", "#000000"))
+cut.colors <- green.gradient(length(cuts))
+
 #### Check out the map ####
 plot(sulfate.map.cropped.masked,
      breaks = cuts,
-     col = viridis(length(cuts))[length(cuts):1])
+     col = cut.colors)
 
 
 #### Set colors for when it's brought into qGIS ####
 sulfate.map.cropped.masked@legend@values <- cuts
-sulfate.map.cropped.masked@legend@colortable <- viridis(length(cuts))[length(cuts):1]
+sulfate.map.cropped.masked@legend@colortable <- cut.colors
 
 
 #### Save out raster ####
