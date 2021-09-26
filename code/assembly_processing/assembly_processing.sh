@@ -108,7 +108,7 @@ cd ~/Everglades/dataRaw/metagenomes
 read_storage=~/Everglades/dataEdited/metagenomes
 ancillary_info=~/Everglades/dataEdited/metagenomes/reports
 
-cat ~/Everglades/metadata/lists/metagenome_list.csv | while read metagenome
+cat ~/Everglades/metadata/lists/metagenome_list.txt | while read metagenome
 do
 
   if [ ! -e $read_storage/$metagenome\_R1.fastq.gz ]; then
