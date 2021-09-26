@@ -23,9 +23,60 @@ inc.Hg.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synthesi
          matrixID = fct_relevel(matrixID, PW.order))
 
 
-#### 
+#### Plot MeHg production, faceted by sediment core (shows impact of porewater) ####
+inc.Hg.data %>%
+  group_by(coreID, matrixID) %>%
+  summarise(meth_spike_per_mean = mean(SMHG_201_percent) * 100,
+            meth_spike_per_sd = sd(SMHG_201_percent),
+            meth_spike_per_count = n(),
+            meth_spike_per_se = meth_spike_per_sd / sqrt(meth_spike_per_count) * 100) %>%
+  ungroup() %>%
+  mutate(coreID = paste("Core source: ", coreID, sep = ""),
+         coreID = fct_relevel(coreID, paste("Core source: ", MG.order, sep = ""))) %>%
+  ggplot(aes(x = matrixID,
+             y = meth_spike_per_mean,
+             width = 0.8,
+             fill = matrixID)) +
+  geom_bar(position="stack", stat="identity") +
+  geom_errorbar(aes(ymin = meth_spike_per_mean - meth_spike_per_se,
+                    ymax = meth_spike_per_mean + meth_spike_per_se),
+                colour = "black",
+                width = 0.33) +
+  facet_wrap(~coreID, nrow = 2) +
+  scale_fill_manual(values = color.vector) +
+  theme_bw() +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  labs(y = "Methylated spike (%)") +
+  theme(axis.text.y = element_text(colour="black"))
 
 
+#### Plot MeHg production, faceted by porewater source (shows impact of core) ####
+inc.Hg.data %>%
+  group_by(coreID, matrixID) %>%
+  summarise(meth_spike_per_mean = mean(SMHG_201_percent) * 100,
+            meth_spike_per_sd = sd(SMHG_201_percent),
+            meth_spike_per_count = n(),
+            meth_spike_per_se = meth_spike_per_sd / sqrt(meth_spike_per_count) * 100) %>%
+  ungroup() %>%
+  mutate(matrixID = paste("Porewater source: ", matrixID, sep = ""),
+         matrixID = fct_relevel(matrixID, paste("Porewater source: ", PW.order, sep = ""))) %>%
+  ggplot(aes(x = coreID,
+             y = meth_spike_per_mean,
+             width = 0.8,
+             fill = coreID)) +
+  geom_bar(position="stack", stat="identity") +
+  geom_errorbar(aes(ymin = meth_spike_per_mean - meth_spike_per_se,
+                    ymax = meth_spike_per_mean + meth_spike_per_se),
+                colour = "black",
+                width = 0.33) +
+  facet_wrap(~matrixID, nrow = 3) +
+  scale_fill_manual(values = color.vector) +
+  theme_bw() +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  labs(y = "Methylated spike (%)") +
+  theme(axis.text.y = element_text(colour="black"))
 
 
 #### Test for normality ####
@@ -61,9 +112,9 @@ rm(twoWayAnova_inc)
 # Log-transformed data
 twoWayAnova_inc_log <- aov(log(SMHG_201_percent, 10) ~ coreID * matrixID,
                            data = inc.Hg.data)
-par(mfrow = c(1,2))
 hist(twoWayAnova_inc_log$residuals,
      breaks = 20)
+par(mfrow = c(1,2))
 plot(density(twoWayAnova_inc_log$residuals),
      main="Density plot of residuals",
      ylab="Density",
@@ -75,25 +126,71 @@ qqline(twoWayAnova_inc_log$residuals)
 
 
 
-
-# Square-root-transformed data
-twoWayAnova_inc_sqrt <- aov(sqrt(SMHG_201_percent) ~ coreID * matrixID,
-                            data = inc.Hg.data)
-par(mfrow = c(1,2))
-hist(twoWayAnova_inc_sqrt$residuals,
-     breaks = 20)
-plot(density(twoWayAnova_inc_sqrt$residuals),
-     main="Density plot of residuals",
-     ylab="Density",
-     xlab="Residuals")
-shapiro.test(twoWayAnova_inc_sqrt$residuals)
-# QQ-normal plot
-qqnorm(twoWayAnova_inc_sqrt$residuals)
-qqline(twoWayAnova_inc_sqrt$residuals)
-
-
-
-
 #### Storming ahead with two-way ANOVA ####
 summary(twoWayAnova_inc_log)
 
+
+
+#### Plot MeHg production across cores on same axes, linked by porewater matrix ####
+inc.Hg.data %>%
+  group_by(coreID, matrixID) %>%
+  summarise(meth_spike_per_mean = mean(SMHG_201_percent) * 100,
+            meth_spike_per_sd = sd(SMHG_201_percent),
+            meth_spike_per_count = n(),
+            meth_spike_per_se = meth_spike_per_sd / sqrt(meth_spike_per_count) * 100) %>%
+  ungroup() %>%
+  ggplot(aes(x = coreID,
+             y = meth_spike_per_mean,
+             width = 0.8,
+             group = matrixID,
+             col = matrixID)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = color.vector) +
+  theme_bw() +
+  labs(y = "Methylated spike (%)") +
+  theme(axis.text.y = element_text(colour="black"))
+
+
+
+#### Plot MeHg production across porewater matrices on same axes, linked by core used ####
+inc.Hg.data %>%
+  group_by(coreID, matrixID) %>%
+  summarise(meth_spike_per_mean = mean(SMHG_201_percent) * 100,
+            meth_spike_per_sd = sd(SMHG_201_percent),
+            meth_spike_per_count = n(),
+            meth_spike_per_se = meth_spike_per_sd / sqrt(meth_spike_per_count) * 100) %>%
+  ungroup() %>%
+  ggplot(aes(x = matrixID,
+             y = meth_spike_per_mean,
+             width = 0.8,
+             group = coreID,
+             col = coreID)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = color.vector) +
+  theme_bw() +
+  labs(y = "Methylated spike (%)") +
+  theme(axis.text.y = element_text(colour="black"))
+
+
+
+#### Normalize data, both within groups of porewater and cores ####
+inc.Hg.data.max.porewater <- inc.Hg.data %>%
+  group_by(matrixID) %>%
+  summarise(porewater_matrix_max_methylation = max(SMHG_201_percent))
+inc.Hg.data.max.core <- inc.Hg.data %>%
+  group_by(coreID) %>%
+  summarise(core_max_methylation = max(SMHG_201_percent))
+
+inc.Hg.data.normalized <- full_join(inc.Hg.data,
+                                    inc.Hg.data.max.porewater) %>%
+  full_join(inc.Hg.data.max.core) %>%
+  mutate(RMP_core = (SMHG_201_percent) / (porewater_matrix_max_methylation) * 100,
+         RMP_porewater = (SMHG_201_percent) / (core_max_methylation) * 100)
+
+
+
+#### Save out data ####
+saveRDS(inc.Hg.data.normalized,
+        "dataEdited/incubations/incubation_data_with_normalization.rds")
