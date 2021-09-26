@@ -23,8 +23,8 @@ PW.order <- c("2A-N", "2A-A", "3A-O", "3A-N", "3A-F", "LOX8", "F1", "CYSTEINE", 
 color.vector <- c(cb.translator[c("bluishgreen", "skyblue", "vermillion", "reddishpurple", "orange", "yellow", "black")],
                   "#7f7f7f", "#bfbfbf")
 names(color.vector) <- PW.order
-point.vector <- c(9, 18:15, 25)
-names(point.vector) <- MG.order
+point.vector <- c(9, 18:15, 25, 8, 3, 14)
+names(point.vector) <- PW.order
 
 
 
