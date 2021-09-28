@@ -104,7 +104,7 @@ summary(linear.model.log.log)
 
 
 
-#### Generate plots ####
+#### Generate plot of RMP vs. hgcA ####
 
 # Linear model to use
 linear.model.to.use <- linear.model.log.log
@@ -117,27 +117,38 @@ p.value <- pf(f[1],
   round(4)
 
 # Make the plot
-log.log.plot <- all.data %>%
+RMP.hgcA.plot <- all.data %>%
   ggplot(aes(x = log(coverage, 10),
              y = log(RMP_core, 10),
              colour = siteID)) +
   geom_point(size = 3,
              aes(shape = siteID)) +
-  scale_shape_manual(values = point.vector, name = "Site ID") +
-  scale_color_manual(values = color.vector, name = "Site ID") +
+  scale_shape_manual(values = point.vector[unique(all.data$siteID)], name = "Site ID") +
+  scale_color_manual(values = color.vector[unique(all.data$siteID)], name = "Site ID") +
   scale_fill_manual("black") +
-  labs(x = "Log abundance of hgcA ",
-       y = "Log RMP of sediment cores",
+  labs(x = "hgcA abundance (log %)",
+       y = "Sediment cores RMP (log %)",
        title = element_blank()) +
-  theme_classic() +
+  theme_bw() +
   theme(axis.text.y = element_text(color = "black"),
         axis.text.x = element_text(color = "black"),
-        legend.position = c(0.1, 0.8)) +
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.18, 0.7)) +
   geom_abline(slope = coef(linear.model.to.use)[[2]],
               intercept = coef(linear.model.to.use)[[1]]) +
   geom_label(x = 0.75, y = 1.7,
-             label = paste("Adjusted r2 = ", round(summary(linear.model.to.use)$adj.r.squared, 2), "\n",
+             label = paste("Adjusted r2 = ", round(summary(linear.model.to.use)$adj.r.squared, 3), "\n",
                            "p << 0.0001",
                            sep = ""),
              color = "black")
-log.log.plot
+
+
+#### Save out plot ####
+pdf("results/incubations/RMP_microbialCommunity_hgcA.pdf",
+    height = 5.5,
+    width = 7)
+RMP.hgcA.plot
+dev.off()
+saveRDS(object = RMP.hgcA.plot,
+        file = "results/incubations/RMP_microbes_hgcA.rds")

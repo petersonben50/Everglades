@@ -149,31 +149,31 @@ RMP.UV <- all.data %>%
 
 
 #### Generate and check linear model of RMP porewater vs. SUVA ####
-linear.model <- lm(RMP_porewater ~ SUVA,
+PW.linear.model <- lm(RMP_porewater ~ SUVA,
                    data = all.data)
 # Check residuals
 par(mfrow = c(1,2))
-plot(density(linear.model$residuals),
+plot(density(PW.linear.model$residuals),
      main="Density plot of residuals",
      ylab="Density",
      xlab="Residuals")
 # QQ-normal plot
-qqnorm(linear.model$residuals)
-qqline(linear.model$residuals)
+qqnorm(PW.linear.model$residuals)
+qqline(PW.linear.model$residuals)
 # These have a slight left skew
 
-shapiro.test(linear.model$residuals)
+shapiro.test(PW.linear.model$residuals)
 # Normally distributed, statistically speaking!
 
-summary(linear.model)
+summary(PW.linear.model)
 # Major effect of SUVA on RMP
 # Adjusted R-squared: 0.4939
 # p-value: 5.593e-14
 
 
 #### Generate plot with linear model plotted on it ####
-rSquared <- round(summary(linear.model)$adj.r.squared, 2)
-log.log.plot <- all.data %>%
+rSquared <- round(summary(PW.linear.model)$adj.r.squared, 2)
+RMP.SUVA.plot <- all.data %>%
   filter(!is.na(SUVA)) %>%
   ggplot(aes(x = SUVA,
              y = RMP_porewater,
@@ -184,24 +184,30 @@ log.log.plot <- all.data %>%
   scale_color_manual(values = color.vector, name = "Porewater\nsource") +
   scale_fill_manual("black") +
   labs(x = "SUVA (L/mg/m)",
-       y = "Porewater RMP",
+       y = "Porewater RMP (%)",
        title = element_blank()) +
-  theme_classic() +
+  theme_bw() +
   theme(axis.text.y = element_text(color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text = element_text(size = 14),
         axis.title = element_text(size = 16),
-        legend.position = c(0.82, 0.30)) +
-  geom_abline(slope = coef(linear.model)[[2]],
-              intercept = coef(linear.model)[[1]]) +
+        legend.position = c(0.82, 0.33)) +
+  geom_abline(slope = coef(PW.linear.model)[[2]],
+              intercept = coef(PW.linear.model)[[1]]) +
   geom_label(x = 4, y = 82,
-             label = paste("Adjusted r2 = ", round(summary(linear.model)$adj.r.squared, 2), "\n",
+             label = paste("Adjusted r2 = ", round(summary(PW.linear.model)$adj.r.squared, 3), "\n",
                            "p << 0.0001",
                            sep = ""),
              color = "black")
-log.log.plot
+RMP.SUVA.plot
+
+
+#### Save out plot ####
 pdf("results/incubations/RMP_porewater_SUVA.pdf",
     height = 5.5,
     width = 7)
-log.log.plot
+RMP.SUVA.plot
 dev.off()
+# As RDS
+saveRDS(object = RMP.SUVA.plot,
+        file = "results/incubations/RMP_porewater_SUVA.rds")
