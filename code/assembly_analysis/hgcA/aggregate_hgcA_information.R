@@ -1,4 +1,4 @@
-#### code/2019_analysis_assembly/hgcA/aggregate_hgcA_information.R ####
+#### code/assembly_analysis/hgcA/aggregate_hgcA_information.R ####
 # Benjamin D. Peterson
 
 
@@ -11,8 +11,8 @@ library(tidyverse)
 
 
 #### Make hgcA table ####
-hgcA.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA.txt")
-hgcA.true.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA_true.txt")
+hgcA.list <- readLines("dataEdited/assembly_analysis/hgcA/hgcA.txt")
+hgcA.true.list <- readLines("dataEdited/assembly_analysis/hgcA/hgcA_true.txt")
 hgcA.df <- data.frame(seqID = hgcA.list,
                       scaffoldID = paste(hgcA.list %>% strsplit("_") %>% sapply("[", 1),
                                          hgcA.list %>% strsplit("_") %>% sapply("[", 2),
@@ -20,7 +20,7 @@ hgcA.df <- data.frame(seqID = hgcA.list,
 
 #### Prep pplacer classification ####
 
-taxonomy.table <- read.csv("dataEdited/2019_analysis_assembly/hgcA/classification/hgcA_taxonomy_table.csv",
+taxonomy.table <- read.csv("dataEdited/assembly_analysis/hgcA/classification/hgcA_taxonomy_table.csv",
                            stringsAsFactors = FALSE) %>%
   mutate(pplacer_classification = paste(phylum, class, order,
                                         family, genus, species,
@@ -32,7 +32,7 @@ taxonomy.table <- read.csv("dataEdited/2019_analysis_assembly/hgcA/classificatio
 
 #### Manual classification ####
 
-manual.taxonomy <- read_xlsx("dataEdited/2019_analysis_assembly/hgcA/phylogeny/seq_classification.xlsx",
+manual.taxonomy <- read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                              sheet = "seq_class") %>%
   rename(manual_classification = classification) %>%
   select(-c(notes, clusterName))
@@ -48,8 +48,7 @@ names(site.metadata.vector) <- metadata$metagenomeID
 
 
 #### Read in coverage data ####
-
-depth.data <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_scgNormalization.csv",
+depth.data <- read.csv("dataEdited/assembly_analysis/hgcA/depth/hgcA_coverage_scgNormalization.csv",
                        stringsAsFactors = FALSE) %>%
   select(-c(scaffoldID, length, total)) %>%
   gather(key = metagenomeID,
@@ -65,21 +64,20 @@ depth.data <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_covera
 
 
 #### Prep binning information ####
-
-binning.data <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/2019_binning/binning_initial/binsFinal/hgcA_bin_key.tsv",
+binning.data <- read.table("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/bin_analysis/binning_initial/binsFinal/hgcA_bin_key.tsv",
                            sep = '\t',
                            header = TRUE) %>%
   select(binID, hgcA) %>%
-  left_join(readRDS("dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_derep_key.rds")) %>%
-  left_join(read_xlsx("dataEdited/2019_binning/binning_initial/binsGood/taxonomy_summary.xlsx")) %>%
+  left_join(readRDS("dataEdited/assembly_analysis/hgcA/dereplication/hgcA_derep_key.rds")) %>%
+  left_join(read_xlsx("dataEdited/bin_analysis/binning_initial/binsGood/taxonomy_summary.xlsx")) %>%
   rename(seqID = hgcA_rep) %>%
   select(-hgcA) %>%
   rename(binTaxonomy = taxID)
 
 
 #### Prep hgcB information ####
-# hgcB.data <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcB/hgcB_good.txt")
-hgcB.data <- read_xlsx("dataEdited/2019_analysis_assembly/hgcA/hgcB/hgcB_notes.xlsx")
+# hgcB.data <- readLines("dataEdited/assembly_analysis/hgcA/hgcB/hgcB_good.txt")
+hgcB.data <- read_xlsx("dataEdited/assembly_analysis/hgcA/hgcB/hgcB_notes.xlsx")
 hgcB.df <- hgcB.data %>%
   mutate(scaffoldID = paste(hgcB_ID %>% strsplit("_") %>% sapply("[", 1),
                             hgcB_ID %>% strsplit("_") %>% sapply("[", 2),
@@ -95,9 +93,7 @@ paralog.df <- data.frame(seqID = hgcA.list,
                          isParalog = !(hgcA.list %in% hgcA.true.list))
 
 
-
 #### Aggregate all data ####
-
 hgcA.data <- paralog.df %>%
   left_join(manual.taxonomy) %>%
   left_join(taxonomy.table) %>%
@@ -107,7 +103,6 @@ hgcA.data <- paralog.df %>%
 
 
 #### Save data out ####
-
 write.csv(hgcA.data,
-          "dataEdited/2019_analysis_assembly/hgcA/hgcA_dataTable.csv",
+          "dataEdited/assembly_analysis/hgcA/hgcA_dataTable.csv",
           row.names = FALSE)
