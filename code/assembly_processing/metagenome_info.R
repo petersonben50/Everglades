@@ -24,7 +24,7 @@ post.trim.reads <- read.table("dataEdited/metagenomes/reports/metagenome_read_co
   rename(paired_reads = forwardReads) %>%
   select(-reverseReads)
 
-unique.mapped.reads <- read.table("dataEdited/2019_analysis_assembly/reports/uniq_mapped_reads_MG.tsv",
+unique.mapped.reads <- read.table("dataEdited/assembly_analysis//reports/uniq_mapped_reads_MG.tsv",
                                   stringsAsFactors = FALSE)
 names(unique.mapped.reads) <- c("metagenomeID", "mappedReads_forward",
                                 "mappedReads_reverse", "mappedReads_single")
@@ -39,7 +39,7 @@ coverage <- read.table("dataEdited/metagenomes/reports/metagenome_coverage.tsv",
 MG.metadata <- read_xlsx("metadata/metagenomes/metagenome_metadata.xlsx")
 
 
-NP.coverage <- read.csv("results/2019_readBasedAnalysis/nonpareil_coverage.csv",
+NP.coverage <- read.csv("results/metagenomes/housekeeping/nonpareil_coverage.csv",
                         stringsAsFactors = FALSE) %>%
   select(-siteID)
 
@@ -69,5 +69,5 @@ metagenome.data <- MG.metadata %>%
 
 #### Write out data table ####
 write.csv(x = metagenome.data,
-          "results/2019_metagenome_info.csv",
+          "results/metagenomes/housekeeping/metagenome_info.csv",
           row.names = FALSE)

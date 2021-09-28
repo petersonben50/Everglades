@@ -31,5 +31,5 @@ all.info <- full_join(assembly.info,
 
 #### Write out data table ####
 write.csv(x = all.info,
-          "results/assembly_info.csv",
+          "results/metagenomes/housekeeping/assembly_info.csv",
           row.names = FALSE)
