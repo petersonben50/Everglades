@@ -1,7 +1,8 @@
-#### code/incubations/statistical_analysis_microbialCommunity.R ####
+#### code/incubations/RMP_analysis_porewater.R ####
 # Benjamin D. Peterson
 
 # Obsidian notes here: Incubations - statistical analysis porewaters
+# Results: results/RMP_porewater.pptx
 
 #### Get set up #####
 rm(list = ls())
@@ -13,133 +14,194 @@ cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/co
 source("code/setup_PW_core_order_color_points.R")
 
 
-#### Read in hgcA abundance data ####
-hgcA.depth <- readRDS("dataEdited/2019_analysis_assembly/hgcA/hgcA_abundance_site.rds") %>%
-  group_by(siteID) %>%
-  summarise(coverage = mean(coverage))
+#### Read in porewater data ####
+porewater.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synthesis for Brett and Ben.xlsx",
+                            sheet = "porewater_data") %>%
+  mutate(siteID = fct_relevel(siteID, MG.order),
+         DOC = gsub("\\*", "", DOC_mg.L) %>% as.numeric(),
+         SUVA = gsub("\\*", "", `SUVA_L.mg*m`) %>% as.numeric(),
+         UV_254_AU = as.numeric(`UV_254_AU.cm-1`),
+         sulfate_mg.L = gsub("nd", 0, sulfate_mg.L) %>% as.numeric(),
+         sulfide_µg.L = gsub("nd", 0, sulfide_µg.L) %>% as.numeric()) %>%
+  rename(matrixID = siteID) %>%
+  select(matrixID, DOC, SUVA, UV_254_AU, sulfate_mg.L, sulfide_µg.L)
 
 
-#### Read in methylation data ####
+#### Read in RMP data ####
 Hg.inc.data <- readRDS("dataEdited/incubations/incubation_data_with_normalization.rds")
 
 
-#### Join methylation and hgcA data ####
+#### Join RMP and porewater data ####
 Hg.inc.data <- Hg.inc.data %>%
-  select(coreID, matrixID, RMP_core) %>%
+  select(coreID, matrixID, RMP_porewater) %>%
   rename(siteID = coreID)
 all.data <- Hg.inc.data %>%
-  left_join(hgcA.depth)
+  left_join(porewater.data)
 
 
-#### Run a linear model on this with hgcA coverage as an independent continuous variable ####
-# Check with non-log-transformed data
-shapiro.test(all.data$RMP_core)
-par(mfrow = c(1,1))
-hist(all.data$RMP_core)
-# Not normal, let's check residuals
-linear.model <- lm(RMP_core ~ coverage,
+#### RMP of porewaters along sulfate gradient ####
+all.data %>%
+  group_by(matrixID, siteID) %>%
+  summarise(RMP_porewater = mean(RMP_porewater)) %>%
+  ggplot(aes(x = matrixID,
+             y = RMP_porewater,
+             group = siteID,
+             color = siteID)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(name = "Site ID",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = c(0.9, 0.75))
+
+
+
+#### RMP of porewaters against environmental variables ####
+RMP.sulfide <- all.data %>%
+  ggplot(aes(x = sulfide_µg.L,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point() +
+  scale_color_manual(name = "Site ID",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "Sulfide (µg/L)") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = c(0.6, 0.35))
+
+RMP.sulfide.log <- all.data %>%
+  ggplot(aes(x = log(sulfide_µg.L, 10),
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point() +
+  scale_color_manual(name = "Site ID",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "Log sulfide (µg/L)") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = c(0.7, 0.45))
+
+RMP.SUVA <- all.data %>%
+  filter(!is.na(SUVA)) %>%
+  ggplot(aes(x = SUVA,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point() +
+  scale_color_manual(name = "Site ID",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "SUVA (L/mg/m)") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = "none")
+
+RMP.DOC <- all.data %>%
+  filter(!is.na(DOC)) %>%
+  ggplot(aes(x = DOC,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point() +
+  scale_color_manual(name = "Site ID",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "DOC (mg/L)") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = "none")
+
+
+RMP.UV <- all.data %>%
+  mutate(UV_254_AU = DOC * SUVA / 100) %>%
+  filter(!is.na(UV_254_AU)) %>%
+  ggplot(aes(x = UV_254_AU,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point() +
+  scale_color_manual(name = "Site ID",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "UV 254 (cm-1)") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = "none")
+
+
+
+#### Plot em all out ####
+(RMP.sulfide.log + RMP.SUVA) / (RMP.DOC + RMP.UV)
+
+
+
+#### Generate and check linear model of RMP porewater vs. SUVA ####
+linear.model <- lm(RMP_porewater ~ SUVA,
                    data = all.data)
 # Check residuals
-hist(linear.model$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model$residuals)
+qqline(linear.model$residuals)
+# These have a slight left skew
+
 shapiro.test(linear.model$residuals)
-# Not bad, but not particularly good either
+# Normally distributed, statistically speaking!
 
-# Try with log-transformed data
-shapiro.test(log(all.data$RMP_core))
-hist(log(all.data$RMP_core))
-# Still not normal, but doesn't necessarily need to be for lm.
-# Generate linear model
-linear.model.log <- lm(log(RMP_core) ~ coverage,
-                       data = all.data)
-# Check residuals
-shapiro.test(linear.model.log$residuals)
-par(mfrow = c(1,2))
-plot(density(linear.model.log$residuals),
-     main="Density plot of residuals",
-     ylab="Density",
-     xlab="Residuals")
-# QQ-normal plot
-qqnorm(linear.model.log$residuals)
-qqline(linear.model.log$residuals)
-# These are not quite normally distributed, but a little bit better
-# Slight left skew
-
-# Do we see linearity?
-all.data %>%
-  ggplot(aes(x = coverage,
-             y = log(RMP_core),
-             colour = siteID)) +
-  geom_point(size = 3,
-             aes(shape = siteID))
-# Not really
+summary(linear.model)
+# Major effect of SUVA on RMP
+# Adjusted R-squared: 0.4939
+# p-value: 5.593e-14
 
 
-#### Linear model with a log-log transformation ####
-# Let's check linearity first this time
-all.data %>%
-  ggplot(aes(x = log(coverage, 10),
-             y = log(RMP_core, 10),
-             colour = siteID)) +
-  geom_point(size = 3,
-             aes(shape = siteID))
-# Better. Try the linear regression on
-# the log-log transformation
-linear.model.log.log <- lm(log(RMP_core, 10) ~ log(coverage, 10),
-                           data = all.data)
-# Check residuals
-shapiro.test(linear.model.log.log$residuals)
-par(mfrow = c(1,2))
-plot(density(linear.model.log.log$residuals),
-     main="Density plot of residuals",
-     ylab="Density",
-     xlab="Residuals")
-# QQ-normal plot
-qqnorm(linear.model.log.log$residuals)
-qqline(linear.model.log.log$residuals)
-# Little bit further from normality, but fairly close.
-# Mostly has a right skew here.
-# We'll go ahead with it.
-
-# Summarize model
-summary(linear.model.log.log)
-# Linear fit is even better, 0.4935
-
-
-
-#### Generate plots ####
-
-# Linear model to use
-linear.model.to.use <- linear.model.log.log
-
-# Calculate p-value
-f <- summary(linear.model.to.use)$fstatistic
-p.value <- pf(f[1],
-              f[2],f[3],
-              lower.tail = F) %>%
-  round(4)
-
-# Make the plot
+#### Generate plot with linear model plotted on it ####
+rSquared <- round(summary(linear.model)$adj.r.squared, 2)
 log.log.plot <- all.data %>%
-  ggplot(aes(x = log(coverage, 10),
-             y = log(RMP_core, 10),
-             colour = siteID)) +
+  filter(!is.na(SUVA)) %>%
+  ggplot(aes(x = SUVA,
+             y = RMP_porewater,
+             colour = matrixID)) +
   geom_point(size = 3,
-             aes(shape = siteID)) +
-  scale_shape_manual(values = point.vector, name = "Site ID") +
-  scale_color_manual(values = color.vector, name = "Site ID") +
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
   scale_fill_manual("black") +
-  labs(x = "Log abundance of hgcA ",
-       y = "Log RMP of sediment cores",
+  labs(x = "SUVA (L/mg/m)",
+       y = "Porewater RMP",
        title = element_blank()) +
   theme_classic() +
   theme(axis.text.y = element_text(color = "black"),
         axis.text.x = element_text(color = "black"),
-        legend.position = c(0.1, 0.8)) +
-  geom_abline(slope = coef(linear.model.to.use)[[2]],
-              intercept = coef(linear.model.to.use)[[1]]) +
-  geom_label(x = 0.75, y = 1.7,
-             label = paste("Adjusted r2 = ", round(summary(linear.model.to.use)$adj.r.squared, 2), "\n",
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.82, 0.30)) +
+  geom_abline(slope = coef(linear.model)[[2]],
+              intercept = coef(linear.model)[[1]]) +
+  geom_label(x = 4, y = 82,
+             label = paste("Adjusted r2 = ", round(summary(linear.model)$adj.r.squared, 2), "\n",
                            "p << 0.0001",
                            sep = ""),
              color = "black")
 log.log.plot
+pdf("results/incubations/RMP_porewater_SUVA.pdf",
+    height = 5.5,
+    width = 7)
+log.log.plot
+dev.off()
