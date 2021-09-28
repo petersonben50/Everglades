@@ -106,7 +106,7 @@ MeHg.porewater.plot
 
 
 
-#### Plot MeHg production across cores on same axes, linked by porewater matrix ####
+#### Plot MeHg production across cores, points linked by spiking matrix ####
 MeHg.production.data <- inc.Hg.data %>%
   group_by(coreID, matrixID) %>%
   summarise(meth_spike_per_mean = mean(SMHG_201_percent) * 100,
@@ -114,11 +114,22 @@ MeHg.production.data <- inc.Hg.data %>%
             meth_spike_per_count = n(),
             meth_spike_per_se = meth_spike_per_sd / sqrt(meth_spike_per_count) * 100) %>%
   ungroup() %>%
+  mutate(native_PW = (as.character(coreID) == as.character(matrixID)) * 1)
+
+MeHg.production.plot <- MeHg.production.data %>%
   ggplot(aes(x = coreID,
              y = meth_spike_per_mean,
              width = 0.8,
              group = matrixID,
              col = matrixID)) +
+  geom_point(aes(x = coreID,
+                 y = meth_spike_per_mean,
+                 stroke = 1.5),
+             data = MeHg.production.data %>%
+               filter(native_PW == 1),
+             shape = 4,
+             size = 3,
+             color = "black") +
   geom_point() +
   geom_line() +
   scale_color_manual(name = "Spiking matrix",
@@ -129,15 +140,17 @@ MeHg.production.data <- inc.Hg.data %>%
         axis.text.y = element_text(colour="black"),
         axis.title.x = element_blank(),
         legend.position = c(0.15, 0.68))
+MeHg.production.plot
 
 
+#### Set up ordering of plot ####
 figure <- ggarrange(ggarrange(MeHg.soil.plot,
                               MeHg.porewater.plot,
                               nrow = 2,
                               labels = c("A.", "B."),
                               label.x = -0.02,
                               label.y = 1.02),
-                    MeHg.production.data,
+                    MeHg.production.plot,
                     labels = c("", "C."),
                     ncol = 2,
                     widths = c(1,2),
@@ -146,6 +159,8 @@ figure <- ggarrange(ggarrange(MeHg.soil.plot,
 figure
 
 
+
+#### Save out plot ####
 pdf("results/incubations/figure_2.pdf",
     width = 9,
     height = 5)
