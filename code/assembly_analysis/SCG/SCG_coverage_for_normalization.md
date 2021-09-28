@@ -24,6 +24,6 @@ Remove the working directories that I generated.
 
 **Generate normalization vectors**
 
-In the script `code/SCG/SCGs_depth_cleaning.R`, I took the SCG coverage data and used it to generate a normalization vector.
+In the script `code/assembly_analysis/SCG/clean_SCGs.R`, I took the SCG coverage data and used it to generate a normalization vector.
 This was done by taking the inverse of the coverage value and multiplying by 100.
 That will allow me to multiple coverages by this value to obtain the coverage per 100X SCG coverage.
