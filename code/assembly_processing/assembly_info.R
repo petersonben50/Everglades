@@ -1,4 +1,4 @@
-#### code/2019_assembly_info.R ####
+#### code/assembly_processing/assembly_info.R ####
 # Benjamin D. Peterson
 
 
@@ -31,5 +31,5 @@ all.info <- full_join(assembly.info,
 
 #### Write out data table ####
 write.csv(x = all.info,
-          "results/2019_assembly_info.csv",
+          "results/assembly_info.csv",
           row.names = FALSE)

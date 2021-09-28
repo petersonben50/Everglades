@@ -70,7 +70,7 @@ The trimming cut out between 3 and 6% of the total coverage of the difference me
 None of them jump out as being anomalously high or low.
 
 
-Then I went about checking the status of each metagenome, mostly by looking at the .
+Then I went about checking the status of each metagenome, mostly by looking at the fastp data.
 For the 2018 samples, I only looked at the porewater samples, not the surface water samples, since I'm not planning to use those for anything yet.
 I looked at the fastQC, the fastp, the read counts, and the coverage data for this.
 
@@ -92,6 +92,7 @@ There's a small enrichment of reads 138/139bp long, but the majority of them are
 Overall, things look pretty good!
 Happy to go ahead with the assemblies from here.
 
+I didn't look at this in detail and take notes on the 2019 analyses, but a quick glance at them suggested they looked pretty good.
 
 **Generate mash sketches for metagenomes**
 
@@ -170,3 +171,9 @@ I used Prodigal on the `meta` setting to predict the open reading frames.
 I saved out the nucleic acid sequences, the amino acid sequences, and a GFF file, then cleaned up the fasta files using `cleanFASTA.py`.
 Finally, I counted the number of open reading frames in each assembly, and downloaded the counts here: `dataEdited/assemblies/reports/ORF_counts.tsv`.
 Generally, the metaSPADes assemblies have many more open reading frames than the MegaHit assemblies.
+
+
+**Final data aggregation**
+
+I then aggregated all the assembly information in this file: `code/assembly_processing/assembly_info.R`.
+That read out the important data here: `results/assembly_info.csv`.
