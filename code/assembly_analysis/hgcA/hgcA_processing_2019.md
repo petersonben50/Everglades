@@ -1,7 +1,7 @@
 ### My workflow for analyzing the hgcA sequences in the Everglades assemblies
 
 I went ahead with using both metaSPADes and MegaHit assemblies for each of the six sights.
-I'd like to do a comparison in here to see if this is really necessary, or if MegaHit or metaSPADes pulls out more genes.
+I'd like to do a comparison in here to see if this is really necessary, or if MegaHit or metaSPADes pulls out more genes, but not going to prioritize that at this point.
 
 #### hgcA identification
 
@@ -66,8 +66,8 @@ I used the depth function in samtools to calculate the coverage over each nucleo
 I then used the `calculate_depth_contigs.py` script to calculate the average coverage of each nucleotide over the sequence, excluding 150 bp on both ends of the scaffold, to eliminate any bias against shorter contigs (in case reads aren't mapping to the ends of the scaffold as well).
 I did this for each sequence initially identified as hgcA, so that I could see if any of the incomplete sequences are relatively abundant.
 
-I downloaded the depth files to my local computer, then combined them into a single file and normalized them with the R script `clean_hgcA_abundance.R`.
-This saves out a file with the aggregated and normalized depth information here: `dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage.csv`.
+I downloaded the depth files to my local computer, then combined them into a single file and normalized them to the single copy gene coverage with the R script `code/assembly_analysis/hgcA/clean_hgcA_coverage.R`.
+This saves out a file with the aggregated and normalized depth information here: `dataEdited/assembly_analysis/hgcA/depth/hgcA_coverage_scgNormalization.csv`.
 
 
 
@@ -84,13 +84,9 @@ Next I wanted to pull all the data I had on hgcA sequences into R to get a good 
 I used an Rmd file to keep track of my notes on this: `hgcA_dereplication.Rmd`.
 Realized that the 97% cutoff wasn't catching everything here, so dropped it down to 94%.
 In the Rmd document, I found that I wasn't always picking the best representative, so I sorted the clusters by length and presence of hgcB and picked a representative that way.
-That list got saved out to here: `dataEdited/2019_analysis_assembly/hgcA/dereplication/hgcA_derep_list.txt`.
+That list got saved out to here: `dataEdited/assembly_analysis/hgcA/dereplication/hgcA_derep_list.txt`.
 I uploaded this and used it to pull out the needed hgcA sequences.
 Later on, I came back and made a "cluster key" to link all the hgcA seqs in a cluster to the cluster representative.
-
-**hgcA abundance analysis**
-
-I looked at the abundance of the hgcA sequences in different ways in the `abundance_hgcA.R` file.
 
 
 **Classify hgcA seqs with pplacer workflow**
@@ -100,11 +96,12 @@ The full tutorial can be found here: https://caitlingio.com/tutorial-for-hgcab-a
 In a nutshell, I align the HgcA sequences to the reference sequences in the refpackage, then use pplacer to place the sequences on the reference tree.
 Then we make a sqlite database of the references and use guppy to classify them.
 Finally, Caitlin wrote a script that extracts the taxonomic information.
+My implementation of this is here: `code/assembly_analysis/hgcA/clean_hgcA_classification.R`.
 
 
 **Make phylogenetic tree**
 
-*Make phylogenetic tree*
+*Prepped alignment, preliminary tree*
 
 I generated a consensus alignment between the *hgcA* seqs I found in this study with the Hg-MATE reference database, using MUSCLE.
 I then generated a tree using FastTree.
@@ -112,7 +109,7 @@ I downloaded the tree file to my local computer, where I visualized it in the `c
 There were obviously a ton of unneeded branches.
 I manually identified the nodes that needed removal, then used the `tree_subset` function in the `treeio` package to pull out the sequence names for removal.
 After consideration, I decided to keep all the isolate sequences in the tree, just for a nice reference.
-Read out list here: `dataEdited/2019_analysis_assembly/hgcA/phylogeny/seqs_to_remove.txt`
+Read out list here: `dataEdited/assembly_analysis/hgcA/phylogeny/seqs_to_remove.txt`
 I used this list to remove the unneeded sequences from my alignment.
 To clean the alignment, I masked it in Geneious, trimming out any residue with more than 50% gaps.
 The final exported sequence is `hgcA_for_phylogeny_masked.afa`.
@@ -139,12 +136,32 @@ The phylogeny was generated under a gamma distribution and the best substitution
 
 The tree was then downloaded and loaded into R (`clean_hgcA_tree.R`).
 It was mid-point rooted using the phangorn package and visualized using ggtree.
-I replaced the accession numbers of the references with their names, and saved out a cleaned hgcA tree (`dataEdited/2019_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree.rds`).
+I replaced the accession numbers of the references with their names, and saved out a cleaned hgcA tree (`dataEdited/assembly_analysis/hgcA/phylogeny/hgcA_clean_tree.rds`).
 I'll also use this script to save out a color vector for the tree.
 I used these two RDS files, along with the depth information for the hgcA+ scaffolds, to generate an hgcA tree paired with the overall abundance information.
+
+
+*Generate tree for publications with subset of references using RAxML*
+
+The previous tree that was generated was great for assigning taxonomy, but I wanted an even more cleaned version for publication.
+So, I manually added the references to include here: `dataEdited/assembly_analysis/hgcA/phylogeny/final/refs/reference_names_to_use.txt`.
+From this, I pulled out the fasta sequences that I needed.
+On GLBRC, I aligned the references with the study sequences using MUSCLE.
+I masked the alignment at 50% gaps in Geneious, then generated a ML tree using RAxML with the usual settings.
 
 
 **hgcA phylogenetic cluster assignment**
 
 I then assigned a taxonomic group to each of the hgcA sequences, based on the phylogenetic tree that I had built: `results/2019_analysis_assembly/hgcA_tree_RAxML_midpointRooting.pdf`.
+This was not the final tree, but was from the original RAxML tree.
 That information was saved here: `hgcA_phylogenetic_clusters.xlsx`.
+
+
+**hgcA abundance analysis**
+
+I looked at the abundance of the hgcA sequences in different ways in the `abundance_hgcA.R` file.
+
+
+**Bring all hgcA information together**
+
+This is done in `code/assembly_analysis/hgcA/aggregate_hgcA_information.R`.

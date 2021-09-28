@@ -529,7 +529,7 @@ guppy tog --pp \
 ############################################
 
 ####################
-# Make phylogenetic tree with Hg-MATE database for references
+# Prepped alignment, preliminary tree
 ####################
 
 screen -S EG_hgcA_tree
@@ -585,4 +585,74 @@ $raxml -f a \
         -x 2381 \
         -T 20 \
         -s hgcA_for_phylogeny_masked.afa.reduced \
+        -n hgcA
+
+
+
+
+
+
+
+#########################
+# Generate tree for publications with subset of references using RAxML
+#########################
+
+# Done locally
+Everglades
+cp /Users/benjaminpeterson/Documents/research/Hg_MATE/versions/v1.01142021/Hg-MATE-Db.v1.01142021_ISOCELMAG_Hgc.fas \
+    references
+mkdir dataEdited/assembly_analysis/hgcA/phylogeny/final
+mkdir dataEdited/assembly_analysis/hgcA/phylogeny/final/refs
+finalFolderRefs=dataEdited/assembly_analysis/hgcA/phylogeny/final/refs
+rm -f $finalFolderRefs/HgMate_reference_seqs_to_use.faa
+cut -d"_" -f1-3 $finalFolderRefs/reference_names_to_use.txt | while read reference_name
+do
+  grep -A 1 \
+    $reference_name \
+    references/Hg-MATE-Db.v1.01142021_ISOCELMAG_Hgc.fas \
+    >> $finalFolderRefs/HgMate_reference_seqs_to_use.faa
+done
+grep ">" $finalFolderRefs/HgMate_reference_seqs_to_use.faa | \
+  sed 's/>//' | tr -d '[:blank:]' \
+  > $finalFolderRefs/IDed_seqs.txt
+wc -l $finalFolderRefs/*
+cat $finalFolderRefs/IDed_seqs.txt $finalFolderRefs/reference_names_to_use.txt | \
+  sort
+
+# Done on GLBRC
+screen -S EG_hgcA_tree
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=""
+PERL5LIB=''
+mkdir ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/phylogeny/final
+cd ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/phylogeny/final
+
+# Get seqs from study
+cd ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/classification
+python ~/Everglades/code/generalUse/cleanFASTA.py hgcA_muscle.afa
+sed 's/-//g' hgcA_muscle.afa_temp.fasta > ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/phylogeny/final/hgcA.faa
+
+
+# Upload needed references
+cd ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/phylogeny/final
+cat HgMate_reference_seqs_to_use.faa \
+    hgcA.faa \
+    hgcA_paralogs_for_rooting.faa \
+    > hgcA_for_tree_final.faa
+
+# Generate alignment
+muscle -in hgcA_for_tree_final.faa \
+        -out hgcA_for_tree_final.afa
+
+# Upload masked alignment (50% gaps)
+# Then run RAxML to generate tree
+raxml=/opt/bifxapps/raxml-8.2.11/raxmlHPC-PTHREADS
+$raxml -f a \
+        -p 283976 \
+        -m PROTGAMMAAUTO \
+        -N autoMRE \
+        -x 2381 \
+        -T 20 \
+        -s hgcA_for_tree_final_masked.afa \
         -n hgcA
