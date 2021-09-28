@@ -146,16 +146,25 @@ plot.hgcA.overall.coverage <- function(depth.data.of.interest = all.data,
     group_by(MG, siteID) %>%
     summarize(coverage = sum(coverage)) %>%
     group_by(siteID) %>%
-    summarise(coverage = mean(coverage)) %>%
-    ggplot(aes(y = coverage,
+    summarise(coverage_mean = mean(coverage),
+              coverage_sd = sd(coverage),
+              coverage_count = n(),
+              coverage_se = coverage_sd / sqrt(coverage_count)) %>%
+    ggplot(aes(y = coverage_mean,
                x = siteID)) + 
     geom_bar(stat="identity") +
+    geom_errorbar(aes(ymin = coverage_mean - coverage_se,
+                      ymax = coverage_mean + coverage_se),
+                  colour = "black",
+                  width = 0.33) +
     labs(title = paste("hgcA abundance in ",
                        medium.of.interest,
                        sep = "")) +
+    ylim(c(0, 16)) +
     theme_classic() +
     theme(axis.text.x = element_text(colour="black"),
-          axis.text.y = element_text(colour="black"))
+          axis.text.y = element_text(colour="black"),
+          legend.position = "none")
   }
 
 hgcA.sediment <- plot.hgcA.overall.coverage(depth.data.of.interest = all.data,
@@ -165,8 +174,8 @@ hgcA.porewater <- plot.hgcA.overall.coverage(depth.data.of.interest = all.data,
 hgcA.sediment / hgcA.porewater
 pdf("results/2019_analysis_assembly/hgcA_abundance_overall.pdf",
       width = 5,
-      height = 5)
-hgcA.sediment / hgcA.porewater
+      height = 3.5)
+hgcA.sediment
 dev.off()
 
 
@@ -187,15 +196,18 @@ plot.scaffold.coverage <- function(depth.data.of.interest = all.data,
     ggplot(aes(y = coverage,
                x = siteID,
                fill = clusterName)) + 
-    geom_bar(stat="identity") +
+    geom_bar(stat = "identity",
+             position = "dodge") +
     scale_fill_manual(name = "clusterName",
                       values = color.code.vector.of.interest) + 
     labs(title = paste("hgcA abundance in ",
                        medium.of.interest,
                        sep = "")) +
+    ylim(c(0, 16)) +
     theme_classic() +
     theme(axis.text.x = element_text(colour="black"),
-          axis.text.y = element_text(colour="black"))
+          axis.text.y = element_text(colour="black"),
+          legend.position = "none")
   
 }
 
@@ -208,8 +220,8 @@ hgcA.porewater <- plot.scaffold.coverage(depth.data.of.interest = all.data,
                                          medium.of.interest = "porewater")
 
 pdf("results/2019_analysis_assembly/hgcA_abundance_sediment.pdf",
-    width = 6,
-    height = 3)
+    width = 5,
+    height = 3.5)
 hgcA.sediment
 dev.off()
 hgcA.sediment
@@ -244,7 +256,7 @@ tax.group.coverage.relative[, -1] <- sapply(names(tax.group.coverage.relative)[-
 #### Plot relative abundance of each hgcA group over the gradient ####
 pdf("results/2019_analysis_assembly/hgcA_abundance_groups_relative.pdf",
     width = 6,
-    height = 4)
+    height = 2)
 tax.group.coverage.relative %>%
   gather(key = siteID,
          value = rel.coverage,

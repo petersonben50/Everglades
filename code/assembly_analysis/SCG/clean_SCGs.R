@@ -1,5 +1,12 @@
-#### Clean up ####
+#### code/assembly_analysis/SCG/clean_SCGs.R ####
+# Benjamin D. Peterson
 
+# This script generates a normalization vector
+# based on the mean abundance of SCGs in the
+# metagenomes.
+
+
+#### Clean up ####
 rm(list = ls())
 setwd("~/Documents/research/Everglades/")
 library(tidyverse)
@@ -8,7 +15,7 @@ library(tidyverse)
 
 #### Read in data ####
 
-scg.abundance <- read.table("dataEdited/2019_analysis_assembly/SCGs/scg_coverage.tsv",
+scg.abundance <- read.table("dataEdited/assembly_analysis/SCGs/scg_coverage.tsv",
                             sep = "\t",
                             stringsAsFactors = FALSE,
                             col.names = c("geneID", "metagenomeID", "coverage")) 
@@ -16,7 +23,7 @@ scg.abundance <- read.table("dataEdited/2019_analysis_assembly/SCGs/scg_coverage
 
 
 #### Plot out raw data ####
-pdf("results/2019_analysis_assembly/scg_abundance.pdf",
+pdf("results/metagenomes/housekeeping/scg_abundance.pdf",
     height = 4.5,
     width = 6)
 scg.abundance %>%
@@ -35,7 +42,7 @@ dev.off()
 
 #### Plot out normalized data ####
 normalized.coverage.vector <- readRDS("dataEdited/metagenomes/reports/metagenome_normalization_vector.rds")
-pdf("results/2019_analysis_assembly/scg_abundance_normalized.pdf",
+pdf("results/metagenomes/housekeeping/scg_abundance_normalized.pdf",
     height = 4.5,
     width = 6)
 scg.abundance %>%
@@ -57,7 +64,6 @@ dev.off()
 
 
 #### Generate normalization factor for each metagenomes ####
-
 mean.scg.abundance <- scg.abundance %>%
   group_by(metagenomeID) %>%
   summarize(coverage = mean(coverage))
@@ -71,7 +77,7 @@ normalized.mean.scg.abundance <- mean.scg.abundance %>%
 normalization.vector <- normalized.mean.scg.abundance$NF
 names(normalization.vector) <- normalized.mean.scg.abundance$metagenomeID
 saveRDS(normalization.vector,
-        "dataEdited/2019_analysis_assembly/SCGs/scg_normalization_vector.rds")
+        "dataEdited/assembly_analysis/SCGs/scg_normalization_vector.rds")
 write.csv(normalized.mean.scg.abundance,
-          "results/2019_analysis_assembly/scg_abundance_normalized_table.csv",
+          "results/metagenomes/housekeeping/scg_abundance_normalized_table.csv",
           row.names = FALSE)
