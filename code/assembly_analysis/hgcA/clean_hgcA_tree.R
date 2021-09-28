@@ -1,4 +1,4 @@
-#### code/2019_analysis_assembly/hgcA/clean_hgcA_tree.R ####
+#### code/assembly_analysis/hgcA/clean_hgcA_tree.R ####
 # Benjamin D. Peterson
 
 # This script will look at our phylogenetic tree 
@@ -16,19 +16,14 @@ library(treeio)
 
 
 #### List of hgcA sequences ####
-
-hgcA.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA.txt")
-
+hgcA.list <- readLines("dataEdited/assembly_analysis/hgcA/hgcA.txt")
 
 
 #### CB-friendly color vector ####
-
 colorblind.color.vector <- readRDS("~/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 
 
-
 #### Vectors for confirmed methylators ####
-
 hgcA.references.confirmed.vector <- readRDS("/Users/benjaminpeterson/Box/references/hgcA/hgcA_confirmed_ref_renaming_vector.rds")
 ref.confirmed.colors <- readRDS("/Users/benjaminpeterson/Box/references/hgcA/hgcA_confirmed_ref_color_vector.rds")
 
@@ -36,7 +31,7 @@ ref.confirmed.colors <- readRDS("/Users/benjaminpeterson/Box/references/hgcA/hgc
 #### Check out FastTree of final alignment ####
 
 # Read in tree
-tree.name <- "dataEdited/2019_analysis_assembly/hgcA/phylogeny/rough_hgcA.tree"
+tree.name <- "dataEdited/assembly_analysis/hgcA/phylogeny/rough_hgcA.tree"
 hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
 
@@ -58,7 +53,7 @@ color.vector[reference.indices.confirmed] <- colorblind.color.vector[ref.confirm
 color.vector[this.study.indices] <- "red"
 
 # Visualize tree
-pdf("results/2019_analysis_assembly/hgcA_tree_FastTree.pdf",
+pdf("dataEdited/assembly_analysis/hgcA/phylogeny/hgcA_tree_FastTree.pdf",
     height = 120,
     width = 8)
 ggtree(hgcA.tree) + 
@@ -68,9 +63,7 @@ ggtree(hgcA.tree) +
 dev.off()
 
 
-
 #### Pull out sequence names to remove ####
-
 nodes.to.remove <- c(1671, 1766, 1599, 1619, 1626,
                      1628, 1472, 1415, 1388, 1376,
                      1537, 1372, 1545, 1157, 1267,
@@ -92,7 +85,7 @@ seqs.to.remove <- grep("_ISO_",
                        invert = TRUE,
                        value = TRUE)
 
-fileConn <- file("dataEdited/2019_analysis_assembly/hgcA/phylogeny/seqs_to_remove.txt")
+fileConn <- file("dataEdited/assembly_analysis/hgcA/phylogeny/seqs_to_remove.txt")
 writeLines(seqs.to.remove, fileConn)
 close(fileConn)
 
@@ -107,7 +100,7 @@ rm(list = ls())
 
 #### Read in needed files ####
 
-hgcA.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA.txt")
+hgcA.list <- readLines("dataEdited/assembly_analysis/hgcA/hgcA.txt")
 colorblind.color.vector <- readRDS("~/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 hgcA.references.confirmed.vector <- readRDS("/Users/benjaminpeterson/Box/references/hgcA/hgcA_confirmed_ref_renaming_vector.rds")
 ref.confirmed.colors <- readRDS("/Users/benjaminpeterson/Box/references/hgcA/hgcA_confirmed_ref_color_vector.rds")
@@ -128,7 +121,7 @@ names(MATE.renaming.vector) <- hg.mate.metadata$MATE_id
            
 
 # Read in tree
-tree.name <- "dataEdited/2019_analysis_assembly/hgcA/phylogeny/RAxML_bipartitions.hgcA"
+tree.name <- "dataEdited/assembly_analysis/hgcA/phylogeny/RAxML_bipartitions.hgcA"
 hgcA.tree.unrooted <- read.newick(tree.name)
 rm(tree.name)
 #### Fix tip labels ####
@@ -163,7 +156,7 @@ color.vector[reference.indices.mate] <- colorblind.color.vector["black"]
 color.vector[this.study.indices] <- colorblind.color.vector["vermillion"]
 
 # Visualize tree
-pdf("results/2019_analysis_assembly/hgcA_tree_RAxML_rooted.pdf",
+pdf("dataEdited/assembly_analysis/hgcA/phylogeny/hgcA_tree_RAxML_rooted.pdf",
     height = 60,
     width = 10)
 ggtree(hgcA.tree, aes(x = 0,
@@ -179,9 +172,9 @@ dev.off()
 
 #### Save out tree ####
 saveRDS(hgcA.tree,
-        "dataEdited/2019_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree.rds")
+        "dataEdited/assembly_analysis/hgcA/phylogeny/hgcA_clean_tree.rds")
 
 
 #### Save out color vector ####
 saveRDS(color.vector,
-        "dataEdited/2019_analysis_assembly/hgcA/phylogeny/hgcA_clean_tree_color_vector.rds")
+        "dataEdited/assembly_analysis/hgcA/phylogeny/hgcA_clean_tree_color_vector.rds")
