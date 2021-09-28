@@ -176,4 +176,4 @@ Generally, the metaSPADes assemblies have many more open reading frames than the
 **Final data aggregation**
 
 I then aggregated all the assembly information in this file: `code/assembly_processing/assembly_info.R`.
-That read out the important data here: `results/assembly_info.csv`.
+That scripts saves out the important data here: `results/assembly_info.csv`.
