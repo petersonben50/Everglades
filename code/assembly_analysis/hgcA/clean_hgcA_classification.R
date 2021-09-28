@@ -1,4 +1,4 @@
-#### code/2019_analysis_assembly/hgcA/clean_hgcA_classification.R ####
+#### code/assembly_analysis/hgcA/clean_hgcA_classification.R ####
 # Benjamin D. Peterson
 
 
@@ -15,8 +15,8 @@ library(tidyverse)
 refpkg_path <- "references/hgcA/Hg-MATE-Db.v1.ISOCELMAG_HgcA_full.refpkg"
 taxonomy <- refpkg(refpkg_path,
                    type = "taxonomy")
-sqlite_file <- "dataEdited/2019_analysis_assembly/hgcA/classification/output/Hg_MATE_classify"
-jplace_file <- "dataEdited/2019_analysis_assembly/hgcA/classification/output/hgcA_for_classification.jplace"
+sqlite_file <- "dataEdited/assembly_analysis/hgcA/classification/output/Hg_MATE_classify"
+jplace_file <- "dataEdited/assembly_analysis/hgcA/classification/output/hgcA_for_classification.jplace"
 pplace_object <- read_sqlite(sqlite_file,
                              jplace_file)
 
@@ -39,5 +39,5 @@ taxonomy.table.df <- as.data.frame(taxonomy.table) %>%
 
 #### Save it out ####
 write.csv(taxonomy.table.df,
-          "dataEdited/2019_analysis_assembly/hgcA/classification/hgcA_taxonomy_table.csv",
+          "dataEdited/assembly_analysis/hgcA/classification/hgcA_taxonomy_table.csv",
           row.names = FALSE)
