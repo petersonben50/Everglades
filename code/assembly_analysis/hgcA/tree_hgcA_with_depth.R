@@ -12,6 +12,7 @@ library(ggtree)
 library(readxl)
 library(tidyverse)
 library(treeio)
+source("code/setup_PW_core_order_color_points.R")
 
 
 #### Read in tree file ####
@@ -24,6 +25,27 @@ color.vector <- readRDS("dataEdited/assembly_analysis/hgcA/phylogeny/final/hgcA_
 
 #### List of hgcA sequences ####
 hgcA.list <- readLines("dataEdited/assembly_analysis/hgcA/hgcA.txt")
+
+
+#### Read in classification information ####
+hgcA.classification <- read_xlsx("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx") %>%
+  select(seqID, clusterName)
+hgcAclass.vector <- hgcA.classification$clusterName
+names(hgcAclass.vector) <- hgcA.classification$seqID
+
+
+#### Read in color information ####
+hgcA.color.df <- read_xlsx("/Users/benjaminpeterson/Documents/research/Everglades/dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
+                                 sheet = "color_codes")
+hgcA.color.key <- hgcA.color.df$colorCode
+names(hgcA.color.key) <- hgcA.color.df$clusterName
+
+
+#### Generate a color vector ####
+color.vector.to.use <- rep("grey75", length(hgcA.tree$tip.label))
+color.index <- which(hgcA.tree$tip.label %in% names(hgcAclass.vector))
+color.vector.to.use[color.index] <- cb.translator[hgcA.color.key[hgcAclass.vector[hgcA.tree$tip.label[color.index]]]]
+
 
 
 #### Read in binning information ####
@@ -40,7 +62,7 @@ hgcA2binTax.vector <- paste("Binned: ",
 names(hgcA2binTax.vector) <- hgcA2binTax.df$hgcA_rep
 
 
-#### Replace names of binned seqs ####
+#### Amend bin names ####
 binned.index <- which(hgcA.tree$tip.label %in% names(hgcA2binTax.vector))
 names(hgcA2binTax.vector)[which(!(names(hgcA2binTax.vector) %in% hgcA.tree$tip.label[binned.index]))]
 hgcA.tree$tip.label[binned.index] <- paste(hgcA.tree$tip.label[binned.index],
@@ -50,11 +72,20 @@ hgcA.tree$tip.label[binned.index] <- paste(hgcA.tree$tip.label[binned.index],
                                            sep = "")
 
 
+#### Amend sequence classification for unbinned seqs ####
+unbinned.hgcA.index <- which(hgcA.tree$tip.label %in% names(hgcAclass.vector))
+names(hgcAclass.vector)[which(!(names(hgcAclass.vector) %in% hgcA.tree$tip.label[unbinned.hgcA.index]))]
+hgcA.tree$tip.label[unbinned.hgcA.index] <- paste(hgcA.tree$tip.label[unbinned.hgcA.index],
+                                                  " (",
+                                                  hgcAclass.vector[hgcA.tree$tip.label[unbinned.hgcA.index]],
+                                                  ")", sep = "")
+
+
 #### Make tree ####
 hgcA.tree.plot <- ggtree(hgcA.tree,
                          aes(x = 0,
-                             xend = 5)) + 
-  geom_tiplab(size=1.5, align = TRUE, colour = color.vector) + 
+                             xend = 6)) + 
+  geom_tiplab(size=2.5, align = TRUE, colour = color.vector.to.use) + 
   geom_nodelab(aes(x = branch),
                vjust = -.3,
                size = 2) +
@@ -62,7 +93,7 @@ hgcA.tree.plot <- ggtree(hgcA.tree,
                  y = 120,
                  width = 0.5)
 pdf("results/metagenomes/assembly/hgcA/hgcA_tree_RAxML_rooted_with_bins.pdf",
-    height = 60,
+    height = 30,
     width = 10)
 hgcA.tree.plot
 dev.off()
@@ -113,7 +144,7 @@ depth.data.hgcA <- depth.data.hgcA %>%
 
 #### Generate tree with depth ####
 pdf("results/metagenomes/assembly/hgcA/hgcA_tree_RAxML_rooted_with_bins_depth.pdf",
-    height = 10,
+    height = 20,
     width = 7.5)
 gheatmap(hgcA.tree.plot,
          depth.data.hgcA, offset=1, width=0.5, font.size=2, 
@@ -124,12 +155,12 @@ dev.off()
 
 #### Generate tree with relative depth ####
 rel.depth.data.hgcA <- depth.data.hgcA / rowSums(depth.data.hgcA)
-pdf("results/metagenomes/assembly/hgcA/hgcA_tree_RAxML_rooted_with_bins_depthRelative.pdf",
-    height = 10,
-    width = 7.5)
+# pdf("results/metagenomes/assembly/hgcA/hgcA_tree_RAxML_rooted_with_bins_depthRelative.pdf",
+#     height = 10,
+#     width = 7.5)
 gheatmap(hgcA.tree.plot,
          rel.depth.data.hgcA, offset=1, width=0.5, font.size=2, 
          colnames_angle=-90, hjust=0)  +
   scale_fill_viridis_c(option="D", name="continuous\nvalue")
-dev.off()
+# dev.off()
 
