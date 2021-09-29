@@ -75,7 +75,9 @@ RMP.sulfide <- all.data %>%
   theme(axis.text.y = element_text(colour="black"),
         axis.text.x = element_text(colour="black"),
         legend.position = c(0.6, 0.35))
-
+RMP.sulfide
+# Sulfide spans too many orders of magnitude to accurately visualize this.
+# Let's do a log transformation of the sulfide
 RMP.sulfide.log <- all.data %>%
   ggplot(aes(x = log(sulfide_µg.L, 10),
              y = RMP_porewater,
@@ -148,6 +150,31 @@ RMP.UV <- all.data %>%
 
 
 
+#### Prettify the RMP vs. sulfide plot ####
+RMP.sulfide.log.for.saving <- all.data %>%
+  ggplot(aes(x = log(sulfide_µg.L, 10),
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "Log sulfide (µg/L)") +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.7, 0.45))
+# As RDS
+saveRDS(object = RMP.sulfide.log.for.saving,
+        file = "results/incubations/RMP_porewater_sulfide.rds")
+
+
+
+
 #### Generate and check linear model of RMP porewater vs. SUVA ####
 PW.linear.model <- lm(RMP_porewater ~ SUVA,
                    data = all.data)
@@ -202,7 +229,7 @@ RMP.SUVA.plot <- all.data %>%
 RMP.SUVA.plot
 
 
-#### Save out plot ####
+#### Save out plot of porewater RMP vs SUVA ####
 pdf("results/incubations/RMP_porewater_SUVA.pdf",
     height = 5.5,
     width = 7)

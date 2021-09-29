@@ -7,6 +7,7 @@
 #### Get set up #####
 rm(list = ls())
 setwd("~/Documents/research/Everglades/")
+library(ggpubr)
 library(lme4)
 library(readxl)
 library(tidyverse)
@@ -16,21 +17,22 @@ source("code/setup_PW_core_order_color_points.R")
 
 
 #### Read in plots ####
-RMP.hgcA <- readRDS("results/incubations/RMP_microbes_hgcA.rds")
+# RMP.hgcA <- readRDS("results/incubations/RMP_microbes_hgcA.rds")
 RMP.SUVA <- readRDS("results/incubations/RMP_porewater_SUVA.rds")
+RMP.sulfide <- readRDS("results/incubations/RMP_porewater_sulfide.rds")
 
 
 
 #### Set up ordering of plot ####
-figure <- ggarrange(RMP.SUVA,
-                    RMP.hgcA,
+figure <- ggarrange(RMP.sulfide,
+                    RMP.SUVA + theme(legend.position = "none"),
                     labels = c("A.", "B."),
                     ncol = 2)
 
 
 
 #### Print out graphs ####
-pdf("results/incubations/figure_3_RMP.pdf",
+pdf("results/incubations/figure_3_RMP_porewater.pdf",
     height = 5.5,
     width = 12)
 figure
