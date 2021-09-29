@@ -1,4 +1,4 @@
-#### code/2019_analysis_assembly/hgcA/abundance_hgcA.R ####
+#### code/assembly_analysis/hgcA/abundance_hgcA.R ####
 # Benjamin D. Peterson
 
 # Scripts to look at abundance of hgcA in a myriad of ways
@@ -12,18 +12,17 @@ library(patchwork)
 library(RColorBrewer)
 library(readxl)
 library(tidyverse)
-
+source("code/setup_PW_core_order_color_points.R")
 
 
 #### List of hgcA sequences ####
-hgcA.list <- readLines("dataEdited/2019_analysis_assembly/hgcA/hgcA_true.txt")
-
+hgcA.list <- readLines("dataEdited/assembly_analysis/hgcA/hgcA_true.txt")
 
 
 #### Read in abundance and phylogenetic info ####
-all.data.fused <- read.csv("dataEdited/2019_analysis_assembly/hgcA/depth/hgcA_coverage_scgNormalization.csv",
+all.data.fused <- read.csv("dataEdited/assembly_analysis/hgcA/depth/hgcA_coverage_scgNormalization.csv",
                                stringsAsFactors = FALSE) %>%
-  full_join(read_xlsx("dataEdited/2019_analysis_assembly/hgcA/phylogeny/seq_classification.xlsx",
+  full_join(read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                       sheet = "seq_class")) %>%
   arrange(classification) %>%
   filter(seqID %in% hgcA.list) 
@@ -31,14 +30,9 @@ all.data <- all.data.fused %>%
   filter(clusterName != "fused")
 
 
-#### Read in median methylation fractions from incubations ####
-inc.data <- readRDS("dataEdited/2019_incubations/rel_methylation_microbes.rds")
-
-
-
 #### Set up color vector ####
 CB.color.vector <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
-color.code.df <- read_xlsx("dataEdited/2019_analysis_assembly/hgcA/phylogeny/seq_classification.xlsx",
+color.code.df <- read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                            sheet = "color_codes")
 color.code.vector <- CB.color.vector[color.code.df$colorCode]
 names(color.code.vector) <- color.code.df$clusterName
@@ -53,12 +47,6 @@ names(site.metadata.vector) <- metadata$metagenomeID
 # Medium metadata
 medium.metadata.vector <- metadata$medium
 names(medium.metadata.vector) <- metadata$metagenomeID
-
-
-
-#### Generate vector of correct order of samples along sulfate gradient ####
-MG.order <- c("2A-N", "2A-A", "3A-O", "3A-N", "3A-F", "LOX8")
-
 
 
 
@@ -80,22 +68,6 @@ all.data.fused %>%
   theme_classic()
 
 
-
-#### Save out R object file for later use ####
-all.data %>%
-  gather(key = MG,
-         value = coverage,
-         c(4:22)) %>%
-  filter(MG != "total") %>%
-  mutate(siteID = site.metadata.vector[MG],
-         medium = medium.metadata.vector[MG]) %>%
-  mutate(siteID = fct_relevel(siteID, MG.order)) %>%
-  filter(medium == "sediment") %>%
-  group_by(MG, siteID) %>%
-  summarise(coverage = sum(coverage)) %>%
-  saveRDS("dataEdited/2019_analysis_assembly/hgcA/hgcA_abundance_site.rds")
-
-
 #### Prepare data for plotting ####
 all.data <- all.data %>%
   gather(key = MG,
@@ -108,6 +80,13 @@ all.data <- all.data %>%
   as.data.frame()
 
 
+#### Save out R object of average coverage across sites for use with incubations ####
+all.data %>%
+  filter(medium == "sediment") %>%
+  group_by(MG, siteID) %>%
+  summarise(coverage = sum(coverage)) %>%
+  ungroup() %>%
+  saveRDS("dataEdited/assembly_analysis/hgcA/hgcA_abundance_site.rds")
 
 
 
@@ -172,16 +151,10 @@ hgcA.sediment <- plot.hgcA.overall.coverage(depth.data.of.interest = all.data,
 hgcA.porewater <- plot.hgcA.overall.coverage(depth.data.of.interest = all.data,
                                             medium.of.interest = "porewater")
 hgcA.sediment / hgcA.porewater
-pdf("results/2019_analysis_assembly/hgcA_abundance_overall.pdf",
-      width = 5,
-      height = 3.5)
-hgcA.sediment
-dev.off()
 
 
 
 #### Plotting function with taxa ####
-
 plot.scaffold.coverage <- function(depth.data.of.interest = all.data,
                                    medium.of.interest = "sediment",
                                    color.code.vector.of.interest = color.code.vector) {
@@ -203,7 +176,7 @@ plot.scaffold.coverage <- function(depth.data.of.interest = all.data,
     labs(title = paste("hgcA abundance in ",
                        medium.of.interest,
                        sep = "")) +
-    ylim(c(0, 16)) +
+    ylim(c(0, 7)) +
     theme_classic() +
     theme(axis.text.x = element_text(colour="black"),
           axis.text.y = element_text(colour="black"),
@@ -219,16 +192,15 @@ hgcA.sediment <- plot.scaffold.coverage(depth.data.of.interest = all.data,
 hgcA.porewater <- plot.scaffold.coverage(depth.data.of.interest = all.data,
                                          medium.of.interest = "porewater")
 
-pdf("results/2019_analysis_assembly/hgcA_abundance_sediment.pdf",
-    width = 5,
-    height = 3.5)
+# pdf("results/metagenomes/assembly/hgcA/hgcA_abundance_sediment.pdf",
+#     width = 5,
+#     height = 3.5)
 hgcA.sediment
-dev.off()
-hgcA.sediment
+# dev.off()
 
 
 
-#### Generate dataframes of coverage and relative coverage of each group ####
+#### Relative coverage of each group ####
 
 tax.group.coverage <- all.data %>%
   mutate(clusterName = fct_relevel(clusterName,
@@ -254,9 +226,9 @@ tax.group.coverage.relative[, -1] <- sapply(names(tax.group.coverage.relative)[-
 
 
 #### Plot relative abundance of each hgcA group over the gradient ####
-pdf("results/2019_analysis_assembly/hgcA_abundance_groups_relative.pdf",
-    width = 6,
-    height = 2)
+# pdf("results/metagenomes/assembly/hgcA/hgcA_abundance_groups_relative.pdf",
+#     width = 6,
+#     height = 2)
 tax.group.coverage.relative %>%
   gather(key = siteID,
          value = rel.coverage,
@@ -276,4 +248,4 @@ tax.group.coverage.relative %>%
        y = "hgcA relative abundance") +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"))
-dev.off()
+# dev.off()
