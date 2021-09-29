@@ -51,36 +51,34 @@ hgcA.tree.unrooted$tip.label <- paste(hgcA.tree.unrooted$tip.label %>% strsplit(
                                       hgcA.tree.unrooted$tip.label %>% strsplit("_") %>% sapply("[", 3),
                                       sep = "_")
 
-#### Check tree ####
+#### Look for branch to paralogs ####
+pdf("dataEdited/assembly_analysis/hgcA/phylogeny/final/initial_tree.pdf",
+    height = 40,
+    width = 12)
 ggtree(hgcA.tree.unrooted) + 
   geom_tiplab(size=2.5, align = TRUE) +
   geom_text2(aes(subset=!isTip, label=node),
-             size = 1.5)
-# Node leading to paralogs appears to be 164
+             size = 2.5)
+dev.off()
+# Node leading to paralogs appears to be 306
 
 # Root tree
 hgcA.tree.rooted <- root(phy = hgcA.tree.unrooted,
-                         node = 164,
+                         node = 306,
                          edgelabel = TRUE)
 ggtree(hgcA.tree.rooted) + 
   geom_tiplab(size=2.5, align = TRUE) +
   geom_text2(aes(subset=!isTip, label=node),
              size = 1.5)
-# Hmm, looks like the seqs I thought were paralogs
-# from my metagenomes are pretty distant from the
-# reference paralogs.
-# We'll stick with this anyways. Time to remove the
-# root.
-
+# This looks decent. Those fused proteins are pretty divergent though.
 
 #### Remove root ####
 hgcA.tree <- drop.tip(hgcA.tree.rooted,
-                      c(grep("paralog", hgcA.tree.rooted$tip.label, value = TRUE),
-                        "Sed993Meta19_000000170324_2",
-                        "Sed993Mega19_000000638673_4",
-                        "Sed993Meta19_000000039305_4",
-                        "Sed994Mega19_000001223550_5",
-                        "Sed996Mega19_000001808531_2"))
+                      c("Sed993Meta19_000000035661_4",
+                        "Sed993Mega19_000001097352_5",
+                        "Sed993Meta19_000000027668_3",
+                        "Sed993Meta19_000000001064_12",
+                        "Sed993Meta19_000000003033_5"))
 ggtree(hgcA.tree) + 
   geom_tiplab(size=2.5, align = TRUE) +
   geom_text2(aes(subset=!isTip, label=node),
