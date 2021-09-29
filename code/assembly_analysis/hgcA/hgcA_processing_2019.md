@@ -147,7 +147,7 @@ The previous tree that was generated was great for assigning taxonomy, but I wan
 So, I manually added the references to include here: `dataEdited/assembly_analysis/hgcA/phylogeny/final/refs/reference_names_to_use.txt`.
 From this, I pulled out the fasta sequences that I needed.
 On GLBRC, I aligned the references with the study sequences using MUSCLE.
-I masked the alignment at 50% gaps in Geneious, then generated a ML tree using RAxML with the usual settings.
+I masked the alignment at 50% gaps using trimal, then generated a ML tree using RAxML with the usual settings.
 
 
 **hgcA phylogenetic cluster assignment**

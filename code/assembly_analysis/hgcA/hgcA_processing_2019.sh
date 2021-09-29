@@ -635,15 +635,25 @@ sed 's/-//g' hgcA_muscle.afa_temp.fasta > ~/Everglades/dataEdited/2019_analysis_
 
 
 # Upload needed references
+screen -S RAxML_hgcA
 cd ~/Everglades/dataEdited/2019_analysis_assembly/hgcA/phylogeny/final
 cat HgMate_reference_seqs_to_use.faa \
     hgcA.faa \
-    hgcA_paralogs_for_rooting.faa \
     > hgcA_for_tree_final.faa
 
 # Generate alignment
 muscle -in hgcA_for_tree_final.faa \
         -out hgcA_for_tree_final.afa
+
+# Use trimal to trim alignment
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+trimal -in hgcA_for_tree_final.afa \
+        -out hgcA_for_tree_final_masked.afa \
+        -gt 0.5
+conda deactivate
 
 # Upload masked alignment (50% gaps)
 # Then run RAxML to generate tree
