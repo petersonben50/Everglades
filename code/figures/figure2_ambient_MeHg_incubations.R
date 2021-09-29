@@ -1,4 +1,4 @@
-#### code/incubations/figure2_ambient_MeHg_incubations.R ####
+#### code/figures/figure2_ambient_MeHg_incubations.R ####
 # Benjamin D. Peterson
 
 

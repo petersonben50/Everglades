@@ -1,4 +1,4 @@
-#### code/incubations/figure3_RMP_covariates.R ####
+#### code/figures/figure3_RMP_covariates.R ####
 # Benjamin D. Peterson
 
 # Obsidian notes here: Incubations - statistical analysis porewaters
