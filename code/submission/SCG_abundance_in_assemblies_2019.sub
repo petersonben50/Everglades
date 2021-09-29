@@ -13,8 +13,8 @@ executable = /home/GLBRCORG/bpeterson26/Everglades/code/executables/SCG_abundanc
 arguments = $(geneName)
 
 environment = "geneName=$(geneName) scripts=/home/GLBRCORG/bpeterson26/Everglades/code/generalUse scgHmms_location=/home/GLBRCORG/bpeterson26/references/rp16 scgHmms_key=/home/GLBRCORG/bpeterson26/references/scg_key.csv assembly_list=/home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_list.txt assembly_location=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/assemblies/ORFs metagenome_list=/home/GLBRCORG/bpeterson26/Everglades/metadata/lists/2019_analysis_assembly_metagenomes_list.txt metagenome_location=/home/GLBRCORG/bpeterson26/Everglades/dataEdited/2019_analysis_assembly/mapping"
-output = /home/GLBRCORG/bpeterson26/Everglades/reports/outs/$(geneName)_scgAbund.out
-error = /home/GLBRCORG/bpeterson26/Everglades/reports/errs/$(geneName)_scgAbund.err
-log = /home/GLBRCORG/bpeterson26/Everglades/reports/logs/$(geneName)_scgAbund.log
+output = /home/GLBRCORG/bpeterson26/Everglades/reports/scg/outs/$(geneName)_scgAbund.out
+error = /home/GLBRCORG/bpeterson26/Everglades/reports/scg/errs/$(geneName)_scgAbund.err
+log = /home/GLBRCORG/bpeterson26/Everglades/reports/scg/logs/$(geneName)_scgAbund.log
 
 queue geneName from /home/GLBRCORG/bpeterson26/references/scg_list.txt
