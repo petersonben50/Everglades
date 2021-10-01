@@ -26,16 +26,14 @@ all.data.fused <- read.csv("dataEdited/assembly_analysis/hgcA/depth/hgcA_coverag
                       sheet = "seq_class")) %>%
   arrange(classification) %>%
   filter(seqID %in% hgcA.list) 
-all.data <- all.data.fused %>%
-  filter(clusterName != "fused")
 
 
 #### Set up color vector ####
 CB.color.vector <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 color.code.df <- read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                            sheet = "color_codes")
-color.code.vector <- CB.color.vector[color.code.df$colorCode]
-names(color.code.vector) <- color.code.df$clusterName
+color.code.vector.fused <- CB.color.vector[color.code.df$colorCode]
+names(color.code.vector.fused) <- color.code.df$clusterName
 
 
 
@@ -68,6 +66,12 @@ all.data.fused %>%
   theme_classic()
 
 
+#### Remove fused sequences ####
+all.data <- all.data.fused %>%
+  filter(clusterName != "fused")
+color.code.vector <- color.code.vector.fused[unique(all.data$clusterName)]
+
+
 #### Prepare data for plotting ####
 all.data <- all.data %>%
   gather(key = MG,
@@ -87,9 +91,6 @@ all.data %>%
   summarise(coverage = sum(coverage)) %>%
   ungroup() %>%
   saveRDS("dataEdited/assembly_analysis/hgcA/hgcA_abundance_site.rds")
-
-
-
 
 
 
