@@ -50,20 +50,28 @@ all.data.for.curve <- porewater.data %>%
 
 
 #### Plot data ####
+pdf("results/incubations/total_MeHg_production_vs_MeHg_porewater.pdf",
+    width = 6,
+    height = 6)
+par(mar = c(4.5, 4.5, 1, 1))
 plot(y = all.data.for.curve$SMHG_201_mean,
      x = all.data.for.curve$percent_MeHg_porewater,
+     col = color.vector[all.data.for.curve$siteID],
      pch = 16,
      xlab = "Percent MeHg in porewater",
      ylab = "MeHg production in core",
      xlim = c(0, 14),
      ylim = c(0, 3))
 a <- all.data.for.curve
-arrows(a$percent_MeHg_porewater, a$SMHG_201_mean-a$SMHG_201_sd,
-       a$percent_MeHg_porewater, a$SMHG_201_mean+a$SMHG_201_sd,
+arrows(a$percent_MeHg_porewater, a$SMHG_201_mean-a$SMHG_201_se,
+       a$percent_MeHg_porewater, a$SMHG_201_mean+a$SMHG_201_se,
        code=3,
        length=0.02,
        angle = 90)
-
+legend("bottomright",
+       legend = all.data.for.curve$siteID,
+       pch = 16,
+       col = color.vector[all.data.for.curve$siteID])
 #### Calculate log-fitting line ####
 model <- lm(SMHG_201_mean ~ log(percent_MeHg_porewater),
             data = all.data.for.curve)
@@ -75,4 +83,4 @@ summary(model)
 matlines(x=seq(from=1,to=20,length.out=1000),
          y=predict(model, newdata=list(percent_MeHg_porewater=seq(from=1,to=20,length.out=1000)),
                    interval="confidence"))
-
+dev.off()

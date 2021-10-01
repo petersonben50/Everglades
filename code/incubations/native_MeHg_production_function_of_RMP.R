@@ -10,6 +10,7 @@ setwd("~/Documents/research/Everglades/")
 library(ggpubr)
 library(lme4)
 library(readxl)
+library(scatterplot3d)
 library(tidyverse)
 cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 source("code/setup_PW_core_order_color_points.R")
@@ -106,19 +107,28 @@ all.data %>%
 
 
 #### 3D plot ####
+pdf("results/incubations/3D_plot_RMP_native_methylation.pdf",
+    height = 6,
+    width = 6)
 scatterplot3d(data.frame(all.data$RMP_core_mean,
                          all.data$RMP_porewater_mean,
                          all.data$SMHG_201_mean),
-              angle = 30,
+              angle = 40,
               pch = 16,
-              # size = 4,
+              cex.symbols = 1.5,
               color = color.vector[all.data$siteID],
               type = "h",
               lab = c(4, 4),
               lab.z = 4,
-              xlim = c(0, 100),
-              ylim = c(0, 100),
+              xlim = c(0, 80),
+              ylim = c(0, 80),
               zlim = c(0, 3),
               xlab = "Core RMP",
               ylab = "Porewater RMP",
               zlab = "MeHg production under native conditions")
+legend(x = 0.6, y = 4.7,
+       legend = all.data$siteID,
+       pch = 16,
+       col = color.vector[all.data$siteID])
+
+dev.off()
