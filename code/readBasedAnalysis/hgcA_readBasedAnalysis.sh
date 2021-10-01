@@ -70,3 +70,6 @@ do
 
   echo -e $metagenome"\t"$hgcA_reads"\t"$nonHgcA_reads >> hgcA_reads_count.txt
 done
+# Clean up output
+sed 's/ sortmerna_output\/KMBP00[56][A-Z]_hgcA_reads.fastq//' hgcA_reads_count.txt |
+  sed 's/ sortmerna_output\/KMBP00[56][A-Z]_non_hgcA_reads.fastq//' > hgcA_reads_count_clean.txt
