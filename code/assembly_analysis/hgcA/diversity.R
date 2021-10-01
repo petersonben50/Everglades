@@ -146,7 +146,7 @@ TukeyHSD(evenness.model, conf.level=.95)
 
 
 
-#### Beta diversity ####
+#### Prepare data for ordination ####
 
 #make metadata a phyloseq class object
 metadata <- as.data.frame(metadata)
@@ -157,13 +157,29 @@ meta.phylo <- sample_data(metadata)
 ##make biom for phyloseq
 all.phyloseq <- merge_phyloseq(hgcA.phyloseq, meta.phylo)
 
+
+#### Generate ordination ####
 hgcA.bray <- ordinate(all.phyloseq,
                       method = "PCoA",
                       distance = "bray")
 
 bc.ord.hgcA <- plot_ordination(all.phyloseq,
                                hgcA.bray,
-                               color = "siteID") +
-    scale_color_manual(values = color.vector[1:6]) +
-    geom_point(size=5) +
-    theme_light(base_size = 12)
+                               color = "siteID",
+                               shape = "siteID") +
+  scale_color_manual(values = color.vector[1:6],
+                     name = "Site ID") +
+  scale_shape_manual(values = point.vector[1:6],
+                     name = "Site ID") +
+  geom_point(size=5) +
+  ylim(c(-0.5, 0.5)) +
+  xlim(c(-0.55, 0.5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.3, 0.7))
+
+saveRDS(bc.ord.hgcA,
+        "results/metagenomes/assembly/hgcA/ordination.rds")
