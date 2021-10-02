@@ -194,7 +194,7 @@ done
 
 ####################################################
 ####################################################
-# Run automatic binning algorithms
+# Run MetaBat2
 ####################################################
 ####################################################
 
@@ -784,3 +784,127 @@ condor_submit_dag runAllANIcompare.dag
 # Download output file (goodBins.all.ani.out.cleaned)
 # to my computer:
 # dataEdited/2019_binning/binning_initial/binsGood/goodBins.all.ani.out.cleaned
+
+cd ~/Everglades/dataEdited/2019_binning/binning_initial
+mkdir binsFinal
+mkdir binsFinal/DNA
+mkdir binsFinal/ORFs
+cat binsFinal_list.txt | while read bin
+do
+  cp binsGood/DNA/$bin.fna binsFinal/DNA
+  cp binsGood/ORFs/$bin* binsFinal/ORFs
+done
+
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsFinal
+scripts=~/Everglades/code/generalUse/
+$scripts/Fasta_to_Scaffolds2Bin.sh -e fna \
+                                    -i DNA \
+                                    > binsFinal_S2B.tsv
+cat DNA/*.fna > DNA.fna
+$scripts/Fasta_to_Scaffolds2Bin.sh -e faa \
+                                    -i ORFs \
+                                    > binsFinal_G2B.tsv
+cat ORFs/*.faa > ORFs.faa
+
+
+
+####################################################
+####################################################
+# Confirm hgcA in bins
+####################################################
+####################################################
+
+
+##########################
+# hgcA search
+##########################
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsFinal
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate bioinformatics
+PYTHONPATH=''
+PERL5LIB=''
+scripts=~/Everglades/code/generalUse/
+
+hmmsearch --tblout hgcA/hgcA.out \
+          --cpu 4 \
+          --cut_tc \
+          ~/references/hgcA/hgcA.hmm \
+          ORFs.faa \
+          > hgcA/hgcA_report.txt
+grep 'Sed991Mega19_000001090714_3' binsFinal_G2B.tsv
+python $scripts/extract_protein_hitting_HMM.py \
+        hgcA/hgcA.out \
+        ORFs.faa \
+        hgcA/hgcA.faa
+hmmalign -o hgcA/hgcA.sto \
+            ~/references/hgcA/hgcA.hmm \
+            hgcA/hgcA.faa
+$scripts/convert_stockhold_to_fasta.py hgcA/hgcA.sto
+
+echo -e "hgcA\tbinID" > hgcA/hgcA_bin_key.tsv
+grep '>' hgcA/hgcA.faa | \
+  sed 's/>//' | \
+  while read hgcA
+  do
+    binID=`awk -F '\t' -v hgcA="$hgcA" '$1 == hgcA {print $2}' binsFinal_G2B.tsv`
+    if [ ! -z $binID ]; then
+      echo $hgcA "is binned into" $binID
+      echo -e "$hgcA\t$binID" >> hgcA/hgcA_bin_key.tsv
+    else
+      echo $hgcA "is not binned"
+    fi
+  done
+
+
+
+####################################################
+####################################################
+# Generate phylogenetic tree of bins
+####################################################
+####################################################
+
+
+
+
+####################################################
+####################################################
+# Run metabolic HMMs on bins
+####################################################
+####################################################
+
+screen -S EG_metabolic_HMMs
+cd ~/Everglades/dataEdited/2019_binning/binning_initial/binsFinal
+scripts=~/Everglades/code/metagenomeBinAnalysis
+metabolic_HMMs=~/Everglades/references/metabolic_HMMs
+ORFs=~/Everglades/dataEdited/2019_binning/binning_initial/binsFinal/ORFs.faa
+workingDirectory=~/Everglades/dataEdited/2019_binning/binning_initial/binsFinal
+source /home/GLBRCORG/bpeterson26/miniconda3/etc/profile.d/conda.sh
+conda activate batch_HMMs
+PYTHONPATH=''
+PERL5LIB=''
+chmod +x $scripts/batch_HMMs.py
+
+python $scripts/batch_HMMs.py --orf_file $workingDirectory/ORFs.faa \
+                              --g2b $workingDirectory/binsFinal_G2B.tsv \
+                              --hmm_folder $metabolic_HMMs\
+                              --hmm_csv $metabolic_HMMs.csv \
+                              --output ~/Everglades/dataEdited/2019_binning/batch_HMM_output
+conda deactivate
+exit
+
+
+# Look for MHCs
+cd $workingDirectory
+mkdir MHCs
+#chmod +x ~/Everglades/code/metagenomeBinAnalysis/Find_multiheme_protein.py
+~/Everglades/code/metagenomeBinAnalysis/Find_multiheme_protein.py ORFs.faa 3
+mv ORFs_3_heme* MHCs
+
+echo -e "binID\tgeneID\themeCount" > MHCs/heme_count_bins.tsv
+tail -n +2 MHCs/ORFs_3_heme_count.txt | awk -F '\t' '{ print $1 }' | while read geneID
+do
+  binID=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' binsFinal_G2B.tsv`
+  geneCount=`awk -F '\t' -v geneID="$geneID" '{ if ($1 == geneID) print $2 }' MHCs/ORFs_3_heme_count.txt`
+  echo -e $binID"\t"$geneID"\t"$geneCount
+  echo -e $binID"\t"$geneID"\t"$geneCount >> MHCs/heme_count_bins.tsv
+done

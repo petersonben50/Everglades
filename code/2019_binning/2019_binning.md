@@ -145,6 +145,8 @@ Then I went for the checkM qa script to save out the output file.
 **Check out taxonomy of bins with GTDB**
 
 I used the GTDBTK `classify_wf` program to classify the good bins, and summarized the output file.
+I then downloaded the `taxonomy_summary.txt` file and manually generated an excel sheet with a taxonomic classification for each bin: `taxonomy_summary.xlsx`.
+We'll use this to attach a name to binned hgcA sequences in the assembly-based tree.
 
 **Compare bins by differential coverage**
 
@@ -165,3 +167,32 @@ I ran Sarah Steven's ANI [DAGman calculator](https://github.com/sstevens2/ani_co
 
 I then aggregated the bin information in R, here: `code/2019_binning/binning_stats.R`.
 I saved out a CSV file with all the bin information and manually dereplicated the hgcA+ bins.
+Once I have this final list, I saved out the list here: `dataEdited/2019_binning/binning_initial/binsFinal_list.txt`.
+I uploaded this file to GLBRC: `~/Everglades/dataEdited/2019_binning/binning_initial/binsFinal_list.txt`.
+Just to make everything easier, I copied the scaffolds and the ORFs for these bins into a new `binsFinal` folder.
+I also built a scaffold-to-bins file and a genes-to-bins file.
+
+**Confirm *hgcA* in bins**
+
+First I generated a key to relate the hgcA sequences from the bins to the seqs from the assembly-based methods.
+
+*hgcA search*
+
+I then manually searched the bins as well, just to confirm the quality of the hgcA sequences.
+I also read the key into the R script I have to include the bin names in the assembly-based hgcA tree.
+I did some manual analysis on these, saved out here: `dataEdited/2019_binning/hgcA/notes_on_bin_hgcA_seqs.xlsx`
+In the HMM analysis, Sed991Mega19_000001090714_3 is showing a very low score (137), barely over the threshold.
+This is one of the fused sequences
+I also pulled out the sequences and aligned them to the HMM.
+Sed993Mega19_000002407322_10 and Sed993Mega19_000002321000_3 both have the cysteine residue replaced with a serine group.
+Interestingly, these are in the two Spirochaetes bins.
+These are two of the four *hgcA* paralogs that I identified in the assemblies.
+
+The hgcA sequence from Sed992Meta19_Bin_00002 (Sed992Meta19_000000003684_8) is truncated, and I didn't include it in the original assembly.
+I'm going to include the bin in our analysis, for completeness sake, but this one won't show up in the hgcA tree.
+
+
+**Run metabolic HMMs on bins**
+
+I used my batch HMMs scripts to run a whole set of metabolic HMMs on the ORFs from the bins.
+I also ran Shaomei's MHC python script on the ORFs.
