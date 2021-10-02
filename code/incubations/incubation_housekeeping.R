@@ -34,11 +34,17 @@ LOI.plot <- inc.Hg.data %>%
              y = LOI,
              col = matrixID)) +
   geom_point(position = position_dodge(width=0.3)) +
-  scale_color_manual(values = color.vector) +
+  scale_color_manual(values = color.vector,
+                     name = "Porewater ID") +
   ylab("Loss on ignition (%)") +
   ylim(c(60, 100)) +
   theme_bw() +
-  theme(legend.position = "none")
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        axis.text = element_text(size = 14),
+        axis.title.y = element_text(size = 16),
+        legend.position = c(0.82, 0.33),
+        axis.title.x = element_blank())
 dryWt.plot <- inc.Hg.data %>%
   ggplot(aes(x = coreID,
              y = dryWt,
@@ -47,9 +53,21 @@ dryWt.plot <- inc.Hg.data %>%
   scale_color_manual(values = color.vector) +
   ylab("Dry weight (%)") +
   ylim(c(0, 30)) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        axis.text = element_text(size = 14),
+        axis.title.y = element_text(size = 16),
+        legend.position = "none",
+        axis.title.x = element_blank())
 
-LOI.plot + dryWt.plot
+pdf("results/incubations/LOI_dry_weight.pdf",
+    height = 5,
+    width = 10)
+ggarrange(LOI.plot,
+          dryWt.plot,
+          labels = c("A.", "B."))
+dev.off()
 
 
 #### Check relationship between these soil parameters and sediment core/porewater source ####
