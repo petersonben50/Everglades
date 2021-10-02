@@ -51,6 +51,7 @@ inc.Hg.data %>%
   theme(axis.text.y = element_text(colour="black"))
 
 
+
 #### Plot MeHg production, faceted by porewater source (shows impact of core) ####
 inc.Hg.data %>%
   group_by(coreID, matrixID) %>%
