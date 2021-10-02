@@ -15,6 +15,9 @@ source("code/setup_PW_core_order_color_points.R")
 RMP.hgcA <- readRDS("results/incubations/RMP_microbes_hgcA.rds")
 
 
+#### Read in ordination plot ####
+bc.ord.hgcA <- readRDS("results/metagenomes/assembly/hgcA/ordination.rds")
+
 
 #### Read in metadata ####
 metadata <- read_xlsx("metadata/metagenomes/metagenome_metadata.xlsx")
@@ -91,12 +94,16 @@ overall.hgcA.plot <- all.data %>%
 
 #### Generate plot with 
 figure.4.base.layer <- ggarrange(RMP.hgcA,
-                                 overall.hgcA.plot,
-                                 ncol = 1,
-                                 heights = c(2,1))
+                                 ggarrange(bc.ord.hgcA + theme(legend.position = "none"),
+                                           overall.hgcA.plot,
+                                           ncol = 1,
+                                           labels = c("B.", "C.")),
+                                 ncol = 2,
+                                 widths = c(1.5,1),
+                                 labels = c("A.", ""))
 pdf("results/figures/4_base_layer.pdf",
-    width = 7.5,
-    height = 9)
+    width = 12,
+    height = 7.5)
 figure.4.base.layer
 dev.off()
 
@@ -125,7 +132,7 @@ taxonomy.hgcA.plot <- all.data %>%
         axis.title.x = element_blank(),
         legend.position = c(0.2, 0.8))
 pdf("results/figures/4_taxonomy_layer.pdf",
-    width = 7.5,
-    height = 3)
+    width = 4.8,
+    height = 3.75)
 taxonomy.hgcA.plot
 dev.off()
