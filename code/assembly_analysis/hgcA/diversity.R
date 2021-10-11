@@ -72,6 +72,9 @@ richness.plot <- richness.data %>%
   theme(legend.position = "none",
         # legend.position = c(0.8, 0.4),
         axis.title.x = element_blank())
+saveRDS(richness.plot,
+        "results/metagenomes/assembly/hgcA/richness.rds")
+
 
 
 #### Evenness - Shannon diversity ####
@@ -124,10 +127,13 @@ E.plot <- E.data %>%
   scale_color_manual(values = color.vector,
                      name = "Site ID") +
   ylim(c(0, 1)) +
+  ylab("Shannon's equitability") +
   theme_bw() +
   theme(legend.position = "none",
         axis.title.x = element_blank())
-E.plot
+
+saveRDS(E.plot,
+        "results/metagenomes/assembly/hgcA/evenness.rds")
 
 
 #### Plot em ####
