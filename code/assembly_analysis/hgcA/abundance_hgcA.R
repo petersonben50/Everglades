@@ -227,10 +227,7 @@ tax.group.coverage.relative[, -1] <- sapply(names(tax.group.coverage.relative)[-
 
 
 #### Plot relative abundance of each hgcA group over the gradient ####
-# pdf("results/metagenomes/assembly/hgcA/hgcA_abundance_groups_relative.pdf",
-#     width = 6,
-#     height = 2)
-tax.group.coverage.relative %>%
+tax.group.coverage.relative.plot <- tax.group.coverage.relative %>%
   gather(key = siteID,
          value = rel.coverage,
          -1) %>%
@@ -241,12 +238,13 @@ tax.group.coverage.relative %>%
               group = clusterName)) +
   geom_point(aes(color = clusterName)) + 
   geom_line(aes(color = clusterName)) +
-  scale_color_manual(name = "clusterName",
+  scale_color_manual(name = "hgcA classification",
                     values = color.code.vector) +
   theme_classic() +
   ylim(0, 0.6) +
-  labs(x = "",
-       y = "hgcA relative abundance") +
+  labs(y = "hgcA relative abundance") +
   theme(axis.text.x = element_text(colour="black"),
+        axis.title.x = element_blank(),
         axis.text.y = element_text(colour="black"))
-# dev.off()
+saveRDS(tax.group.coverage.relative.plot,
+        "results/metagenomes/assembly/hgcA/tax_group_rel_coverage.rds")
