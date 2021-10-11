@@ -1,10 +1,6 @@
 #### code/figures/figureS3_MeHg_production_by_porewater.R ####
 # Benjamin D. Peterson
 
-# Additional notes in the corresponding Obsidian document:
-# Overview, statistical analysis, normalization of incubations
-
-# Powerpoint with notes: results/overview_statisticalAnalysis_normalization_incubations
 
 #### Get set up #####
 rm(list = ls())
