@@ -14,8 +14,9 @@ library(tidyverse)
 library(vegan)
 library(vegan3d)
 cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
-MG.order <- c("2A-N", "2A-A", "3A-O", "3A-N", "3A-F", "LOX8")
 
+source("code/setup_PW_core_order_color_points.R")
+color.vector <- color.vector[MG.order]
 
 
 #### Read in distance data ####
@@ -115,11 +116,11 @@ AX2_AX3 <- ggplot(coordinates.df, aes(x = pcoa_2, y = pcoa_3)) +
   
 
 #### Save out plots ####
-pdf("results/metagenomes/mash/PCoA_plot_MGs_2019_seds_AX1AX2AX3.pdf",
-    width = 10,
-    height = 5)
+# pdf("results/metagenomes/mash/PCoA_plot_MGs_2019_seds_AX1AX2AX3.pdf",
+#     width = 10,
+#     height = 5)
 AX1_AX2 + AX2_AX3
-dev.off()
+# dev.off()
 
 # Lox is really separated out from the other microbial communities, primarily on the first axis.
 # This axis accounts for 32.8% of the variance.
@@ -137,31 +138,31 @@ dev.off()
 
 
 #### Plot 3D image ####
-
-color.vector <- cb.translator[1:6]
-names(color.vector) <- MG.order
-
-
-
-plot3d(pcoa.analysis$vectors[, 1:3],
-       xlab = paste("PCoA1 ", PCoA1_var, "% of variance",
-                    sep = ""),
-       ylab = paste("PCoA2 ", PCoA2_var, "% of variance",
-                    sep = ""),
-       zlab = paste("PCoA3 ", PCoA3_var, "% of variance",
-                    sep = ""),
-       col = color.vector[site.vector[row.names(pcoa.analysis$vectors)]],
-       size = 10)
-decorate3d(main = "First 3 axes of PCoA analysis of 2019 MGs")
-legend3d("topright",
-         legend = names(color.vector),
-         text.col = color.vector)
+# 
+# color.vector <- cb.translator[1:6]
+# names(color.vector) <- MG.order
+# 
+# 
+# 
+# plot3d(pcoa.analysis$vectors[, 1:3],
+#        xlab = paste("PCoA1 ", PCoA1_var, "% of variance",
+#                     sep = ""),
+#        ylab = paste("PCoA2 ", PCoA2_var, "% of variance",
+#                     sep = ""),
+#        zlab = paste("PCoA3 ", PCoA3_var, "% of variance",
+#                     sep = ""),
+#        col = color.vector[site.vector[row.names(pcoa.analysis$vectors)]],
+#        size = 10)
+# decorate3d(main = "First 3 axes of PCoA analysis of 2019 MGs")
+# legend3d("topright",
+#          legend = names(color.vector),
+#          text.col = color.vector)
 
 
 
 #### Plot 3D ordination using scatterplot3d ####
-pdf("results/metagenomes/mash/PCoA_plot_MGs_2019_seds_3D.pdf",
-    height = 6,
+pdf("results/figures/S10/PCoA_plot_MGs_2019_seds_3D.pdf",
+    height = 4.5,
     width = 6)
 par(mfrow = c(1, 1),
     mar = c(3, 3, 1, 1))
@@ -171,6 +172,8 @@ scatterplot3d(-pcoa.analysis$vectors[, 1:3],
               color = color.vector[site.vector[row.names(pcoa.analysis$vectors)]],
               lab = c(4, 4),
               lab.z = 4,
+              zlim = c(-0.075, 0.075),
+              xlim = c(-0.05, 0.18),
               xlab = paste("PCoA1 ", PCoA1_var, "% of variance",
                            sep = ""),
               ylab = paste("PCoA2 ", PCoA2_var, "% of variance",
