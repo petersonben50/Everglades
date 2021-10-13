@@ -207,6 +207,11 @@ RMP.SUVA.plot <- all.data %>%
              colour = matrixID)) +
   geom_point(size = 3,
              aes(shape = matrixID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
   scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
   scale_color_manual(values = color.vector, name = "Porewater\nsource") +
   scale_fill_manual("black") +
