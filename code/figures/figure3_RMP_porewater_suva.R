@@ -1,8 +1,5 @@
-#### code/figures/figure3_RMP_covariates.R ####
+#### code/figures/figure3_RMP_porewater_suva.R ####
 # Benjamin D. Peterson
-
-# Obsidian notes here: Incubations - statistical analysis porewaters
-# Results: results/RMP_porewater.pptx
 
 #### Get set up #####
 rm(list = ls())
@@ -17,10 +14,7 @@ source("code/setup_PW_core_order_color_points.R")
 
 
 #### Read in plots ####
-# RMP.hgcA <- readRDS("results/incubations/RMP_microbes_hgcA.rds")
 RMP.SUVA <- readRDS("results/incubations/RMP_porewater_SUVA.rds")
-
-
 
 
 #### Print out graphs ####
@@ -29,4 +23,3 @@ pdf("results/figures/3_RMP_porewater.pdf",
     width = 7)
 RMP.SUVA
 dev.off()
-
