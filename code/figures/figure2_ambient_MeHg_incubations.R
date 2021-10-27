@@ -135,6 +135,7 @@ MeHg.production.plot <- MeHg.production.data %>%
   scale_color_manual(name = "Spiking matrix",
                      values = color.vector) +
   theme_bw() +
+  ylim(0, 9) +
   labs(y = "Methylated spike (%)") +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
@@ -161,7 +162,7 @@ figure
 
 
 #### Save out plot ####
-pdf("results/incubations/figure_2.pdf",
+pdf("results/figures/2/figure_2_MeHg_ambient_production.pdf",
     width = 9,
     height = 5)
 figure
