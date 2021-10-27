@@ -9,6 +9,7 @@
 #### Get set up #####
 rm(list = ls())
 setwd("~/Documents/research/Everglades/")
+library(ggpubr)
 library(lme4)
 library(patchwork)
 library(readxl)
@@ -64,10 +65,36 @@ dryWt.plot <- inc.Hg.data %>%
 pdf("results/incubations/LOI_dry_weight.pdf",
     height = 5,
     width = 10)
-ggarrange(LOI.plot,
-          dryWt.plot,
+ggarrange(dryWt.plot,
+          LOI.plot,
           labels = c("A.", "B."))
 dev.off()
+
+
+#### Check stats on dry weight ####
+# Dry weight stats
+max(inc.Hg.data$dryWt)
+min(inc.Hg.data$dryWt)
+
+inc.Hg.data %>%
+  group_by(coreID) %>%
+  summarise(dryWt_mean = mean(dryWt),
+            dryWt_sd = sd(dryWt),
+            dryWt_rsd = dryWt_sd / dryWt_mean * 100,
+            max_dryWt = max(dryWt),
+            min_dryWt = min(dryWt),
+            range_dryWt = max_dryWt - min_dryWt)
+
+# LOI stats
+inc.Hg.data %>%
+  group_by(coreID) %>%
+  summarise(LOI_mean = mean(LOI),
+            LOI_sd = sd(LOI),
+            LOI_rsd = LOI_sd / LOI_mean * 100,
+            max_LOI = max(LOI),
+            min_LOI = min(LOI),
+            range_LOI = max_LOI - min_LOI)
+
 
 
 #### Check relationship between these soil parameters and sediment core/porewater source ####
