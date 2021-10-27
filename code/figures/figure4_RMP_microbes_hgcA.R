@@ -82,7 +82,7 @@ overall.hgcA.plot <- all.data %>%
                 width = 0.33) +
   ylim(c(0, 16)) +
   ylab("hgcA gene abundance") +
-  theme_classic() +
+  theme_bw() +
   theme(axis.text.y = element_text(color = "black"),
         axis.text.x = element_text(color = "black"),
         axis.text = element_text(size = 14),
