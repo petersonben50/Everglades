@@ -63,7 +63,7 @@ richness.plot <- richness.data %>%
   ggplot(aes(x = siteID,
              y = unique_sequences,
              color = siteID)) +
-  geom_point() +
+  geom_point(size = 3) +
   scale_color_manual(values = color.vector,
                      name = "Site ID") +
   ylim(c(0, 70)) +
@@ -71,7 +71,9 @@ richness.plot <- richness.data %>%
   theme_bw() +
   theme(legend.position = "none",
         # legend.position = c(0.8, 0.4),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
 saveRDS(richness.plot,
         "results/metagenomes/assembly/hgcA/richness.rds")
 
@@ -123,14 +125,16 @@ E.plot <- E.data %>%
   ggplot(aes(x = siteID,
              y = E,
              color = siteID)) +
-  geom_point() +
+  geom_point(size = 3) +
   scale_color_manual(values = color.vector,
                      name = "Site ID") +
-  ylim(c(0, 1)) +
+  ylim(c(0.5, 1)) +
   ylab("Shannon's equitability") +
   theme_bw() +
   theme(legend.position = "none",
-        axis.title.x = element_blank())
+        axis.title.x = element_blank(),
+        axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
 
 saveRDS(E.plot,
         "results/metagenomes/assembly/hgcA/evenness.rds")
