@@ -18,9 +18,6 @@ source("code/setup_PW_core_order_color_points.R")
 
 #### Read in data ####
 RMP.amb.MeHg.prod <- readRDS("dataEdited/incubations/RMP_ambient_MeHg_production_comparison.rds")
-sed.MeHg.vs.RMP.core <- readRDS("results/incubations/ambient_MeHg_vs_RMP_core.rds")
-sed.MeHg.vs.RMP.matrix <- readRDS("results/incubations/ambient_MeHg_vs_RMP_matrix.rds")
-
 
 
 
@@ -49,15 +46,4 @@ legend(x = 0.6, y = 4.7,
        pch = 16,
        col = color.vector[RMP.amb.MeHg.prod$siteID])
 
-dev.off()
-
-
-#### Plots of RMP values vs. ambient levels ####
-pdf("results/figures/5/RMP_vs_ambient_MeHg.pdf",
-    height = 4,
-    width = 10)
-
-ggarrange(sed.MeHg.vs.RMP.matrix + theme(legend.position = "none"),
-          sed.MeHg.vs.RMP.core + theme(legend.position = "none"),
-          ncol = 2)
 dev.off()
