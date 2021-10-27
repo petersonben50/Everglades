@@ -12,7 +12,7 @@ source("code/setup_PW_core_order_color_points.R")
 
 
 #### Read in hgcA abundance data ####
-hgcA.depth <- readRDS("dataEdited/2019_analysis_assembly/hgcA/hgcA_abundance_site.rds") %>%
+hgcA.depth <- readRDS("dataEdited/assembly_analysis/hgcA/hgcA_abundance_site.rds") %>%
   group_by(siteID) %>%
   summarise(coverage = mean(coverage))
 
@@ -121,6 +121,11 @@ RMP.hgcA.plot <- all.data %>%
   ggplot(aes(x = log(coverage, 10),
              y = log(RMP_core, 10),
              colour = siteID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
   geom_point(size = 3,
              aes(shape = siteID)) +
   scale_shape_manual(values = point.vector[unique(all.data$siteID)], name = "Site ID") +

@@ -8,6 +8,7 @@
 rm(list = ls())
 setwd("~/Documents/research/Everglades/")
 library(lme4)
+library(patchwork)
 library(readxl)
 library(tidyverse)
 cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
@@ -61,13 +62,14 @@ all.data %>%
 
 
 #### RMP of porewaters against environmental variables ####
+# Sulfide first
 RMP.sulfide <- all.data %>%
   ggplot(aes(x = sulfide_µg.L,
              y = RMP_porewater,
              group = matrixID,
              color = matrixID)) +
   geom_point() +
-  scale_color_manual(name = "Site ID",
+  scale_color_manual(name = "Spiking matrix",
                      values = color.vector) +
   theme_bw() +
   labs(y = "Porewater RMP",
@@ -77,55 +79,74 @@ RMP.sulfide <- all.data %>%
         legend.position = c(0.6, 0.35))
 RMP.sulfide
 # Sulfide spans too many orders of magnitude to accurately visualize this.
-# Let's do a log transformation of the sulfide
+# Let's visualize this on a log scale
+# To do that, let's convert the 0s to 0.1
+all.data$sulfide_µg.L[which(all.data$sulfide_µg.L == 0)] <- 5
 RMP.sulfide.log <- all.data %>%
-  ggplot(aes(x = log(sulfide_µg.L, 10),
+  ggplot(aes(x = sulfide_µg.L,
              y = RMP_porewater,
              group = matrixID,
              color = matrixID)) +
-  geom_point() +
-  scale_color_manual(name = "Site ID",
-                     values = color.vector) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_x_continuous(limits = c(-1, 4000),
+                     trans = 'log10') +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
   theme_bw() +
   labs(y = "Porewater RMP",
-       x = "Log sulfide (µg/L)") +
-  theme(axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(colour="black"),
-        legend.position = c(0.7, 0.45))
+       x = "Sulfide (µg/L)") +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.5, 0.45))
 
+RMP.sulfide.log
+
+# Next, SUVA
 RMP.SUVA <- all.data %>%
   filter(!is.na(SUVA)) %>%
   ggplot(aes(x = SUVA,
              y = RMP_porewater,
              group = matrixID,
              color = matrixID)) +
-  geom_point() +
-  scale_color_manual(name = "Site ID",
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(name = "Spiking matrix",
                      values = color.vector) +
   theme_bw() +
   labs(y = "Porewater RMP",
        x = "SUVA (L/mg/m)") +
-  theme(axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(colour="black"),
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
         legend.position = "none")
 
+# Then RMP against DOC
 RMP.DOC <- all.data %>%
   filter(!is.na(DOC)) %>%
   ggplot(aes(x = DOC,
              y = RMP_porewater,
              group = matrixID,
              color = matrixID)) +
-  geom_point() +
-  scale_color_manual(name = "Site ID",
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(name = "Spiking matrix",
                      values = color.vector) +
   theme_bw() +
   labs(y = "Porewater RMP",
        x = "DOC (mg/L)") +
-  theme(axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(colour="black"),
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
         legend.position = "none")
 
-
+# Finally, check out RMP against the total UV absorbance at 254 nm
 RMP.UV <- all.data %>%
   mutate(UV_254_AU = DOC * SUVA / 100) %>%
   filter(!is.na(UV_254_AU)) %>%
@@ -133,14 +154,18 @@ RMP.UV <- all.data %>%
              y = RMP_porewater,
              group = matrixID,
              color = matrixID)) +
-  geom_point() +
-  scale_color_manual(name = "Site ID",
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(name = "Spiking matrix",
                      values = color.vector) +
   theme_bw() +
   labs(y = "Porewater RMP",
        x = "UV 254 (cm-1)") +
-  theme(axis.text.y = element_text(colour="black"),
-        axis.text.x = element_text(colour="black"),
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
         legend.position = "none")
 
 
@@ -150,28 +175,13 @@ RMP.UV <- all.data %>%
 
 
 
-#### Prettify the RMP vs. sulfide plot ####
-RMP.sulfide.log.for.saving <- all.data %>%
-  ggplot(aes(x = log(sulfide_µg.L, 10),
-             y = RMP_porewater,
-             group = matrixID,
-             color = matrixID)) +
-  geom_point(size = 3,
-             aes(shape = matrixID)) +
-  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
-  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
-  theme_bw() +
-  labs(y = "Porewater RMP",
-       x = "Log sulfide (µg/L)") +
-  theme(axis.text.y = element_text(color = "black"),
-        axis.text.x = element_text(color = "black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.position = c(0.7, 0.45))
-# As RDS
-saveRDS(object = RMP.sulfide.log.for.saving,
+#### Save out the ones with no correlation ####
+saveRDS(object = RMP.sulfide.log,
         file = "results/incubations/RMP_porewater_sulfide.rds")
-
+saveRDS(object = RMP.DOC,
+        file = "results/incubations/RMP_porewater_doc.rds")
+saveRDS(object = RMP.UV,
+        file = "results/incubations/RMP_porewater_uv.rds")
 
 
 
