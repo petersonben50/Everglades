@@ -1,15 +1,17 @@
+#### code/readBasedAnalysis/graftm_phyla_plots.R ####
+# Benjamin D. Peterson
+
+
 #### Clean up first ####
 rm(list = ls())
 setwd("~/Documents/research/Everglades/")
 library(readxl)
 library(tidyverse)
-
+source("code/setup_PW_core_order_color_points.R")
 
 
 #### Read in metadata ####
-
 metadata <- read_xlsx("metadata/metagenomes/metagenome_metadata.xlsx")
-
 # Site metadata
 site.metadata.vector <- metadata$siteID
 names(site.metadata.vector) <- metadata$metagenomeID
@@ -19,20 +21,13 @@ names(rep.metadata.vector) <- metadata$metagenomeID
 
 
 
-
-
-#### Generate vector of correct order of samples ####
-
-MG.order <- c("2A-N", "2A-A", "3A-O", "3A-N", "3A-F", "LOX8")
-
-
-
 #### Read in data ####
-
-tax.data <- readRDS("dataEdited/2019_readBasedAnalysis/16S/graftM/taxonomy_counts.rds") %>%
+tax.data <- readRDS("dataEdited/readBased_analysis/16S/graftM/taxonomy_counts.rds") %>%
   filter(grepl("KMBP005", metagenomeID))
 
 
+
+#### Clean up data ####
 phyla.data <- tax.data %>%
   group_by(metagenomeID, phylum) %>%
   summarize(rel.abundance = sum(rel.abundance,
@@ -40,6 +35,9 @@ phyla.data <- tax.data %>%
   filter(!is.na(phylum)) %>%
   mutate(siteID = site.metadata.vector[metagenomeID]) %>%
   ungroup()
+
+
+#### Identify abundant phyla ####
 needed.phyla.to.plot <- phyla.data %>%
   filter(rel.abundance >= 0.05) %>%
   select(phylum) %>%
@@ -48,7 +46,6 @@ needed.phyla.to.plot <- phyla.data %>%
 
 
 #### Make color vector ####
-
 CB.color.vector <- c("gray75",
                      readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds"),
                      "gray", "gray35")
@@ -56,9 +53,9 @@ phylum.colors <- data.frame(phylum = needed.phyla.to.plot %>% sort(),
                             phylum.color = CB.color.vector)
 
 #### Generate plot ####
-pdf("results/2019_readBasedAnalysis/graftm_phyla.pdf",
-    width = 8,
-    height = 4)
+pdf("results/figures/S10/graftm_phyla.pdf",
+    width = 6,
+    height = 3)
 phyla.data %>%
   filter(phylum %in% needed.phyla.to.plot) %>%
   mutate(siteID = fct_relevel(siteID, MG.order)) %>%
