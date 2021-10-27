@@ -1,4 +1,4 @@
-#### code/incubations ####
+#### code/incubations/native_MeHg_production_function_of_RMP.R ####
 # Benjamin D. Peterson
 
 # Obsidian notes here: Incubations - statistical analysis porewaters
@@ -64,7 +64,8 @@ native.MeHg.production.data <- Hg.inc.data %>%
 all.data <- coreID.data %>%
   full_join(matrixID.data) %>%
   full_join(native.MeHg.production.data)
-
+saveRDS(all.data,
+        "dataEdited/incubations/RMP_ambient_MeHg_production_comparison.rds")
 
 #### Generate plot of MeHg production as function of two RMPs ####
 all.data %>%
