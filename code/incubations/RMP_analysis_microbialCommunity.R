@@ -116,8 +116,8 @@ p.value <- pf(f[1],
               lower.tail = F) %>%
   round(4)
 
-# Make the plot
-RMP.hgcA.plot <- all.data %>%
+# Make the plot with log transformed data
+RMP.hgcA.plot.logData <- all.data %>%
   ggplot(aes(x = log(coverage, 10),
              y = log(RMP_core, 10),
              colour = siteID)) +
@@ -147,6 +147,47 @@ RMP.hgcA.plot <- all.data %>%
                            "p << 0.0001",
                            sep = ""),
              color = "black")
+
+
+#### Generate plot of RMP vs. hgcA ####
+
+# Make the plot with log transformed scales, not data
+RMP.hgcA.plot <- all.data %>%
+  ggplot(aes(x = coverage,
+             y = RMP_core,
+             colour = siteID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  scale_shape_manual(values = point.vector[unique(all.data$siteID)], name = "Site ID") +
+  scale_color_manual(values = color.vector[unique(all.data$siteID)], name = "Site ID") +
+  scale_fill_manual("black") +
+  scale_x_continuous(trans = 'log10',
+                     limits = c(1, 15)) +
+  scale_y_continuous(trans = 'log10',
+                     limits = c(1, 100)) +
+  labs(x = "hgcA abundance (%)",
+       y = "Sediment cores RMP (%)",
+       title = element_blank()) +
+  theme_bw() +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.18, 0.7)) +
+  # geom_abline(slope = coef(linear.model.to.use)[[2]],
+  #             intercept = coef(linear.model.to.use)[[1]]) +
+  geom_label(x = 0.75, y = 1.7,
+             label = paste("Adjusted r2 = ", round(summary(linear.model.to.use)$adj.r.squared, 3), "\n",
+                           "p << 0.0001",
+                           sep = ""),
+             color = "black")
+RMP.hgcA.plot
+
 
 
 #### Save out plot ####

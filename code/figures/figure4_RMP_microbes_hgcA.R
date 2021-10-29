@@ -101,7 +101,7 @@ figure.4.base.layer <- ggarrange(RMP.hgcA,
                                  ncol = 2,
                                  widths = c(1.5,1),
                                  labels = c("A.", ""))
-pdf("results/figures/4_base_layer.pdf",
+pdf("results/figures/4/4_base_layer.pdf",
     width = 12,
     height = 7.5)
 figure.4.base.layer
@@ -131,7 +131,7 @@ taxonomy.hgcA.plot <- all.data %>%
         axis.title.y = element_text(size = 16),
         axis.title.x = element_blank(),
         legend.position = c(0.2, 0.8))
-pdf("results/figures/4_taxonomy_layer.pdf",
+pdf("results/figures/4/4_taxonomy_layer.pdf",
     width = 4.8,
     height = 3.75)
 taxonomy.hgcA.plot
