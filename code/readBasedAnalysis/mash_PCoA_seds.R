@@ -132,34 +132,6 @@ AX1_AX2 + AX2_AX3
 
 
 
-#### Save out R object to put into Rmd ####
-# saveRDS(object = pcoa.analysis,
-#         file = "dataEdited/metagenomes/mash_data/PCoA_2019_sed.rds")
-
-
-#### Plot 3D image ####
-# 
-# color.vector <- cb.translator[1:6]
-# names(color.vector) <- MG.order
-# 
-# 
-# 
-# plot3d(pcoa.analysis$vectors[, 1:3],
-#        xlab = paste("PCoA1 ", PCoA1_var, "% of variance",
-#                     sep = ""),
-#        ylab = paste("PCoA2 ", PCoA2_var, "% of variance",
-#                     sep = ""),
-#        zlab = paste("PCoA3 ", PCoA3_var, "% of variance",
-#                     sep = ""),
-#        col = color.vector[site.vector[row.names(pcoa.analysis$vectors)]],
-#        size = 10)
-# decorate3d(main = "First 3 axes of PCoA analysis of 2019 MGs")
-# legend3d("topright",
-#          legend = names(color.vector),
-#          text.col = color.vector)
-
-
-
 #### Plot 3D ordination using scatterplot3d ####
 pdf("results/figures/S10/PCoA_plot_MGs_2019_seds_3D.pdf",
     height = 4.5,
