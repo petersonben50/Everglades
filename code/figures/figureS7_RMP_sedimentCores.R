@@ -21,23 +21,27 @@ RMP.boxplot <- inc.Hg.data %>%
   ggplot(aes(x = coreID,
              y = RMP_core)) +
   geom_boxplot() +
-  geom_jitter(aes(color = matrixID),
+  geom_jitter(aes(color = matrixID,
+                  shape = matrixID),
               width = 0.08) +
-  labs(y = "RMP of peat cores") +
+  labs(y = "Peat core RMP",
+       x = "Peat core ID") +
+  scale_shape_manual(values = point.vector,
+                     name = "Pore water matrix") +
   scale_color_manual(values = color.vector,
-                     name = "Spiking matrix") +
+                     name = "Pore water matrix") +
   theme_bw() +
   theme(axis.text.y = element_text(colour="black",
                                    size = 14),
         axis.title.y = element_text(size = 16),
         axis.text.x = element_text(colour="black",
                                    size = 11),
-        axis.title.x = element_blank(),
+        axis.title.x = element_text(size = 16),
         legend.position = c(0.15, 0.58))
 RMP.boxplot
 
 #### Save out image ####
-pdf("results/figures/S5_RMP_peatCore.pdf",
+pdf("results/figures/S6_RMP_peatCore.pdf",
     width = 8,
     height = 6)
 RMP.boxplot

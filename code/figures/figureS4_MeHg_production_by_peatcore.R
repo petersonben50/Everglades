@@ -65,5 +65,5 @@ inc.data.plot.by.core <- inc.Hg.data %>%
 pdf("results/figures/S4_MeHg_production_ordered_by_RMP_of_cores.pdf",
     width = 12,
     height = 6)
-inc.data.plot.by.porewater
+inc.data.plot.by.core
 dev.off()
