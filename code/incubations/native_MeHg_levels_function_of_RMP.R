@@ -92,7 +92,7 @@ sed.MeHg.vs.RMP.core <- all.data %>%
   theme_bw() +
   xlim(c(0, 80)) +
   ylab("Ambient MeHg (ng/L)") +
-  xlab("Sediment core RMP") +
+  xlab("Peat core RMP") +
   scale_y_continuous(trans = 'log10',
                      limits = c(0.001, 0.1)) +
   theme(axis.text.x = element_text(colour="black"),
@@ -111,7 +111,7 @@ sed.MeHg.vs.RMP.matrix <- all.data %>%
   theme_bw() +
   xlim(c(0, 80)) +
   ylab("Ambient MeHg (ng/L)") +
-  xlab("Spiking matrix RMP") +
+  xlab("Pore water RMP") +
   scale_y_continuous(trans = 'log10',
                      limits = c(0.001, 0.1)) +
   theme(axis.text.x = element_text(colour="black"),
@@ -145,7 +145,7 @@ PW.MeHg.vs.RMP.core <- all.data %>%
   theme_bw() +
   xlim(c(0, 80)) +
   ylab("Ambient porewater MeHg log(ng/L)") +
-  xlab("Sediment core RMP") +
+  xlab("Peat core RMP") +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
         axis.text = element_text(size = 14),
@@ -162,7 +162,7 @@ PW.MeHg.vs.RMP.matrix <- all.data %>%
   theme_bw() +
   xlim(c(0, 80)) +
   ylab("Ambient porewater MeHg log(ng/L)") +
-  xlab("Spiking matrix RMP") +
+  xlab("Pore water RMP") +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
         axis.text = element_text(size = 14),

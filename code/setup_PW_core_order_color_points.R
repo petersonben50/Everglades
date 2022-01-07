@@ -10,7 +10,7 @@ rm(list = ls())
 setwd("~/Documents/research/Everglades/")
 library(readxl)
 library(tidyverse)
-cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+cb.translator <- readRDS("references/colorblind_friendly_colors.rds")
 
 
 #### Generate vector of correct order of samples along sulfate gradient ####
