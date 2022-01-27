@@ -29,7 +29,7 @@ inc.Hg.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synthesi
 
 
 
-#### Plot soil variables by core origination ####
+#### Plot: soil variables by core origination ####
 LOI.plot <- inc.Hg.data %>%
   ggplot(aes(x = coreID,
              y = LOI,
@@ -38,12 +38,10 @@ LOI.plot <- inc.Hg.data %>%
   scale_color_manual(values = color.vector,
                      name = "Porewater ID") +
   ylab("Loss on ignition (%)") +
-  ylim(c(60, 100)) +
+  ylim(c(50, 100)) +
   theme_bw() +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
-        axis.text = element_text(size = 14),
-        axis.title.y = element_text(size = 16),
         legend.position = c(0.82, 0.33),
         axis.title.x = element_blank())
 dryWt.plot <- inc.Hg.data %>%
@@ -57,8 +55,6 @@ dryWt.plot <- inc.Hg.data %>%
   theme_bw() +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
-        axis.text = element_text(size = 14),
-        axis.title.y = element_text(size = 16),
         legend.position = "none",
         axis.title.x = element_blank())
 
@@ -71,7 +67,7 @@ ggarrange(dryWt.plot,
 dev.off()
 
 
-#### Check stats on dry weight ####
+#### Stats: dry weight ####
 # Dry weight stats
 max(inc.Hg.data$dryWt)
 min(inc.Hg.data$dryWt)
@@ -97,7 +93,7 @@ inc.Hg.data %>%
 
 
 
-#### Check relationship between these soil parameters and sediment core/porewater source ####
+#### Stats: Check relationship between these soil parameters and sediment core/porewater source ####
 # This is mostly paranoia.
 
 # LOI
@@ -141,7 +137,8 @@ summary(twoWayAnova_dryWt)
 # Now why would the porewater source influence that? Not sure that it's
 # worth worrying about, but something to keep in the back of my mind.
 
-#### Porewater source effects on dry weight ####
+
+#### Plot: Porewater source effects on dry weight ####
 inc.Hg.data %>%
   ggplot(aes(x = matrixID,
              y = dryWt)) +
@@ -154,7 +151,8 @@ inc.Hg.data %>%
 
 
 
-#### Plot ambient Hg variables by site ####
+#### Plot: Ambient Hg variables by site ####
+# MeHg plot
 MeHg.plot <- inc.Hg.data %>%
   ggplot(aes(x = coreID,
              y = SMHG_amb,
@@ -162,22 +160,30 @@ MeHg.plot <- inc.Hg.data %>%
   geom_point(position = position_dodge(width=0.3)) +
   scale_color_manual(values = color.vector,
                      name = "Porewater origin") +
+  ylim(c(0, 9)) +
   ylab("MeHg (ng/g)") +
+  xlab("Peat core source") +
   theme_bw() +
-  theme(legend.position = c(0.28, 0.65),
-        legend.background = element_rect(fill = "white",
-                                         size = 0.5,
-                                         linetype = "solid",
-                                         colour = "black"))
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        legend.position = "none")
+
+# HgT plot
 HgT.plot <- inc.Hg.data %>%
   ggplot(aes(x = coreID,
              y = STHG_amb,
              col = matrixID)) +
   geom_point(position = position_dodge(width=0.3)) +
   scale_color_manual(values = color.vector) +
+  ylim(c(0, 400)) +
   ylab("HgT (ng/g)") +
+  xlab("Peat core source") +
   theme_bw() +
-  theme(legend.position = "none")
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        legend.position = "none")
+
+# Percent MeHg plot
 MeHgPercent.plot <- inc.Hg.data %>%
   ggplot(aes(x = coreID,
              y = SMHG_amb_percent,
@@ -189,6 +195,18 @@ MeHgPercent.plot <- inc.Hg.data %>%
   theme(legend.position = "none")
 
 MeHg.plot + HgT.plot + MeHgPercent.plot
+
+
+#### Saved plot: All measured ambient constituents ####
+pdf("results/incubations/ambient_measurments.pdf",
+    height = 7.2,
+    width = 7.2)
+ggarrange(dryWt.plot, LOI.plot,
+          HgT.plot, MeHg.plot,
+          nrow = 2, ncol = 2,
+          labels = c("A.", "B.", "C.", "D."))
+dev.off()
+
 
 
 
