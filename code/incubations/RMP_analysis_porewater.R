@@ -11,12 +11,11 @@ library(lme4)
 library(patchwork)
 library(readxl)
 library(tidyverse)
-cb.translator <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 source("code/setup_PW_core_order_color_points.R")
 
 
-#### Read in porewater data ####
-porewater.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synthesis for Brett and Ben.xlsx",
+#### Data loading: Porewater data ####
+porewater.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synthesis of core experiments_v2.xlsx",
                             sheet = "porewater_data") %>%
   mutate(siteID = fct_relevel(siteID, MG.order),
          DOC = gsub("\\*", "", DOC_mg.L) %>% as.numeric(),
@@ -28,11 +27,11 @@ porewater.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synth
   select(matrixID, DOC, SUVA, UV_254_AU, sulfate_mg.L, sulfide_µg.L)
 
 
-#### Read in RMP data ####
+#### Data loading: RMP data ####
 Hg.inc.data <- readRDS("dataEdited/incubations/incubation_data_with_normalization.rds")
 
 
-#### Join RMP and porewater data ####
+#### Data management: Join RMP and porewater data ####
 Hg.inc.data <- Hg.inc.data %>%
   select(coreID, matrixID, RMP_porewater) %>%
   rename(siteID = coreID)
@@ -40,7 +39,7 @@ all.data <- Hg.inc.data %>%
   left_join(porewater.data)
 
 
-#### RMP of porewaters along sulfate gradient ####
+#### Plot: RMP of porewaters along sulfate gradient ####
 all.data %>%
   group_by(matrixID, siteID) %>%
   summarise(RMP_porewater = mean(RMP_porewater)) %>%
@@ -61,7 +60,7 @@ all.data %>%
 
 
 
-#### RMP of porewaters against environmental variables ####
+#### Plot: RMPmatrix vs. sulfide ####
 # Sulfide first
 RMP.sulfide <- all.data %>%
   ggplot(aes(x = sulfide_µg.L,
@@ -98,14 +97,13 @@ RMP.sulfide.log <- all.data %>%
        x = "Sulfide (µg/L)") +
   theme(axis.text.y = element_text(color = "black"),
         axis.text.x = element_text(color = "black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
         legend.position = c(0.5, 0.45))
-
 RMP.sulfide.log
 
-# Next, SUVA
-RMP.SUVA <- all.data %>%
+
+
+#### Plot: RMPmatrix vs. SUVA ####
+all.data %>%
   filter(!is.na(SUVA)) %>%
   ggplot(aes(x = SUVA,
              y = RMP_porewater,
@@ -125,69 +123,11 @@ RMP.SUVA <- all.data %>%
         axis.title = element_text(size = 16),
         legend.position = "none")
 
-# Then RMP against DOC
-RMP.DOC <- all.data %>%
-  filter(!is.na(DOC)) %>%
-  ggplot(aes(x = DOC,
-             y = RMP_porewater,
-             group = matrixID,
-             color = matrixID)) +
-  geom_point(size = 3,
-             aes(shape = matrixID)) +
-  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
-  scale_color_manual(name = "Spiking matrix",
-                     values = color.vector) +
-  theme_bw() +
-  labs(y = "Porewater RMP",
-       x = "DOC (mg/L)") +
-  theme(axis.text.y = element_text(color = "black"),
-        axis.text.x = element_text(color = "black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.position = "none")
-
-# Finally, check out RMP against the total UV absorbance at 254 nm
-RMP.UV <- all.data %>%
-  mutate(UV_254_AU = DOC * SUVA / 100) %>%
-  filter(!is.na(UV_254_AU)) %>%
-  ggplot(aes(x = UV_254_AU,
-             y = RMP_porewater,
-             group = matrixID,
-             color = matrixID)) +
-  geom_point(size = 3,
-             aes(shape = matrixID)) +
-  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
-  scale_color_manual(name = "Spiking matrix",
-                     values = color.vector) +
-  theme_bw() +
-  labs(y = "Porewater RMP",
-       x = "UV 254 (cm-1)") +
-  theme(axis.text.y = element_text(color = "black"),
-        axis.text.x = element_text(color = "black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
-        legend.position = "none")
 
 
-
-#### Plot em all out ####
-(RMP.sulfide.log + RMP.SUVA) / (RMP.DOC + RMP.UV)
-
-
-
-#### Save out the ones with no correlation ####
-saveRDS(object = RMP.sulfide.log,
-        file = "results/incubations/RMP_porewater_sulfide.rds")
-saveRDS(object = RMP.DOC,
-        file = "results/incubations/RMP_porewater_doc.rds")
-saveRDS(object = RMP.UV,
-        file = "results/incubations/RMP_porewater_uv.rds")
-
-
-
-#### Generate and check linear model of RMP porewater vs. SUVA ####
+#### Stats: linear model of RMP porewater vs. SUVA ####
 PW.linear.model <- lm(RMP_porewater ~ SUVA,
-                   data = all.data)
+                      data = all.data)
 # Check residuals
 par(mfrow = c(1,2))
 plot(density(PW.linear.model$residuals),
@@ -208,7 +148,7 @@ summary(PW.linear.model)
 # p-value: 5.593e-14
 
 
-#### Generate plot with linear model plotted on it ####
+#### Plot: RMPmatrix vs SUVA with linear model ####
 rSquared <- round(summary(PW.linear.model)$adj.r.squared, 2)
 RMP.SUVA.plot <- all.data %>%
   filter(!is.na(SUVA)) %>%
@@ -231,8 +171,6 @@ RMP.SUVA.plot <- all.data %>%
   theme_bw() +
   theme(axis.text.y = element_text(color = "black"),
         axis.text.x = element_text(color = "black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
         legend.position = c(0.82, 0.33)) +
   geom_abline(slope = coef(PW.linear.model)[[2]],
               intercept = coef(PW.linear.model)[[1]]) +
@@ -244,7 +182,7 @@ RMP.SUVA.plot <- all.data %>%
 RMP.SUVA.plot
 
 
-#### Save out plot of porewater RMP vs SUVA ####
+#### Save plot: of porewater RMP vs SUVA ####
 pdf("results/incubations/RMP_porewater_SUVA.pdf",
     height = 5.5,
     width = 7)
@@ -253,3 +191,187 @@ dev.off()
 # As RDS
 saveRDS(object = RMP.SUVA.plot,
         file = "results/incubations/RMP_porewater_SUVA.rds")
+
+
+
+
+
+
+#### Plot: RMPmatrix vs. DOC ####
+all.data %>%
+  filter(!is.na(DOC)) %>%
+  ggplot(aes(x = DOC,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(name = "Spiking matrix",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "DOC (mg/L)") +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = "none")
+
+
+#### Stats: linear model of RMP porewater vs. DOC ####
+doc.linear.model <- lm(RMP_porewater ~ DOC,
+                       data = all.data)
+# Check residuals
+par(mfrow = c(1,2))
+plot(density(doc.linear.model$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(doc.linear.model$residuals)
+qqline(doc.linear.model$residuals)
+shapiro.test(doc.linear.model$residuals)
+# Normally distributed, statistically speaking!
+summary(doc.linear.model)
+# Major effect of DOC on RMP
+# Adjusted R-squared: 0.4045
+# p-value: 8.458-14
+
+
+#### Plot: RMPmatrix vs DOC with linear model ####
+RMP.DOC.plot <- all.data %>%
+  filter(!is.na(DOC)) %>%
+  ggplot(aes(x = DOC,
+             y = RMP_porewater,
+             colour = matrixID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
+  scale_fill_manual("black") +
+  labs(x = "DOC (mg/l)",
+       y = "Porewater RMP (%)",
+       title = element_blank()) +
+  theme_bw() +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        legend.position = c(0.82, 0.33)) +
+  geom_abline(slope = coef(doc.linear.model)[[2]],
+              intercept = coef(doc.linear.model)[[1]]) +
+  geom_label(x = 4, y = 82,
+             label = paste("Adjusted r2 = ", round(summary(doc.linear.model)$adj.r.squared, 3), "\n",
+                           "p << 0.0001",
+                           sep = ""),
+             color = "black")
+RMP.DOC.plot
+
+
+
+
+
+
+
+
+
+
+
+#### Plot: RMPmatrix vs. UV254 absorbance ####
+all.data %>%
+  mutate(UV_254_AU = DOC * SUVA / 100) %>%
+  filter(!is.na(UV_254_AU)) %>%
+  ggplot(aes(x = UV_254_AU,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(name = "Spiking matrix",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "UV 254 (cm-1)") +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = "none")
+
+#### Stats: linear model of RMPmatrix vs. UV254 absorbance ####
+UV.linear.model <- lm(RMP_porewater ~ UV_254_AU,
+                      data = all.data)
+# Check residuals
+par(mfrow = c(1,2))
+plot(density(UV.linear.model$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(UV.linear.model$residuals)
+qqline(UV.linear.model$residuals)
+shapiro.test(UV.linear.model$residuals)
+# Normally distributed, statistically speaking!
+summary(UV.linear.model)
+# Major effect of DOC on RMP
+# Adjusted R-squared: 0.3755
+# p-value: 3.504-10
+
+
+#### Plot: RMPmatrix vs UV254 with linear model ####
+RMP.UV.plot <- all.data %>%
+  mutate(UV_254_AU = DOC * SUVA / 100) %>%
+  filter(!is.na(UV_254_AU)) %>%
+  ggplot(aes(x = UV_254_AU,
+             y = RMP_porewater,
+             colour = matrixID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
+  scale_fill_manual("black") +
+  labs(x = "UV254 (cm-1)",
+       y = "Porewater RMP (%)",
+       title = element_blank()) +
+  theme_bw() +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        legend.position = c(0.3, 0.75)) +
+  geom_abline(slope = coef(UV.linear.model)[[2]],
+              intercept = coef(UV.linear.model)[[1]]) +
+  geom_label(x = 1.2, y = 75,
+             label = paste("Adjusted R2 = ", round(summary(UV.linear.model)$adj.r.squared, 3), "\n",
+                           "p << 0.0001",
+                           sep = ""),
+             color = "black")
+RMP.UV.plot
+
+
+
+
+
+
+
+#### Plot em all out ####
+(RMP.sulfide.log + RMP.SUVA) / (RMP.DOC.plot + RMP.UV)
+
+
+
+#### Save out the ones with no correlation ####
+saveRDS(object = RMP.sulfide.log,
+        file = "results/incubations/RMP_porewater_sulfide.rds")
+saveRDS(object = RMP.DOC.plot,
+        file = "results/incubations/RMP_porewater_doc.rds")
+saveRDS(object = RMP.UV.plot,
+        file = "results/incubations/RMP_porewater_uv.rds")
+
