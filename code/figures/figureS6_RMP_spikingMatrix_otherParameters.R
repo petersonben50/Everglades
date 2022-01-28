@@ -17,15 +17,15 @@ RMP.UV <- readRDS("results/incubations/RMP_porewater_uv.rds")
 
 
 #### Set it up ####
-figures <- ggarrange(RMP.sulfide.log,
-                     RMP.DOC,
+figures <- ggarrange(RMP.DOC,
                      RMP.UV,
+                     RMP.sulfide.log,
                      ncol = 1)
 
 
 #### Save out figure ####
-pdf("results/figures/S5_RMP_spikingMatrix_otherParameters.pdf",
-    height = 10,
+pdf("results/figures/S6_RMP_spikingMatrix_otherParameters.pdf",
+    height = 11,
     width = 5)
 figures
 dev.off()
