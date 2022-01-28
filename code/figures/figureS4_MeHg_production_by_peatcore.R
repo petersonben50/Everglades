@@ -20,7 +20,7 @@ inc.Hg.data <- readRDS("dataEdited/incubations/incubation_data_with_normalizatio
 inc.Hg.data.order <- inc.Hg.data %>%
   group_by(coreID) %>%
   summarise(RMP_core = mean(RMP_core)) %>%
-  arrange(desc(RMP_core)) %>%
+  arrange(RMP_core) %>%
   select(coreID) %>%
   mutate(coreID = as.character(coreID)) %>%
   unlist()
