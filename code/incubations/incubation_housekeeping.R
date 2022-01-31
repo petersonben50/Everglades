@@ -81,7 +81,7 @@ inc.Hg.data %>%
             min_dryWt = min(dryWt),
             range_dryWt = max_dryWt - min_dryWt)
 
-# LOI stats
+#### Stats: LOI ####
 inc.Hg.data %>%
   group_by(coreID) %>%
   summarise(LOI_mean = mean(LOI),
@@ -197,6 +197,7 @@ MeHgPercent.plot <- inc.Hg.data %>%
 MeHg.plot + HgT.plot + MeHgPercent.plot
 
 
+
 #### Saved plot: All measured ambient constituents ####
 pdf("results/incubations/ambient_measurments.pdf",
     height = 7.2,
@@ -206,6 +207,31 @@ ggarrange(dryWt.plot, LOI.plot,
           nrow = 2, ncol = 2,
           labels = c("A.", "B.", "C.", "D."))
 dev.off()
+
+
+
+
+
+#### Stats: HgT ####
+inc.Hg.data %>%
+  group_by(coreID) %>%
+  summarise(HGT_mean = mean(STHG_amb),
+            HGT_sd = sd(STHG_amb),
+            HGT_rsd = HGT_sd / HGT_mean * 100,
+            max_HGT = max(STHG_amb),
+            min_HGT = min(STHG_amb),
+            range_HGT = max_HGT - min_HGT)
+
+
+#### Stats: MeHg ####
+inc.Hg.data %>%
+  group_by(coreID) %>%
+  summarise(MEHG_mean = mean(SMHG_amb),
+            MEHG_sd = sd(SMHG_amb),
+            MEHG_rsd = MEHG_sd / MEHG_mean * 100,
+            max_MEHG = max(SMHG_amb),
+            min_MEHG = min(SMHG_amb),
+            range_MEHG = max_MEHG - min_MEHG)
 
 
 
