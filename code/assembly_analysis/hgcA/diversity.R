@@ -8,6 +8,7 @@ setwd("/Users/benjaminpeterson/Documents/research/Everglades/")
 library(ggpubr)
 library(phyloseq)
 library(readxl)
+library(scatterplot3d)
 library(tidyverse)
 library(vegan)
 source("code/setup_PW_core_order_color_points.R")
@@ -26,10 +27,9 @@ names(medium.metadata.vector) <- metadata$metagenomeID
 
 
 #### Set up color vector for microbes ####
-CB.color.vector <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
 color.code.df <- read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                            sheet = "color_codes")
-color.code.vector.fused <- CB.color.vector[color.code.df$colorCode]
+color.code.vector.fused <- cb.translator[color.code.df$colorCode]
 names(color.code.vector.fused) <- color.code.df$clusterName
 color.code.vector <- color.code.vector.fused[which(names(color.code.vector.fused) != "fused")]
 
@@ -193,3 +193,56 @@ bc.ord.hgcA <- plot_ordination(all.phyloseq,
 
 saveRDS(bc.ord.hgcA,
         "results/metagenomes/assembly/hgcA/ordination.rds")
+
+
+#### Calculate variability ####
+PCoA1_var <- round(hgcA.bray$values[["Eigenvalues"]][1]/sum(hgcA.bray$values[["Eigenvalues"]])*100, 1)
+PCoA2_var <- round(hgcA.bray$values[["Eigenvalues"]][2]/sum(hgcA.bray$values[["Eigenvalues"]])*100, 1)
+PCoA3_var <- round(hgcA.bray$values[["Eigenvalues"]][3]/sum(hgcA.bray$values[["Eigenvalues"]])*100, 1)
+
+
+
+
+#### Correlate with environmental variables ####
+
+Hg.inc.data <- readRDS("dataEdited/incubations/incubation_data_with_normalization.rds") %>%
+  group_by(coreID) %>%
+  summarise(RMP_core = mean(RMP_core)) %>%
+  rename(siteID = coreID)
+sulfide.data <- read_xlsx("dataEdited/geochem/geochem_data_2019.xlsx",
+                          sheet = "PW_SW_geochem") %>%
+  mutate(siteID = fct_relevel(siteID, MG.order)) %>%
+  filter(medium == "PW") %>%
+  select(siteID, Sulfide_µg.L)
+data.matrix <- full_join(Hg.inc.data,
+                         sulfide.data) %>%
+  arrange(siteID) %>%
+  select(-siteID) %>%
+  as.matrix()
+row.names(data.matrix) <- Hg.inc.data$siteID
+
+envfit(hgcA.bray, data.matrix)
+
+#### Generate 3D ordination ####
+scatterplot3d(hgcA.bray$vectors[, 1:3],
+              pch = 16,
+              type = "h",
+              color = color.vector[site.metadata.vector[row.names(hgcA.bray$vectors)]],
+              lab = c(4, 4),
+              lab.z = 4,
+              # zlim = c(-0.3, 0.7),
+              # ylim = c(-0.3, 0.7),
+              # xlim = c(-0.6, 0.6),
+              xlab = paste("PCoA1: ", PCoA1_var, "% of variance",
+                           sep = ""),
+              ylab = paste("PCoA2: ", PCoA2_var, "% of variance",
+                           sep = ""),
+              zlab = paste("PCoA3: ", PCoA3_var, "% of variance",
+              sep = ""),
+)
+legend(x = 4.5,
+       y = 5.5,
+       legend = names(color.vector),
+       text.col = color.vector,
+       bg = "white")
+
