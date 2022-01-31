@@ -11,7 +11,6 @@ library(patchwork)
 library(readxl)
 library(tidyverse)
 source("code/setup_PW_core_order_color_points.R")
-source("code/assembly_analysis/metabolic_protein_plots.R")
 
 
 
