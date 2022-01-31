@@ -1,4 +1,4 @@
-#### code/figures/figureS8_tax_rel_coverage.R ####
+#### code/figures/figureS10_tax_rel_coverage.R ####
 # Benjamin D. Peterson
 
 
@@ -15,7 +15,7 @@ tax.group.coverage.relative.plot <- readRDS("results/metagenomes/assembly/hgcA/t
 
 
 #### Save out figure ####
-pdf("results/figures/S8_tax_rel_coverage.pdf",
+pdf("results/figures/S10_tax_rel_coverage.pdf",
     width = 7.5,
     height = 4)
 tax.group.coverage.relative.plot
