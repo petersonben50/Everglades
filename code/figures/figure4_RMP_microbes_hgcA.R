@@ -11,15 +11,15 @@ library(tidyverse)
 source("code/setup_PW_core_order_color_points.R")
 
 
-#### Read in RMP plot ####
+#### Data loading: RMP plot ####
 RMP.hgcA <- readRDS("results/incubations/RMP_microbes_hgcA.rds")
 
 
-#### Read in ordination plot ####
+#### Data loading: ordination plot ####
 bc.ord.hgcA <- readRDS("results/metagenomes/assembly/hgcA/ordination.rds")
 
 
-#### Read in metadata ####
+#### Data loading: metadata ####
 metadata <- read_xlsx("metadata/metagenomes/metagenome_metadata.xlsx")
 # Site metadata
 site.metadata.vector <- metadata$siteID
@@ -29,11 +29,10 @@ medium.metadata.vector <- metadata$medium
 names(medium.metadata.vector) <- metadata$metagenomeID
 
 
-#### Set up color vector for microbes ####
-CB.color.vector <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+#### Set up: color vector for microbes ####
 color.code.df <- read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                            sheet = "color_codes")
-color.code.vector.fused <- CB.color.vector[color.code.df$colorCode]
+color.code.vector.fused <- color.code.df$hexCode
 names(color.code.vector.fused) <- color.code.df$clusterName
 color.code.vector <- color.code.vector.fused[which(names(color.code.vector.fused) != "fused")]
 
@@ -61,10 +60,8 @@ all.data <- read.csv("dataEdited/assembly_analysis/hgcA/depth/hgcA_coverage_scgN
 
 
 
-#### Generate overall bar plot ####
+#### Plot: overall hgcA abundance ####
 overall.hgcA.plot <- all.data %>%
-  mutate(clusterName = fct_relevel(clusterName,
-                                   names(color.code.vector)[length(names(color.code.vector)):1])) %>%
   group_by(MG, siteID) %>%
   summarize(coverage = sum(coverage)) %>%
   group_by(siteID) %>%
@@ -92,7 +89,7 @@ overall.hgcA.plot <- all.data %>%
 
 
 
-#### Generate plot with 
+#### Plot: save out layout needed ####
 figure.4.base.layer <- ggarrange(RMP.hgcA,
                                  ggarrange(bc.ord.hgcA + theme(legend.position = "none"),
                                            overall.hgcA.plot,
@@ -108,10 +105,22 @@ figure.4.base.layer
 dev.off()
 
 
+#### Data wrangling: Split "Unknown" category between "Unknown" and "Other" ####
+unknown.seqs <- all.data %>%
+  filter(grepl("Unknown", classification)) %>%
+  select(seqID) %>%
+  unlist(use.names = FALSE) %>%
+  unique()
+all.data[(all.data$clusterName =="Unknown") & !(all.data$seqID %in% unknown.seqs), "clusterName"] <- "Other"
+
+
+
 #### Generate taxonomic bar plot ####
 taxonomy.hgcA.plot <- all.data %>%
   mutate(clusterName = fct_relevel(clusterName,
-                                   names(color.code.vector)[length(names(color.code.vector)):1])) %>%
+                                   c("Aminicenantes", "Chloroflexi", "Firmicutes", "Spirochaetes",
+                                     "Syntrophobacterales", "Methanogen",
+                                     "Other", "Unknown"))) %>%
   group_by(MG, siteID, clusterName) %>%
   summarize(coverage = sum(coverage)) %>%
   group_by(siteID, clusterName) %>%
