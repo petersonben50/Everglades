@@ -81,7 +81,7 @@ all.data <- coreID.data %>%
 
 
 
-#### Plot ambient sediment MeHg against the RMP values ####
+#### Plot: Ambient sediment MeHg vs. RMP values ####
 sed.MeHg.vs.RMP.core <- all.data %>%
   ggplot(aes(x = RMP_core_mean,
              y = amb_MeHg_mean,
@@ -97,8 +97,6 @@ sed.MeHg.vs.RMP.core <- all.data %>%
                      limits = c(0.001, 0.1)) +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
         legend.position = c(0.2, 0.6))
 
 sed.MeHg.vs.RMP.matrix <- all.data %>%
@@ -110,14 +108,12 @@ sed.MeHg.vs.RMP.matrix <- all.data %>%
                      name = "Site ID") +
   theme_bw() +
   xlim(c(0, 80)) +
-  ylab("Ambient MeHg (ng/L)") +
+  ylab("Ambient MeHg (ng/g)") +
   xlab("Pore water RMP") +
   scale_y_continuous(trans = 'log10',
                      limits = c(0.001, 0.1)) +
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
-        axis.text = element_text(size = 14),
-        axis.title = element_text(size = 16),
         legend.position = c(0.2, 0.6))
 # Plot them together
 ggarrange(sed.MeHg.vs.RMP.core,
@@ -132,9 +128,47 @@ saveRDS(sed.MeHg.vs.RMP.matrix,
         "results/incubations/ambient_MeHg_vs_RMP_matrix.rds")
 
 
+#### Stats: Ambient sediment MeHg vs. RMP values ####
+ambient.sed.vs.RMPpeat.model <- lm(log(amb_MeHg_mean, 10) ~ RMP_core_mean,
+                                   data = all.data)
+summary(ambient.sed.vs.RMPpeat.model)
+
+ambient.sed.vs.RMPmatrix.model <- lm(amb_MeHg_mean ~ RMP_porewater_mean,
+                                     data = all.data)
+summary(ambient.sed.vs.RMPmatrix.model)
 
 
-#### Plot ambient porewater MeHg against the RMP values ####
+
+#### Plot: Ambient sediment MeHg vs. RMPpeat with linear fit ####
+sed.MeHg.vs.RMP.core <- all.data %>%
+  ggplot(aes(x = RMP_core_mean,
+             y = amb_MeHg_mean,
+             color = siteID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
+  geom_point(size = 4) +
+  scale_color_manual(values = color.vector,
+                     name = "Site ID") +
+  theme_bw() +
+  xlim(c(0, 100)) +
+  ylab("Ambient MeHg (ng/L)") +
+  xlab("Peat core RMP") +
+  scale_y_continuous(trans = 'log10',
+                     limits = c(0.001, 0.1)) +
+  theme(axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"),
+        legend.position = c(0.2, 0.6))
+
+ggarrange(sed.MeHg.vs.RMP.core.model,
+          sed.MeHg.vs.RMP.matrix + theme(legend.position = "none"),
+          labels = c("A.", "B."),
+          ncol = 2)
+
+
+#### Plot: Ambient pore water MeHg against the RMP values ####
 PW.MeHg.vs.RMP.core <- all.data %>%
   ggplot(aes(x = RMP_core_mean,
              y = log(percent_MeHg_porewater),
