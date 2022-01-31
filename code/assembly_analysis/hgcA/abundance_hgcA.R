@@ -28,12 +28,12 @@ all.data.fused <- read.csv("dataEdited/assembly_analysis/hgcA/depth/hgcA_coverag
   filter(seqID %in% hgcA.list) 
 
 
-#### Set up color vector ####
-CB.color.vector <- readRDS("/Users/benjaminpeterson/Box/ancillary_science_stuff/colors/colorblind_friendly_colors_R/colorblind_friendly_colors.rds")
+#### Set up: color vector for microbes ####
 color.code.df <- read_xlsx("dataEdited/assembly_analysis/hgcA/phylogeny/seq_classification.xlsx",
                            sheet = "color_codes")
-color.code.vector.fused <- CB.color.vector[color.code.df$colorCode]
+color.code.vector.fused <- color.code.df$hexCode
 names(color.code.vector.fused) <- color.code.df$clusterName
+color.code.vector <- color.code.vector.fused[which(names(color.code.vector.fused) != "fused")]
 
 
 
@@ -223,6 +223,20 @@ tax.group.coverage.relative[, -1] <- sapply(names(tax.group.coverage.relative)[-
                                               unlist(tax.group.coverage.relative[, siteID] / colSums(tax.group.coverage.relative[, -1])[siteID],
                                                      use.names = FALSE)
                                             })
+
+
+#### Look for true unknowns ####
+total.hgcA.coverage <- all.data %>%
+  group_by(MG, siteID) %>% summarize(coverage = sum(coverage)) %>%
+  group_by(siteID) %>% summarize(coverage = mean(coverage))
+unknown.hgcA.coverage <- all.data %>%
+  filter(grepl("Unknown", classification)) %>%
+  group_by(MG, siteID) %>% summarize(coverage = sum(coverage)) %>%
+  group_by(siteID) %>% summarize(coverage = mean(coverage)) %>%
+  rename(unknown.coverage = coverage)
+full_join(total.hgcA.coverage,
+          unknown.hgcA.coverage) %>%
+  mutate(unknown.coverage / coverage * 100)
 
 
 
