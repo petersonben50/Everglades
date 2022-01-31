@@ -28,6 +28,12 @@ porewater.data <- read_xlsx("dataRaw/geochem/2019/December 2019 field trip_synth
   select(siteID, MeHg_porewater, HgT_porewater, percent_MeHg_porewater)
 
 
+#### Read in hgcA abundance data ####
+hgcA.depth <- readRDS("dataEdited/assembly_analysis/hgcA/hgcA_abundance_site.rds") %>%
+  group_by(siteID) %>%
+  summarise(coverage = mean(coverage))
+
+
 
 #### Calculate ambient MeHg in sediment from incubation cores ####
 amb.Hg.sediment <- inc.Hg.data %>%
@@ -52,7 +58,7 @@ amb.Hg.sediment
 
 
 
-#### Generate plot of ambient MeHg in soil ####
+#### Plot ambient MeHg in soil ####
 MeHg.soil.plot <- amb.Hg.sediment %>%
   ggplot(aes(x = coreID,
              y = SMHG_amb_mean,
@@ -72,7 +78,106 @@ MeHg.soil.plot <- amb.Hg.sediment %>%
         legend.position = "none")
 
 
-#### Generate plot of percent ambient MeHg ####
+#### Linear correlation: ambient MeHg in soil and hgcA ####
+amb.Hg.sediment.hgcA <- full_join(amb.Hg.sediment %>% rename(siteID = coreID),
+                                  hgcA.depth)
+# First check linearity
+amb.Hg.sediment.hgcA %>%
+  ggplot(aes(x = coverage,
+             y = SMHG_amb_mean,
+             colour = siteID)) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  theme_bw()
+# Actually looks pretty good.
+
+linear.model.ambHg.hgcA <- lm(SMHG_amb_mean ~ coverage,
+                              data = amb.Hg.sediment.hgcA)
+summary(linear.model.ambHg.hgcA)
+# Check residuals
+shapiro.test(linear.model.ambHg.hgcA$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model.ambHg.hgcA$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model.ambHg.hgcA$residuals)
+qqline(linear.model.ambHg.hgcA$residuals)
+# Not particularly well distributed. Let's try the log transformation
+# Although, the limited number of samples might just throw this off. 
+
+# First check linearity
+amb.Hg.sediment.hgcA %>%
+  ggplot(aes(x = log(coverage, 10),
+             y = log(SMHG_amb_mean, 10),
+             colour = siteID)) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  theme_bw()
+# Actually looks pretty good.
+
+linear.model.ambHg.hgcA <- lm(log(SMHG_amb_mean, 10) ~ log(coverage, 10),
+                              data = amb.Hg.sediment.hgcA)
+# Check residuals
+shapiro.test(linear.model.ambHg.hgcA$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model.ambHg.hgcA$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model.ambHg.hgcA$residuals)
+qqline(linear.model.ambHg.hgcA$residuals)
+# Large deviation due to a single point (2A-A).
+# Overall though, we do have a solid correlation here. 
+summary(linear.model.ambHg.hgcA)
+
+
+#### Plot linear correlation of ambient peat MeHg and hgcA ####
+
+# Calculate p-value
+f <- summary(linear.model.ambHg.hgcA)$fstatistic
+p.value <- pf(f[1],
+              f[2],f[3],
+              lower.tail = F) %>%
+  round(4)
+
+# Make the plot with log transformed data
+ambMeHg.hgcA.plot.logData <- amb.Hg.sediment.hgcA %>%
+  ggplot(aes(x = log(coverage, 10),
+             y = log(SMHG_amb_mean, 10),
+             colour = siteID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  scale_shape_manual(values = point.vector[unique(amb.Hg.sediment.hgcA$siteID)], name = "Site ID") +
+  scale_color_manual(values = color.vector[unique(amb.Hg.sediment.hgcA$siteID)], name = "Site ID") +
+  scale_fill_manual("black") +
+  labs(x = "hgcA abundance (log %)",
+       y = "Ambient MeHg in peat (ng/L)",
+       title = element_blank()) +
+  theme_bw() +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.position = c(0.18, 0.7)) +
+  geom_abline(slope = coef(linear.model.ambHg.hgcA)[[2]],
+              intercept = coef(linear.model.ambHg.hgcA)[[1]]) +
+  geom_label(x = 0.75, y = 1.0,
+             label = paste("Adjusted r2 = ", round(summary(linear.model.ambHg.hgcA)$adj.r.squared, 3), "\n",
+                           "p = ", p.value,
+                           sep = ""),
+             color = "black")
+ambMeHg.hgcA.plot.logData
+
+
+#### Plot percent ambient MeHg ####
 MeHgPercent.soil.plot <- amb.Hg.sediment %>%
   ggplot(aes(x = coreID,
              y = SMHG_amb_percent_mean,
@@ -90,6 +195,21 @@ MeHgPercent.soil.plot <- amb.Hg.sediment %>%
   theme(axis.text.x = element_text(colour="black"),
         axis.text.y = element_text(colour="black"),
         legend.position = "none")
+
+
+#### Plot ambient percent MeHg against hgcA ####
+# First check linearity
+amb.Hg.sediment.hgcA %>%
+  ggplot(aes(x = coverage,
+             y = SMHG_amb_percent_mean,
+             colour = siteID)) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  theme_bw()
+# Check linear model
+linear.model.ambHg.hgcA <- lm(SMHG_amb_percent_mean ~ coverage,
+                              data = amb.Hg.sediment.hgcA)
+summary(linear.model.ambHg.hgcA)
 
 
 #### Generate plot of HgT levels ####
@@ -173,7 +293,38 @@ rm(MeHg.porewater.plot, HgT.porewater.plot, MeHg.percent.porewater.plot)
 
 
 
-#### Production MeHg using native porewaters calculations ####
+#### Linear regression: Porewater MeHg percentage and hgcA ####
+amb.Hg.porewater.hgcA <- full_join(porewater.data,
+                                   hgcA.depth)
+
+# First check linearity
+amb.Hg.porewater.hgcA %>%
+  ggplot(aes(x = log(coverage),
+             y = log(percent_MeHg_porewater),
+             colour = siteID)) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  theme_bw()
+# Hmm, not particularly linear
+
+linear.model.ambHg.hgcA <- lm(percent_MeHg_porewater ~ coverage,
+                              data = amb.Hg.porewater.hgcA)
+summary(linear.model.ambHg.hgcA)
+# Check residuals
+shapiro.test(linear.model.ambHg.hgcA$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model.ambHg.hgcA$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model.ambHg.hgcA$residuals)
+qqline(linear.model.ambHg.hgcA$residuals)
+# Not particularly well distributed. Let's try the log transformation
+# Although, the limited number of samples might just throw this off. 
+
+
+#### Calculate: production of MeHg using native porewaters ####
 native.porewater.production <- inc.Hg.data %>%
   filter(coreID == matrixID) %>%
   group_by(coreID) %>%
@@ -181,7 +332,12 @@ native.porewater.production <- inc.Hg.data %>%
             meth_spike_per_sd = sd(SMHG_201_percent * 100),
             meth_spike_per_count = n(),
             meth_spike_per_se = meth_spike_per_sd / sqrt(meth_spike_per_count)) %>%
-  select(coreID, meth_spike_per_mean, meth_spike_per_se)
+  rename(siteID = coreID) %>%
+  select(siteID, meth_spike_per_mean, meth_spike_per_se)
+# Add in hgcA data
+native.porewater.production.hgcA <- full_join(native.porewater.production,
+                                              hgcA.depth)
+
 
 
 #### Plot MeHg production using native cores ####
@@ -293,6 +449,36 @@ MeHg.prod.vs.sediment.MeHg.percent <- MeHg.prod.and.sediment %>%
 
 #### Plot figures together ####
 (MeHg.prod.vs.porewater.MeHg.levels + MeHg.prod.vs.porewater.MeHg.percent) / (MeHg.prod.vs.sediment.MeHg.levels + MeHg.prod.vs.sediment.MeHg.percent)
+
+
+
+#### Linear regression: Native MeHg production vs. hgcA ####
+
+# First check linearity
+native.porewater.production.hgcA %>%
+  ggplot(aes(x = coverage,
+             y = meth_spike_per_mean,
+             colour = siteID)) +
+  geom_point(size = 3,
+             aes(shape = siteID)) +
+  theme_bw()
+# Hmm, not particularly linear
+
+linear.model.ambHg.hgcA <- lm(meth_spike_per_mean ~ coverage,
+                              data = native.porewater.production.hgcA)
+summary(linear.model.ambHg.hgcA)
+# Check residuals
+shapiro.test(linear.model.ambHg.hgcA$residuals)
+par(mfrow = c(1,2))
+plot(density(linear.model.ambHg.hgcA$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(linear.model.ambHg.hgcA$residuals)
+qqline(linear.model.ambHg.hgcA$residuals)
+
+
 
 
 #### Run linear regressions of all combos ####
