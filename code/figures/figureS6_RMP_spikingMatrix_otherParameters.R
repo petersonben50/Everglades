@@ -11,7 +11,7 @@ source("code/setup_PW_core_order_color_points.R")
 
 
 #### Read in data
-RMP.sulfide.log <- readRDS("results/incubations/RMP_porewater_sulfide.rds")
+RMP.sulfide.log <- readRDS("results/incubations/RMP_porewater_sulfide.rds") + theme(legend.position = "none")
 RMP.DOC <- readRDS("results/incubations/RMP_porewater_doc.rds")
 RMP.UV <- readRDS("results/incubations/RMP_porewater_uv.rds")
 
