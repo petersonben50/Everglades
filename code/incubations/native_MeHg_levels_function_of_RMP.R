@@ -140,7 +140,7 @@ summary(ambient.sed.vs.RMPmatrix.model)
 
 
 #### Plot: Ambient sediment MeHg vs. RMPpeat with linear fit ####
-sed.MeHg.vs.RMP.core <- all.data %>%
+sed.MeHg.vs.RMP.core.model <- all.data %>%
   ggplot(aes(x = RMP_core_mean,
              y = amb_MeHg_mean,
              color = siteID)) +
@@ -162,11 +162,14 @@ sed.MeHg.vs.RMP.core <- all.data %>%
         axis.text.y = element_text(colour="black"),
         legend.position = c(0.2, 0.6))
 
+pdf("results/figures/S13_ambientMeHg_vs_RMP.pdf",
+    width = 8,
+    height = 4)
 ggarrange(sed.MeHg.vs.RMP.core.model,
           sed.MeHg.vs.RMP.matrix + theme(legend.position = "none"),
           labels = c("A.", "B."),
           ncol = 2)
-
+dev.off()
 
 #### Plot: Ambient pore water MeHg against the RMP values ####
 PW.MeHg.vs.RMP.core <- all.data %>%
