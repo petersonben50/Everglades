@@ -1,4 +1,4 @@
-#### code/figures/figureS9_SRB_methanogens.R ####
+#### code/figures/figureS11_SRB_methanogens.R ####
 # Benjamin D. Peterson
 
 
@@ -11,20 +11,20 @@ library(tidyverse)
 
 #### Read in ggplots of needed graphs ####
 dsr.abund <- readRDS("results/metagenomes/assembly/SRB/dsr_abundance.rds")
-dsr.ord <- readRDS("results/metagenomes/assembly/SRB/dsrA_ordination.rds")
+# dsr.ord <- readRDS("results/metagenomes/assembly/SRB/dsrA_ordination.rds")
 mcrA.abund <- readRDS("results/metagenomes/assembly/methanogenesis/mcrA_abundance.rds")
-mcrA.ord <- readRDS("results/metagenomes/assembly/methanogenesis/mcrA_ordination.rds")
+# mcrA.ord <- readRDS("results/metagenomes/assembly/methanogenesis/mcrA_ordination.rds")
 
 
 #### Save out figure ####
-pdf("results/figures/S9_SRB_methanogens.pdf",
+pdf("results/figures/S11_SRB_methanogens.pdf",
     width = 10,
-    height = 7.5)
-ggarrange(dsr.abund, dsr.ord,
-          mcrA.abund, mcrA.ord,
+    height = 3.75)
+ggarrange(mcrA.abund,
+          dsr.abund,
           ncol = 2,
-          nrow = 2,
+          nrow = 1,
           widths = c(1, 1),
-          labels = c("A.", "B.", "C.", "D."))
+          labels = c("A.", "B."))
 dev.off()
 

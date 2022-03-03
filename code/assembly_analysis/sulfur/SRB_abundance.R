@@ -128,7 +128,7 @@ dsr.plots <- dsr.abundance %>%
   scale_fill_manual(values = dsr.color.vector,
                     name = "Gene ID") +
   theme_bw() +
-  labs(y = "Gene coverage\n(per 100X coverage of SCGs)") +
+  labs(y = "Gene abundance (%)") +
   theme(axis.text.x = element_text(colour="black"),
         axis.title.x = element_blank(),
         axis.text.y = element_text(colour="black"),

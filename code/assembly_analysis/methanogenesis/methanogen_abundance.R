@@ -77,9 +77,9 @@ mcrA.plot <- depth.tax %>%
   geom_bar(stat = "identity") +
   scale_fill_manual(values = color.vector.mcrA,
                     name = "Taxonomic group") +
-  theme_classic() +
+  theme_bw() +
   scale_y_continuous(expand = c(0, 0)) +
-  labs(y = "Gene coverage\n(per 100X coverage of SCGs)") +
+  labs(y = "mcrA abundance (%)") +
   theme(axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank(),
