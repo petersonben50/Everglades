@@ -213,8 +213,9 @@ RMP.SUVA.plot <- all.data %>%
   ggplot(aes(x = SUVA,
              y = RMP_porewater,
              colour = matrixID)) +
-  geom_point(size = 3,
-             aes(shape = matrixID)) +
+  geom_jitter(size = 3,
+             aes(shape = matrixID),
+             width = 0.012) +
   geom_smooth(method = lm ,
               color = "black",
               fill = "grey75",
