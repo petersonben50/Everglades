@@ -1,4 +1,4 @@
-#### code/figures/figureS5_RMP_spikingMatrix_otherParameters.R ####
+#### code/figures/figureS9_RMP_spikingMatrix_otherParameters.R ####
 # Benjamin D. Peterson
 
 
@@ -12,7 +12,8 @@ source("code/setup_PW_core_order_color_points.R")
 
 #### Read in data
 RMP.sulfide.log <- readRDS("results/incubations/RMP_porewater_sulfide.rds") + theme(legend.position = "none")
-RMP.DOC <- readRDS("results/incubations/RMP_porewater_doc.rds")
+RMP.sulfate.log <- readRDS("results/incubations/RMP_porewater_sulfate.rds") + theme(legend.position = "none")
+RMP.DOC <- readRDS("results/incubations/RMP_porewater_doc.rds") + theme(legend.position = "none")
 RMP.UV <- readRDS("results/incubations/RMP_porewater_uv.rds")
 
 
@@ -20,12 +21,15 @@ RMP.UV <- readRDS("results/incubations/RMP_porewater_uv.rds")
 figures <- ggarrange(RMP.DOC,
                      RMP.UV,
                      RMP.sulfide.log,
-                     ncol = 1)
+                     RMP.sulfate.log,
+                     ncol = 2,
+                     nrow = 2,
+                     labels = c("a", "b", "c", "d"))
 
 
 #### Save out figure ####
-pdf("results/figures/S6_RMP_spikingMatrix_otherParameters.pdf",
-    height = 11,
-    width = 5)
+pdf("results/figures/S9_RMP_spikingMatrix_otherParameters.pdf",
+    height = 6,
+    width = 7.2)
 figures
 dev.off()

@@ -160,6 +160,106 @@ RMP.sulfide.plot.with.regression
 
 
 
+#### Plot: RMPmatrix vs. sulfate ####
+# sulfate first
+RMP.sulfate <- all.data %>%
+  ggplot(aes(x = sulfate_mg.L,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point() +
+  scale_color_manual(name = "Spiking matrix",
+                     values = color.vector) +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "Sulfate (µg/L)") +
+  theme(axis.text.y = element_text(colour="black"),
+        axis.text.x = element_text(colour="black"),
+        legend.position = c(0.6, 0.35))
+RMP.sulfate
+# Sulfate spans too many orders of magnitude to accurately visualize this.
+# Let's visualize this on a log scale
+# To do that, let's convert the 0s to 1
+all.data$sulfate_mg.L[which(all.data$sulfate_mg.L == 0)] <- 0.25
+RMP.sulfate.log <- all.data %>%
+  ggplot(aes(x = sulfate_mg.L,
+             y = RMP_porewater,
+             group = matrixID,
+             color = matrixID)) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_x_continuous(limits = c(-1, 30),
+                     trans = 'log10') +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
+  theme_bw() +
+  labs(y = "Porewater RMP",
+       x = "Sulfate (µg/L)") +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        legend.position = c(0.5, 0.45))
+RMP.sulfate.log
+
+
+#### Stats: linear model of RMP porewater vs. sulfate ####
+PW.linear.model <- lm((RMP_porewater) ~ log(sulfate_mg.L, 10),
+                      data = all.data)
+# Check residuals
+par(mfrow = c(1,2))
+plot(density(PW.linear.model$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot
+qqnorm(PW.linear.model$residuals)
+qqline(PW.linear.model$residuals)
+# Not even close to normal
+
+shapiro.test(PW.linear.model$residuals)
+# Not normally distributed, statistically speaking!
+
+summary(PW.linear.model)
+
+
+
+
+#### Plot: RMPmatrix vs sulfate with linear model ####
+rSquared <- round(summary(PW.linear.model)$adj.r.squared, 2)
+p.value <- with(summary(PW.linear.model), pf(fstatistic[1],fstatistic[2],fstatistic[3],lower.tail=F))
+RMP.sulfate.plot.with.regression <- all.data %>%
+  ggplot(aes(x = sulfate_mg.L,
+             y = RMP_porewater,
+             color = matrixID)) +
+  geom_smooth(method = lm ,
+              color = "black",
+              fill = "grey75",
+              se = TRUE,
+              level = 0.98) +
+  geom_point(size = 3,
+             aes(shape = matrixID)) +
+  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
+  scale_fill_manual("black") +
+  labs(x = "Sulfate (mg/L)",
+       y = "Porewater RMP (%)",
+       title = element_blank()) +
+  theme_bw() +
+  scale_x_continuous(limits = c(-1, 30),
+                     trans = 'log10') +
+  theme(axis.text.y = element_text(color = "black"),
+        axis.text.x = element_text(color = "black"),
+        legend.position = c(0.7, 0.6)) +
+  geom_abline(slope = coef(PW.linear.model)[[2]],
+              intercept = coef(PW.linear.model)[[1]]) +
+  geom_label(x = 1.5, y = 82,
+             label = paste("Adjusted r2 = ", round(summary(PW.linear.model)$adj.r.squared, 3), "\n",
+                           "p = ", round(p.value, 3),
+                           sep = ""),
+             color = "black")
+RMP.sulfate.plot.with.regression
+
+
+
 #### Plot: RMPmatrix vs. SUVA ####
 all.data %>%
   filter(!is.na(SUVA)) %>%
@@ -429,6 +529,8 @@ RMP.UV.plot
 #### Save out the ones with no correlation ####
 saveRDS(object = RMP.sulfide.plot.with.regression,
         file = "results/incubations/RMP_porewater_sulfide.rds")
+saveRDS(object = RMP.sulfate.plot.with.regression,
+        file = "results/incubations/RMP_porewater_sulfate.rds")
 saveRDS(object = RMP.DOC.plot,
         file = "results/incubations/RMP_porewater_doc.rds")
 saveRDS(object = RMP.UV.plot,
