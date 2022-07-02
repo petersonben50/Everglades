@@ -196,15 +196,41 @@ MeHgPercent.plot <- inc.Hg.data %>%
 MeHg.plot + HgT.plot + MeHgPercent.plot
 
 
+#### Plot: Amended Hg isotope concentrations by site ####
+
+# Concentration of 201HgT plot
+iso.HgT.plot <- inc.Hg.data %>%
+  ggplot(aes(x = coreID,
+             y = STHG_201,
+             col = matrixID)) +
+  geom_point(position = position_dodge(width=0.3)) +
+  scale_color_manual(values = color.vector) +
+  ylab(bquote(""^201~HgT ~~(ng/g))) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ylim(c(0, 70))
+# Concentration of Me201Hg plot
+iso.MeHg.plot <- inc.Hg.data %>%
+  ggplot(aes(x = coreID,
+             y = SMHG_201,
+             col = matrixID)) +
+  geom_jitter(width = 0.1) +
+  scale_color_manual(values = color.vector) +
+  ylab(bquote(~Me^201~Hg ~~(ng/g))) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  ylim(c(0, 3.8))
+
 
 #### Saved plot: All measured ambient constituents ####
-pdf("results/incubations/ambient_measurments.pdf",
-    height = 7.2,
+pdf("results/incubations/ambient_measurements.pdf",
+    height = 9,
     width = 7.2)
 ggarrange(dryWt.plot, LOI.plot,
           HgT.plot, MeHg.plot,
-          nrow = 2, ncol = 2,
-          labels = c("A.", "B.", "C.", "D."))
+          iso.HgT.plot, iso.MeHg.plot,
+          nrow = 3, ncol = 2,
+          labels = c("a", "b", "c", "d", "e", "f"))
 dev.off()
 
 
@@ -232,6 +258,17 @@ inc.Hg.data %>%
             min_MEHG = min(SMHG_amb),
             range_MEHG = max_MEHG - min_MEHG)
 
+
+
+#### Stats: Amended 201HgT ####
+inc.Hg.data %>%
+  group_by(coreID) %>%
+  summarise(HGT_mean = mean(STHG_201),
+            HGT_sd = sd(STHG_201),
+            HGT_rsd = HGT_sd / HGT_mean * 100,
+            max_HGT = max(STHG_201),
+            min_HGT = min(STHG_201),
+            range_HGT = max_HGT - min_HGT)
 
 
 
