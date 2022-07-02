@@ -1,4 +1,4 @@
-#### code/figures/figure4_RMP_microbes_hgcA.R ####
+#### code/figures/figure3_RMP_microbes_hgcA.R ####
 # Benjamin D. Peterson
 
 
@@ -90,7 +90,7 @@ overall.hgcA.plot <- all.data %>%
 
 
 #### Plot: save out layout needed ####
-figure.4.base.layer <- ggarrange(RMP.hgcA,
+figure.3.base.layer <- ggarrange(RMP.hgcA,
                                  ggarrange(bc.ord.hgcA + theme(legend.position = "none"),
                                            overall.hgcA.plot,
                                            ncol = 1,
@@ -98,10 +98,10 @@ figure.4.base.layer <- ggarrange(RMP.hgcA,
                                  ncol = 2,
                                  widths = c(1.5,1),
                                  labels = c("A.", ""))
-pdf("results/figures/4/4_base_layer.pdf",
+pdf("results/figures/3/3_base_layer.pdf",
     width = 12,
     height = 7.5)
-figure.4.base.layer
+figure.3.base.layer
 dev.off()
 
 
@@ -140,7 +140,7 @@ taxonomy.hgcA.plot <- all.data %>%
         axis.title.y = element_text(size = 16),
         axis.title.x = element_blank(),
         legend.position = c(0.2, 0.8))
-pdf("results/figures/4/4_taxonomy_layer.pdf",
+pdf("results/figures/3/3_taxonomy_layer.pdf",
     width = 4.8,
     height = 3.75)
 taxonomy.hgcA.plot
