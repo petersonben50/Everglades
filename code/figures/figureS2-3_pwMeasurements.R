@@ -97,26 +97,26 @@ ORP.plot <- geochem.plot.maker(dataset = all.data,
 DO.plot <- geochem.plot.maker(dataset = all.data,
                               constituent.of.interest = "DO",
                               y.label.to.use = "DO (mg/L)",
-                              ylim.to.use = c(0, 0.5))
+                              ylim.to.use = c(0, 1))
+
+pH.plot <- geochem.plot.maker(dataset = all.data,
+                              constituent.of.interest = "pH",
+                              y.label.to.use = "pH",
+                              ylim.to.use = c(0,10))
 
 cond.plot <- geochem.plot.maker(dataset = all.data,
                                 constituent.of.interest = "conductivity",
                                 y.label.to.use = "Conductivity (µS/cm)",
                                 ylim.to.use = c(0, 1200))
 
-pH.plot <- geochem.plot.maker(dataset = all.data,
-                              constituent.of.interest = "pH",
-                              y.label.to.use = "pH",
-                              ylim.to.use = c(0, 10))
-
 
 #### Arrange plots ####
 pdf("results/figures/flowthrough_plots.pdf",
     height = 5,
     width = 7)
-ggarrange(cond.plot, DO.plot,
-          ORP.plot, pH.plot,
-          labels = "AUTO",
+ggarrange(cond.plot, pH.plot,
+          DO.plot, ORP.plot,
+          labels = c("a", "b", "c", "d"),
           nrow = 2,
           ncol = 2)
 dev.off()
