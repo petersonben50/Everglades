@@ -161,15 +161,16 @@ RMP.hgcA.plot <- all.data %>%
               fill = "grey75",
               se = TRUE,
               level = 0.98) +
-  geom_point(size = 3,
-             aes(shape = siteID)) +
+  geom_jitter(size = 3,
+              aes(shape = siteID),
+              width = 0.01) +
   scale_shape_manual(values = point.vector[unique(all.data$siteID)], name = "Site ID") +
   scale_color_manual(values = color.vector[unique(all.data$siteID)], name = "Site ID") +
   scale_fill_manual("black") +
   scale_x_continuous(trans = 'log10',
-                     limits = c(1, 15)) +
+                     limits = c(1, 16)) +
   scale_y_continuous(trans = 'log10',
-                     limits = c(1, 100)) +
+                     limits = c(1, 101)) +
   labs(x = "hgcA abundance (%)",
        y = "Sediment cores RMP (%)",
        title = element_blank()) +
