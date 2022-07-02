@@ -224,39 +224,39 @@ summary(PW.linear.model)
 
 
 #### Plot: RMPmatrix vs sulfate with linear model ####
-rSquared <- round(summary(PW.linear.model)$adj.r.squared, 2)
-p.value <- with(summary(PW.linear.model), pf(fstatistic[1],fstatistic[2],fstatistic[3],lower.tail=F))
-RMP.sulfate.plot.with.regression <- all.data %>%
-  ggplot(aes(x = sulfate_mg.L,
-             y = RMP_porewater,
-             color = matrixID)) +
-  geom_smooth(method = lm ,
-              color = "black",
-              fill = "grey75",
-              se = TRUE,
-              level = 0.98) +
-  geom_point(size = 3,
-             aes(shape = matrixID)) +
-  scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
-  scale_color_manual(values = color.vector, name = "Porewater\nsource") +
-  scale_fill_manual("black") +
-  labs(x = "Sulfate (mg/L)",
-       y = "Porewater RMP (%)",
-       title = element_blank()) +
-  theme_bw() +
-  scale_x_continuous(limits = c(-1, 30),
-                     trans = 'log10') +
-  theme(axis.text.y = element_text(color = "black"),
-        axis.text.x = element_text(color = "black"),
-        legend.position = c(0.7, 0.6)) +
-  geom_abline(slope = coef(PW.linear.model)[[2]],
-              intercept = coef(PW.linear.model)[[1]]) +
-  geom_label(x = 1.5, y = 82,
-             label = paste("Adjusted r2 = ", round(summary(PW.linear.model)$adj.r.squared, 3), "\n",
-                           "p = ", round(p.value, 3),
-                           sep = ""),
-             color = "black")
-RMP.sulfate.plot.with.regression
+# rSquared <- round(summary(PW.linear.model)$adj.r.squared, 2)
+# p.value <- with(summary(PW.linear.model), pf(fstatistic[1],fstatistic[2],fstatistic[3],lower.tail=F))
+# RMP.sulfate.plot.with.regression <- all.data %>%
+#   ggplot(aes(x = sulfate_mg.L,
+#              y = RMP_porewater,
+#              color = matrixID)) +
+#   geom_smooth(method = lm ,
+#               color = "black",
+#               fill = "grey75",
+#               se = TRUE,
+#               level = 0.98) +
+#   geom_point(size = 3,
+#              aes(shape = matrixID)) +
+#   scale_shape_manual(values = point.vector, name = "Porewater\nsource") +
+#   scale_color_manual(values = color.vector, name = "Porewater\nsource") +
+#   scale_fill_manual("black") +
+#   labs(x = "Sulfate (mg/L)",
+#        y = "Porewater RMP (%)",
+#        title = element_blank()) +
+#   theme_bw() +
+#   scale_x_continuous(limits = c(-1, 30),
+#                      trans = 'log10') +
+#   theme(axis.text.y = element_text(color = "black"),
+#         axis.text.x = element_text(color = "black"),
+#         legend.position = c(0.7, 0.6)) +
+#   geom_abline(slope = coef(PW.linear.model)[[2]],
+#               intercept = coef(PW.linear.model)[[1]]) +
+#   geom_label(x = 1.5, y = 82,
+#              label = paste("Adjusted r2 = ", round(summary(PW.linear.model)$adj.r.squared, 3), "\n",
+#                            "p = ", round(p.value, 3),
+#                            sep = ""),
+#              color = "black")
+# RMP.sulfate.plot.with.regression
 
 
 
@@ -529,7 +529,7 @@ RMP.UV.plot
 #### Save out the ones with no correlation ####
 saveRDS(object = RMP.sulfide.plot.with.regression,
         file = "results/incubations/RMP_porewater_sulfide.rds")
-saveRDS(object = RMP.sulfate.plot.with.regression,
+saveRDS(object = RMP.sulfate.log,
         file = "results/incubations/RMP_porewater_sulfate.rds")
 saveRDS(object = RMP.DOC.plot,
         file = "results/incubations/RMP_porewater_doc.rds")
