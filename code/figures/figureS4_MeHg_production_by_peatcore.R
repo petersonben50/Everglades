@@ -24,6 +24,7 @@ inc.Hg.data.order <- inc.Hg.data %>%
   select(coreID) %>%
   mutate(coreID = as.character(coreID)) %>%
   unlist()
+inc.Hg.data.order <- inc.Hg.data.order[c(1:2, 4, 3, 5:6)]
 inc.Hg.data <- inc.Hg.data %>%
   mutate(coreID = fct_relevel(coreID,
                                 inc.Hg.data.order))

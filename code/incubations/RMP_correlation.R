@@ -10,7 +10,6 @@ setwd("~/Documents/research/Everglades/")
 library(ggpubr)
 library(lme4)
 library(readxl)
-library(scatterplot3d)
 library(tidyverse)
 source("code/setup_PW_core_order_color_points.R")
 

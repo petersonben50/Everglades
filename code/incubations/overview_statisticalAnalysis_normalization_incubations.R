@@ -9,6 +9,8 @@
 #### Get set up #####
 rm(list = ls())
 setwd("~/Documents/research/Everglades/")
+library(AICcmodavg)
+library(ggpubr)
 library(lme4)
 library(readxl)
 library(tidyverse)
@@ -79,18 +81,6 @@ inc.Hg.data %>%
   theme(axis.text.y = element_text(colour="black"))
 
 
-#### Test for normality ####
-# Normality of overall data set
-shapiro.test(inc.Hg.data$SMHG_201_percent)
-hist(inc.Hg.data$SMHG_201_percent,
-     breaks = 20)
-# Not even close to normal.
-
-# Log transformed data
-shapiro.test(log(inc.Hg.data$SMHG_201_percent, 10))
-hist(log(inc.Hg.data$SMHG_201_percent, 10),
-     breaks = 20)
-# Still not close.
 
 
 #### Check validity of ANOVA as analytical tool ####
@@ -98,7 +88,7 @@ hist(log(inc.Hg.data$SMHG_201_percent, 10),
 # Let's see if the residuals of an ANOVA are normally
 # distributed, since that seems to be the main issue.
 
-# Non-transformed data
+#### Non-transformed data ####
 twoWayAnova_inc <- aov(SMHG_201_percent ~ coreID * matrixID,
                        data = inc.Hg.data)
 shapiro.test(twoWayAnova_inc$residuals)
@@ -109,7 +99,7 @@ qqnorm(twoWayAnova_inc$residuals)
 rm(twoWayAnova_inc)
 
 
-# Log-transformed data
+#### Log-transformed data ####
 twoWayAnova_inc_log <- aov(log(SMHG_201_percent, 10) ~ coreID * matrixID,
                            data = inc.Hg.data)
 hist(twoWayAnova_inc_log$residuals,
@@ -119,16 +109,120 @@ plot(density(twoWayAnova_inc_log$residuals),
      main="Density plot of residuals",
      ylab="Density",
      xlab="Residuals")
-shapiro.test(twoWayAnova_inc_log$residuals)
-# QQ-normal plot
+# QQ-normal plot, test for normality of residuals
 qqnorm(twoWayAnova_inc_log$residuals)
 qqline(twoWayAnova_inc_log$residuals)
 
+par(mfrow=c(2,2))
+plot(twoWayAnova_inc_log)
+# Heavy tailed.
 
 
-#### Storming ahead with two-way ANOVA ####
-summary(twoWayAnova_inc_log)
+#### Folded-root transformation ####
+twoWayAnova_inc_fold <- aov((sqrt(SMHG_201_percent) - sqrt(100-SMHG_201_percent)) ~ coreID * matrixID,
+                           data = inc.Hg.data)
+hist(twoWayAnova_inc_fold$residuals,
+     breaks = 20)
+par(mfrow = c(2,2))
+plot(density(twoWayAnova_inc_fold$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot, test for normality of residuals
+qqnorm(twoWayAnova_inc_fold$residuals)
+qqline(twoWayAnova_inc_fold$residuals)
+par(mfrow=c(2,2))
+plot(twoWayAnova_inc_fold)
+# Still pretty heavy tailed.
 
+
+#### Convert to rankings ####
+inc.Hg.data.ranked <- inc.Hg.data %>%
+  arrange(desc(SMHG_201_percent)) %>%
+  mutate(rank = 1:length(SMHG_201_percent))
+
+ggarrange(inc.Hg.data.ranked %>%
+            ggplot(aes(y = rank,
+                       x = coreID)) +
+            geom_point() + theme_bw(),
+          inc.Hg.data.ranked %>%
+            ggplot(aes(y = rank,
+                       x = matrixID)) +
+            geom_point() + theme_bw())
+
+twoWayAnova_inc_rank <- aov(rank ~ coreID * matrixID,
+                            data = inc.Hg.data.ranked)
+hist(twoWayAnova_inc_rank$residuals,
+     breaks = 20)
+par(mfrow = c(2,2))
+plot(density(twoWayAnova_inc_rank$residuals),
+     main="Density plot of residuals",
+     ylab="Density",
+     xlab="Residuals")
+# QQ-normal plot, test for normality of residuals
+qqnorm(twoWayAnova_inc_rank$residuals)
+qqline(twoWayAnova_inc_rank$residuals)
+
+# Still pretty heavy tailed.
+# Okay, no ANOVA. Skip to permutation test.
+
+
+#### ANOVA with permutation tests ####
+source("code/incubations/USP.r")
+source("code/incubations/synchro_summary.R")
+x <- inc.Hg.data %>%
+  select(coreID, matrixID) %>%
+  mutate(coreID = as.character(coreID),
+         matrixID = as.character(matrixID)) %>%
+  as.data.frame()
+y <- inc.Hg.data %>%
+  mutate(SMHG_201_percent_log = log(SMHG_201_percent, 10)) %>%
+  select(SMHG_201_percent_log) %>%
+  unlist()
+#t <- USP(y, x, C = 1000000)
+# saveRDS(object = t,
+#         file = "dataEdited/incubations/synchronized_permutation_test_results.rds")
+# Took a long time to run 1 million permutations, so saved out the R object
+# for easy viewing later.
+t <- readRDS("dataEdited/incubations/synchronized_permutation_test_results.rds")
+synchro.summary(t)
+
+
+
+#### Generate interaction plot ####
+means.of.data <- inc.Hg.data %>%
+  mutate(SMHG_201_percent_log = log(SMHG_201_percent, 10)) %>%
+  group_by(coreID, matrixID) %>%
+  summarise(SMHG_201_percent_log_mean = mean(SMHG_201_percent_log)) %>%
+  select(coreID, matrixID, SMHG_201_percent_log_mean)
+  
+interaction.plot <- inc.Hg.data %>%
+  mutate(SMHG_201_percent_log = log(SMHG_201_percent, 10)) %>%
+  left_join(means.of.data) %>%
+  ggplot(aes(x = coreID,
+             width = 0.8,
+             group = matrixID,
+             col = matrixID)) +
+  geom_point(aes(y = SMHG_201_percent_log)) +
+  geom_line(aes(y = SMHG_201_percent_log_mean)) +
+  scale_color_manual(values = color.vector) +
+  theme_bw() +
+  labs(y = "Methylated spike (%)") +
+  theme(axis.text.y = element_text(colour="black"))
+
+
+
+#### Use AIC to test for interaction ####
+Cand.mod <- list()
+Cand.mod[["without_interaction"]] <- lm(log(SMHG_201_percent, 10) ~ coreID + matrixID,
+                                        data = inc.Hg.data)
+Cand.mod[["with_interaction"]] <- lm(log(SMHG_201_percent, 10) ~ coreID * matrixID,
+                                     data = inc.Hg.data)
+Cand.mod[["coreID"]] <- lm(log(SMHG_201_percent, 10) ~ coreID,
+                                     data = inc.Hg.data)
+Cand.mod[["matrixID"]] <- lm(log(SMHG_201_percent, 10) ~ matrixID,
+                           data = inc.Hg.data)
+aictab(cand.set = Cand.mod,modnames = names(Cand.mod))
 
 
 #### Plot MeHg production across cores on same axes, linked by porewater matrix ####
